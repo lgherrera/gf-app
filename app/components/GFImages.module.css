@@ -1,0 +1,34 @@
+/* app/components/GFImages.module.css */
+
+.container {
+    width: 100%;
+    padding: 0 16px;
+    margin: 0 auto;
+    max-width: 1200px;
+  }
+  
+  .imageGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    width: 100%;
+  }
+  
+  .imageWrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    overflow: hidden;
+    border-radius: 8px;
+    background-color: #1a1a1a;
+  }
+  
+  .image {
+    object-fit: cover;
+  }
+  
+  /* Optional: Add hover effect */
+  .imageWrapper:hover .image {
+    transform: scale(1.02);
+    transition: transform 0.3s ease;
+  }

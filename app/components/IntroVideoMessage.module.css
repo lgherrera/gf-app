@@ -1,0 +1,112 @@
+/* app/components/IntroVideoMessage.module.css */
+
+.messageContainer {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    padding: 0;
+  }
+  
+  .videoWrapper {
+    width: 85%;
+    max-width: 350px;
+    position: relative;
+    background: transparent;
+    aspect-ratio: 3 / 4;
+    overflow: visible;
+    margin-top: 10px;
+  }
+  
+  .video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    object-fit: cover;
+    background: transparent;
+    display: block;
+  }
+  
+  .posterOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+  
+  .posterImage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0;
+  }
+  
+  .playButton {
+    position: relative;
+    z-index: 3;
+    background-color: rgba(255, 255, 255, 0);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(0px);
+    transition: all 0.3s ease;
+  }
+  
+  .playButton:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: scale(1.1);
+  }
+  
+  .playButton svg {
+    margin-left: 4px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  }
+  
+  .closeButton {
+    position: absolute;
+    top: -18px;
+    right: -18px;
+    z-index: 4;
+    background-color: rgba(80, 80, 80, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #d1d1d1;
+    backdrop-filter: blur(10px);
+    transition: all 0.2s ease;
+  }
+  
+  .closeButton:hover {
+    background-color: rgba(100, 100, 100, 0.9);
+    transform: scale(1.1);
+  }
+  
+  .closeButton svg {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  }
+  
+  /* Remove default video overlay play button */
+  .video::-webkit-media-controls-overlay-play-button {
+    display: none;
+  }

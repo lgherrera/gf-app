@@ -1,0 +1,27 @@
+/* app/page.module.css */
+
+.page {
+    min-height: 100vh;
+    background-color: #000;
+  }
+  
+  .main {
+    padding: 1.5rem;
+  }
+  
+  .cardsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  
+  .emptyState {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    color: #71717a;
+    text-align: center;
+  }
