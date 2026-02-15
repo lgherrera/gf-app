@@ -21,11 +21,14 @@ export async function POST(req: Request) {
       );
     }
 
-    // Fetch girlfriend data from Supabase
+    // Fetch girlfriend data from Supabase with content filter
+    const CONTENT_MODE = process.env.NEXT_PUBLIC_CONTENT_MODE as string;
+
     const { data: girlfriend, error: girlfriendError } = await supabase
       .from('girlfriends')
       .select('*')
       .eq('id', girlfriendId)
+      .eq('content_rating', CONTENT_MODE)
       .single();
 
     if (girlfriendError || !girlfriend) {
