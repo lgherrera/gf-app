@@ -6,12 +6,21 @@ import GFCard from '@/app/components/GFCard';
 import GFFooter from '@/app/components/GFFooter';
 import styles from './page.module.css';
 
+interface Girlfriend {
+  id: string;
+  slug: string;
+  name: string;
+  age: number;
+  description: string;
+  image_url: string;
+}
+
 export default async function GirlfriendPage() {
   const { data: girlfriends, error } = await withContentFilter(
     supabase
       .from('girlfriends')
       .select('id, slug, name, age, description, image_url')
-  ).order('created_at', { ascending: false });
+  ).order('created_at', { ascending: false }) as { data: Girlfriend[] | null; error: any };
 
   if (error) {
     console.error('Error fetching girlfriends:', error);
