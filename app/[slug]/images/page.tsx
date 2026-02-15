@@ -1,5 +1,6 @@
 // app/[slug]/images/page.tsx
 import { supabase } from '@/lib/supabase';
+import { withContentFilter } from '@/lib/girlfriends';
 import { notFound } from 'next/navigation';
 import ImagesClient from './ImagesClient';
 
@@ -18,11 +19,12 @@ interface Image {
 }
 
 async function getGirlfriend(slug: string) {
-  const { data, error } = await supabase
-    .from('girlfriends')
-    .select('id, name, slug, avatar')
-    .eq('slug', slug)
-    .single();
+  const { data, error } = await withContentFilter(
+    supabase
+      .from('girlfriends')
+      .select('id, name, slug, avatar')
+      .eq('slug', slug)
+  ).single();
 
   if (error) {
     console.error('Error fetching girlfriend:', error.message);

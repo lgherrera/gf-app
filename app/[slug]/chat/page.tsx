@@ -1,5 +1,6 @@
 // app/[slug]/chat/page.tsx
 import { supabase } from '@/lib/supabase';
+import { withContentFilter } from '@/lib/girlfriends';
 import { notFound } from 'next/navigation';
 import ChatInterface from '@/app/components/ChatInterface';
 
@@ -10,11 +11,12 @@ interface ChatPageProps {
 }
 
 async function getGirlfriend(slug: string) {
-  const { data, error } = await supabase
-    .from('girlfriends')
-    .select('id, name, slug, age, description, image_url, avatar, hello_url, hello_poster_url, voice_provider, voice_model, voice_id')
-    .eq('slug', slug)
-    .single();
+  const { data, error } = await withContentFilter(
+    supabase
+      .from('girlfriends')
+      .select('id, name, slug, age, description, image_url, avatar, hello_url, hello_poster_url, voice_provider, voice_model, voice_id')
+      .eq('slug', slug)
+  ).single();
 
   if (error) {
     console.error('Error fetching girlfriend:', error.message);
