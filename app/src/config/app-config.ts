@@ -19,7 +19,7 @@ export const brandConfig: Record<AppVariant, {
   nsfw: {
     name: 'AI Girlfriends',
     primaryColor: '#e60049',
-    logo: '/logos/gf-logo.jpg',
+    logo: '/gf-logo.jpg',
     tagline: 'Your AI Companion',
     footer: {
       companyName: 'GirlfriendAI',
@@ -30,7 +30,7 @@ export const brandConfig: Record<AppVariant, {
   sfw: {
     name: 'AI Companions',
     primaryColor: '#348cd4',
-    logo: '/logos/friends-logo.jpg',
+    logo: '/friends-logo.jpg',
     tagline: 'Your AI Companion',
     footer: {
       companyName: 'CharlareAI',
