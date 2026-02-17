@@ -1,0 +1,8 @@
+/* src/styles/theme.css */
+:root {
+    --color-primary: #e60049;
+  }
+  
+  [data-variant='sfw'] {
+    --color-primary: #348cd4;
+  }
