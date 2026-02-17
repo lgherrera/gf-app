@@ -15,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-variant={APP_VARIANT}>
+    <html lang="en" className={APP_VARIANT}>
       <body>
         {children}
       </body>

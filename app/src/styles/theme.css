@@ -1,8 +1,16 @@
-/* src/styles/theme.css */
+/* app/src/styles/theme.css */
 :root {
-    --color-primary: #e60049;
-  }
-  
-  [data-variant='sfw'] {
-    --color-primary: #348cd4;
-  }
+  --color-primary: #e60049;
+  --color-primary-30: rgba(227, 0, 71, 0.3);
+  --color-primary-50: rgba(227, 0, 71, 0.5);
+  --color-primary-15: rgba(227, 0, 71, 0.15);
+  --color-primary-25: rgba(227, 0, 71, 0.25);
+}
+
+.sfw {
+  --color-primary: #348cd4;
+  --color-primary-30: rgba(59, 130, 246, 0.3);
+  --color-primary-50: rgba(59, 130, 246, 0.5);
+  --color-primary-15: rgba(59, 130, 246, 0.15);
+  --color-primary-25: rgba(59, 130, 246, 0.25);
+}
