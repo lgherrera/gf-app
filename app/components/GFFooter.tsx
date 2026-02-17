@@ -1,15 +1,15 @@
 // app/components/GFFooter.tsx
 import styles from './GFFooter.module.css';
+import { currentBrand } from '@/app/src/config/app-config';
 
 export default function GFFooter() {
   return (
     <footer className={styles.footer}>
       <div className={styles.footerContent}>
         <div className={styles.logoSection}>
-          {/* Updated Logo Path and Alt Text */}
           <img 
-            src="/gf_logo.jpg" 
-            alt="GIRLFRIEND Logo" 
+            src={currentBrand.logo} 
+            alt={`${currentBrand.name} Logo`} 
             className={styles.logo}
           />
         </div>
@@ -19,12 +19,14 @@ export default function GFFooter() {
             Terminos y condiciones
           </p>
           
-          <p className={styles.compliance}>
-            18 USC 257 Record Keeping Requirements Compliant
-          </p>
+          {currentBrand.footer.compliance && (
+            <p className={styles.compliance}>
+              {currentBrand.footer.compliance}
+            </p>
+          )}
           
           <p className={styles.copyright}>
-            Copyright SexoTV / Todos los Derechos Reservados / 1300 South Miami Ave, FL, 33031, USA
+            {currentBrand.footer.copyright}
           </p>
         </div>
       </div>

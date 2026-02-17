@@ -5,6 +5,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Sidebar from './Sidebar';
 import styles from './GFHeader.module.css';
+import { currentBrand } from '@/app/src/config/app-config';
 
 export default function GFHeader() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -31,8 +32,8 @@ export default function GFHeader() {
         <div className={styles.logoContainer}>
           <Link href="/gf">
             <img 
-              src="/gf_logo.jpg" 
-              alt="AI Girlfriend Logo" 
+              src={currentBrand.logo} 
+              alt={`${currentBrand.name} Logo`} 
               className={styles.logo}
             />
           </Link>
