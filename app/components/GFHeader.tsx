@@ -14,32 +14,7 @@ export default function GFHeader() {
     <>
       <header className={styles.header}>
         
-        {/* Left: Back Button */}
-        <Link href="/" className={styles.iconButton}>
-          <svg 
-            width="24" 
-            height="24" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2"
-          >
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
-          </svg>
-        </Link>
-
-        {/* Middle: Logo */}
-        <div className={styles.logoContainer}>
-          <Link href="/gf">
-            <img 
-              src={currentBrand.logo} 
-              alt={`${currentBrand.name} Logo`} 
-              className={styles.logo}
-            />
-          </Link>
-        </div>
-
-        {/* Right: Hamburger Menu */}
+        {/* Left: Hamburger Menu */}
         <button 
           onClick={() => setIsSidebarOpen(true)}
           className={styles.iconButton}
@@ -58,6 +33,30 @@ export default function GFHeader() {
             <line x1="3" y1="18" x2="21" y2="18"/>
           </svg>
         </button>
+
+        {/* Middle: Logo */}
+        <div className={styles.logoContainer}>
+          <Link href="/gf">
+            <img 
+              src={currentBrand.logo} 
+              alt={`${currentBrand.name} Logo`} 
+              className={styles.logo}
+            />
+          </Link>
+        </div>
+
+        {/* Right: Plus Button */}
+        <Link href="/" className={styles.iconButton}>
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            viewBox="0 0 24 24" 
+            fill="currentColor" 
+            width="24" 
+            height="24"
+          >
+            <path fillRule="evenodd" d="M12 3.75a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75H4.5a.75.75 0 0 1 0-1.5h6.75V4.5a.75.75 0 0 1 .75-.75Z" clipRule="evenodd" />
+          </svg>
+        </Link>
         
       </header>
 
