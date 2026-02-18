@@ -1,0 +1,239 @@
+/* app/create/create.module.css */
+
+/* ── page shell ──────────────────────────────────── */
+.page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+    max-width: 500px;
+    margin: 0 auto;
+    background-color: #0a0a0a;
+    color: #fff;
+  }
+  
+  /* ── header ──────────────────────────────────────── */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    padding: 0 16px;
+    position: sticky;
+    top: 0;
+    background-color: #0a0a0a;
+    z-index: 10;
+  }
+  
+  .backButton {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .headerTitle {
+    font-size: 16px;
+    font-weight: 600;
+  }
+  
+  .stepIndicator {
+    font-size: 13px;
+    color: #888;
+  }
+  
+  /* ── progress bar ────────────────────────────────── */
+  .progressTrack {
+    height: 3px;
+    background-color: #1a1a1a;
+  }
+  
+  .progressFill {
+    height: 100%;
+    background-color: #e30047;
+    transition: width 0.3s ease;
+  }
+  
+  /* ── content area ────────────────────────────────── */
+  .content {
+    flex: 1;
+    padding: 24px 16px;
+    overflow-y: auto;
+  }
+  
+  /* ── step ────────────────────────────────────────── */
+  .stepContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .stepTitle {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0;
+  }
+  
+  .stepSubtitle {
+    font-size: 14px;
+    color: #888;
+    margin: 0;
+  }
+  
+  /* ── options grid ────────────────────────────────── */
+  .optionsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  
+  .optionCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 16px 8px;
+    background-color: #141414;
+    border: 1.5px solid #222;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s;
+    color: #ccc;
+    font-size: 14px;
+  }
+  
+  .optionCard:hover {
+    border-color: #444;
+  }
+  
+  .optionSelected {
+    border-color: #e30047;
+    background-color: rgba(227, 0, 71, 0.08);
+    color: #fff;
+  }
+  
+  .optionEmoji {
+    font-size: 22px;
+  }
+  
+  .optionLabel {
+    font-weight: 500;
+  }
+  
+  .multiSelectHint {
+    font-size: 12px;
+    color: #555;
+    text-align: center;
+    margin: 0;
+  }
+  
+  /* ── review step ─────────────────────────────────── */
+  .nameInputWrapper {
+    margin-bottom: 8px;
+  }
+  
+  .nameInput {
+    width: 100%;
+    padding: 14px 16px;
+    background-color: #141414;
+    border: 1.5px solid #222;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  
+  .nameInput::placeholder {
+    color: #555;
+  }
+  
+  .nameInput:focus {
+    border-color: #e30047;
+  }
+  
+  .reviewCard {
+    background-color: #141414;
+    border: 1px solid #1a1a1a;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  
+  .reviewRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+  }
+  
+  .reviewRow + .reviewRow {
+    border-top: 1px solid #1a1a1a;
+  }
+  
+  .reviewLabel {
+    font-size: 13px;
+    color: #888;
+  }
+  
+  .reviewValue {
+    font-size: 13px;
+    color: #fff;
+    text-transform: capitalize;
+    text-align: right;
+    max-width: 60%;
+  }
+  
+  .createButton {
+    width: 100%;
+    padding: 16px;
+    background-color: #e30047;
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  
+  .createButton:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  
+  .createButton:not(:disabled):hover {
+    opacity: 0.9;
+  }
+  
+  /* ── footer nav ──────────────────────────────────── */
+  .footer {
+    padding: 16px;
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+    background-color: #0a0a0a;
+    border-top: 1px solid #141414;
+  }
+  
+  .nextButton {
+    width: 100%;
+    padding: 16px;
+    background-color: #e30047;
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  
+  .nextButton:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  
+  .nextButton:not(:disabled):hover {
+    opacity: 0.9;
+  }

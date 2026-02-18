@@ -46,7 +46,7 @@ export default function GFHeader() {
         </div>
 
         {/* Right: Plus Button */}
-        <Link href="/" className={styles.iconButton}>
+        <Link href="/create" className={styles.iconButton}>
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
             viewBox="0 0 24 24" 
