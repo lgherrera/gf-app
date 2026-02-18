@@ -52,7 +52,7 @@
   
   .progressFill {
     height: 100%;
-    background-color: #e30047;
+    background-color: var(--color-primary);
     transition: width 0.3s ease;
   }
   
@@ -110,8 +110,8 @@
   }
   
   .optionSelected {
-    border-color: #e30047;
-    background-color: rgba(227, 0, 71, 0.08);
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-15);
     color: #fff;
   }
   
@@ -152,7 +152,7 @@
   }
   
   .nameInput:focus {
-    border-color: #e30047;
+    border-color: var(--color-primary);
   }
   
   .reviewCard {
@@ -189,7 +189,7 @@
   .createButton {
     width: 100%;
     padding: 16px;
-    background-color: #e30047;
+    background-color: var(--color-primary);
     border: none;
     border-radius: 12px;
     color: #fff;
@@ -219,7 +219,7 @@
   .nextButton {
     width: 100%;
     padding: 16px;
-    background-color: #e30047;
+    background-color: var(--color-primary);
     border: none;
     border-radius: 12px;
     color: #fff;
