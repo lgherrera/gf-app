@@ -11,12 +11,12 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
-    const { messages, girlfriendId, sessionId } = await req.json();
+    const { messages, girlfriendId, userId } = await req.json();
 
     // Validate required fields
-    if (!messages || !girlfriendId || !sessionId) {
+    if (!messages || !girlfriendId || !userId) {
       return NextResponse.json(
-        { error: 'Missing required fields: messages, girlfriendId, sessionId' },
+        { error: 'Missing required fields: messages, girlfriendId, userId' },
         { status: 400 }
       );
     }
@@ -56,7 +56,7 @@ export async function POST(req: Request) {
       model: modelString,
       messageCount: apiMessages.length,
       girlfriendId,
-      sessionId
+      userId
     });
 
     // Call OpenRouter API
@@ -100,7 +100,7 @@ export async function POST(req: Request) {
     // Extract metadata from OpenRouter response
     const usage = data.usage;
     const metadata = {
-      session_id: sessionId,
+      user_id: userId,
       girlfriend_id: girlfriendId,
       model_used: data.model,
       prompt_tokens: usage?.prompt_tokens || null,
@@ -114,17 +114,16 @@ export async function POST(req: Request) {
       raw_metadata: data
     };
 
-    // Store metadata in Supabase (non-blocking)
-    supabase
+    // Store metadata in Supabase
+    const { error: metaError } = await supabase
       .from('chat_metadata')
-      .insert(metadata)
-      .then(({ error }) => {
-        if (error) {
-          console.error('Failed to store chat metadata:', error);
-        } else {
-          console.log('Metadata stored successfully');
-        }
-      });
+      .insert(metadata);
+
+    if (metaError) {
+      console.error('❌ Failed to store chat metadata:', metaError);
+    } else {
+      console.log('✅ Metadata stored successfully');
+    }
 
     // Extract assistant's reply
     const assistantMessage = data.choices?.[0]?.message?.content || 'Sorry, I could not generate a response.';
