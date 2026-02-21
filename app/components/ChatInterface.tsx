@@ -6,6 +6,8 @@ import Link from 'next/link';
 import IntroVideoMessage from './IntroVideoMessage';
 import styles from './ChatInterface.module.css';
 import { useSession } from '@/lib/hooks/useSession';
+import { useUser } from '@/lib/hooks/useUser';
+import { saveChatMessage } from '@/lib/saveChatMessage';
 
 interface Girlfriend {
   id: string;
@@ -50,6 +52,7 @@ interface ChatInterfaceProps {
 
 export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   const sessionId = useSession();
+  const userId = useUser();
   
   const [showIntroVideo, setShowIntroVideo] = useState(!!girlfriend.hello_url);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -407,6 +410,11 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     setInputValue('');
     setIsLoading(true);
 
+    // Save user message to database
+    if (userId) {
+      saveChatMessage({ userId, girlfriendId: girlfriend.id, role: 'user', content: trimmedInput });
+    }
+
     try {
       const conversationHistory = [...messages, userMessage].map(msg => ({
         role: msg.role,
@@ -421,7 +429,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
         },
         body: JSON.stringify({
           girlfriendId: girlfriend.id,
-          sessionId: sessionId, // ✅ Added sessionId here
+          sessionId: sessionId,
           messages: conversationHistory,
           scenarioDescription: currentScenario?.description,
         }),
@@ -448,6 +456,11 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
       };
 
       setMessages(prev => [...prev, assistantMessage]);
+
+      // Save assistant message to database
+      if (userId) {
+        saveChatMessage({ userId, girlfriendId: girlfriend.id, role: 'assistant', content: chatData.message });
+      }
 
       // Generate audio in background only if girlfriend has voice settings
       if (girlfriend.voice_id) {
