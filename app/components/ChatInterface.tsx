@@ -393,7 +393,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
 
   const handleSendMessage = async () => {
     const trimmedInput = inputValue.trim();
-    if (!trimmedInput || isLoading) return;
+    if (!trimmedInput || isLoading || !userId) return;
 
     setError(null);
 
@@ -409,9 +409,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     setIsLoading(true);
 
     // Save user message to database
-    if (userId) {
-      saveChatMessage({ userId, girlfriendId: girlfriend.id, role: 'user', content: trimmedInput });
-    }
+    saveChatMessage({ userId, girlfriendId: girlfriend.id, role: 'user', content: trimmedInput });
 
     try {
       const conversationHistory = [...messages, userMessage].map(msg => ({
@@ -456,9 +454,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
       setMessages(prev => [...prev, assistantMessage]);
 
       // Save assistant message to database
-      if (userId) {
-        saveChatMessage({ userId, girlfriendId: girlfriend.id, role: 'assistant', content: chatData.message });
-      }
+      saveChatMessage({ userId, girlfriendId: girlfriend.id, role: 'assistant', content: chatData.message });
 
       // Generate audio in background only if girlfriend has voice settings
       if (girlfriend.voice_id) {
