@@ -10,11 +10,6 @@ import {
   INITIAL_CONFIG,
   STEP_LABELS,
   StepIndex,
-  Gender,
-  Ethnicity,
-  AgeRange,
-  Personality,
-  LooksTag,
 } from './types';
 import styles from './create.module.css';
 
@@ -40,31 +35,31 @@ const AGE_OPTIONS = [
 ];
 
 const PERSONALITY_OPTIONS = [
-  { value: 'shy', label: 'Shy', emoji: '🙈' },
-  { value: 'flirty', label: 'Flirty', emoji: '😏' },
-  { value: 'intellectual', label: 'Intellectual', emoji: '🧠' },
-  { value: 'adventurous', label: 'Adventurous', emoji: '🌍' },
-  { value: 'caring', label: 'Caring', emoji: '💗' },
-  { value: 'mysterious', label: 'Mysterious', emoji: '🌙' },
-  { value: 'playful', label: 'Playful', emoji: '🎮' },
-  { value: 'dominant', label: 'Dominant', emoji: '👑' },
-  { value: 'submissive', label: 'Submissive', emoji: '🦋' },
+  { value: 'timida', label: 'Tímida', emoji: '🙈' },
+  { value: 'coqueta', label: 'Coqueta', emoji: '😏' },
+  { value: 'intelectual', label: 'Intelectual', emoji: '🧠' },
+  { value: 'rebelde', label: 'Rebelde', emoji: '🌍' },
+  { value: 'romantica', label: 'Romántica', emoji: '💗' },
+  { value: 'celosa', label: 'Celosa', emoji: '🎮' },
+  { value: 'dominante', label: 'Dominante', emoji: '👑' },
+  { value: 'sumisa', label: 'Sumisa', emoji: '🦋' },
 ];
 
-const LOOKS_OPTIONS = [
-  { value: 'athletic', label: 'Athletic', emoji: '💪' },
+const PHYSICAL_TRAIT_OPTIONS = [
+  { value: 'atletica', label: 'Atlética', emoji: '💪' },
   { value: 'curvy', label: 'Curvy', emoji: '🍑' },
-  { value: 'slim', label: 'Slim', emoji: '🩰' },
-  { value: 'petite', label: 'Petite', emoji: '🌸' },
-  { value: 'tall', label: 'Tall', emoji: '🦒' },
-  { value: 'tattooed', label: 'Tattooed', emoji: '🖋' },
-  { value: 'pierced', label: 'Pierced', emoji: '💎' },
-  { value: 'glasses', label: 'Glasses', emoji: '👓' },
-  { value: 'redhead', label: 'Redhead', emoji: '🔥' },
-  { value: 'blonde', label: 'Blonde', emoji: '✨' },
-  { value: 'brunette', label: 'Brunette', emoji: '🤎' },
-  { value: 'short-hair', label: 'Short Hair', emoji: '✂️' },
-  { value: 'long-hair', label: 'Long Hair', emoji: '💇‍♀️' },
+  { value: 'delgada', label: 'Delgada', emoji: '🩰' },
+];
+
+const HAIR_COLOR_OPTIONS = [
+  { value: 'pelirroja', label: 'Pelirroja', emoji: '🔥' },
+  { value: 'rubia', label: 'Rubia', emoji: '✨' },
+  { value: 'morena', label: 'Morena', emoji: '🤎' },
+];
+
+const HAIR_STYLE_OPTIONS = [
+  { value: 'pelo-corto', label: 'Pelo Corto', emoji: '✂️' },
+  { value: 'pelo-largo', label: 'Pelo Largo', emoji: '💇‍♀️' },
 ];
 
 /* ── component ───────────────────────────────────── */
@@ -82,17 +77,19 @@ export default function CreatePage() {
       case 1: return config.ethnicity !== null;
       case 2: return config.ageRange !== null;
       case 3: return config.personality.length > 0;
-      case 4: return config.looks.length > 0;
-      case 5: return config.name.trim().length > 0;
+      case 4: return config.physicalTrait !== null;
+      case 5: return config.hairColor !== null;
+      case 6: return config.hairStyle !== null;
+      case 7: return config.name.trim().length > 0;
       default: return false;
     }
   };
 
-  const handleSingleSelect = (key: 'gender' | 'ethnicity' | 'ageRange', value: string) => {
+  const handleSingleSelect = (key: 'gender' | 'ethnicity' | 'ageRange' | 'physicalTrait' | 'hairColor' | 'hairStyle', value: string) => {
     setConfig((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleMultiSelect = (key: 'personality' | 'looks', value: string) => {
+  const handleMultiSelect = (key: 'personality', value: string) => {
     setConfig((prev) => {
       const current = prev[key] as string[];
       const updated = current.includes(value)
@@ -121,7 +118,7 @@ export default function CreatePage() {
       case 0:
         return (
           <StepSelector
-            title="Choose Gender"
+            title="Elige Género"
             options={GENDER_OPTIONS}
             selected={config.gender}
             onSelect={(v) => handleSingleSelect('gender', v)}
@@ -130,7 +127,7 @@ export default function CreatePage() {
       case 1:
         return (
           <StepSelector
-            title="Choose Ethnicity"
+            title="Elige Etnia"
             options={ETHNICITY_OPTIONS}
             selected={config.ethnicity}
             onSelect={(v) => handleSingleSelect('ethnicity', v)}
@@ -139,7 +136,7 @@ export default function CreatePage() {
       case 2:
         return (
           <StepSelector
-            title="Choose Age Range"
+            title="Elige Rango de Edad"
             options={AGE_OPTIONS}
             selected={config.ageRange}
             onSelect={(v) => handleSingleSelect('ageRange', v)}
@@ -148,8 +145,8 @@ export default function CreatePage() {
       case 3:
         return (
           <StepSelector
-            title="Personality Traits"
-            subtitle="What kind of vibe?"
+            title="Personalidad"
+            subtitle="¿Qué onda te gusta?"
             options={PERSONALITY_OPTIONS}
             selected={config.personality}
             onSelect={(v) => handleMultiSelect('personality', v)}
@@ -159,15 +156,31 @@ export default function CreatePage() {
       case 4:
         return (
           <StepSelector
-            title="Physical Traits"
-            subtitle="Describe their look"
-            options={LOOKS_OPTIONS}
-            selected={config.looks}
-            onSelect={(v) => handleMultiSelect('looks', v)}
-            multiSelect
+            title="Tipo de Cuerpo"
+            options={PHYSICAL_TRAIT_OPTIONS}
+            selected={config.physicalTrait}
+            onSelect={(v) => handleSingleSelect('physicalTrait', v)}
           />
         );
       case 5:
+        return (
+          <StepSelector
+            title="Color de Pelo"
+            options={HAIR_COLOR_OPTIONS}
+            selected={config.hairColor}
+            onSelect={(v) => handleSingleSelect('hairColor', v)}
+          />
+        );
+      case 6:
+        return (
+          <StepSelector
+            title="Estilo de Pelo"
+            options={HAIR_STYLE_OPTIONS}
+            selected={config.hairStyle}
+            onSelect={(v) => handleSingleSelect('hairStyle', v)}
+          />
+        );
+      case 7:
         return (
           <ReviewStep
             config={config}
@@ -216,7 +229,7 @@ export default function CreatePage() {
       </div>
 
       {/* Footer nav (hidden on review step which has its own CTA) */}
-      {step < 5 && (
+      {step < 7 && (
         <div className={styles.footer}>
           <button
             className={styles.nextButton}
@@ -224,7 +237,7 @@ export default function CreatePage() {
             onClick={() => setStep((s) => (s + 1) as StepIndex)}
             type="button"
           >
-            Next
+            Siguiente
           </button>
         </div>
       )}

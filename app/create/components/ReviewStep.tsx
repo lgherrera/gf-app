@@ -1,7 +1,6 @@
 // app/create/components/ReviewStep.tsx
 'use client';
 
-import { useState } from 'react';
 import { CustomGirlfriendConfig } from '../types';
 import styles from '../create.module.css';
 
@@ -52,10 +51,16 @@ export default function ReviewStep({ config, onNameChange, onSubmit, isSubmittin
           </span>
         </div>
         <div className={styles.reviewRow}>
-          <span className={styles.reviewLabel}>Looks</span>
-          <span className={styles.reviewValue}>
-            {config.looks.length > 0 ? formatList(config.looks) : '—'}
-          </span>
+          <span className={styles.reviewLabel}>Body type</span>
+          <span className={styles.reviewValue}>{config.physicalTrait ?? '—'}</span>
+        </div>
+        <div className={styles.reviewRow}>
+          <span className={styles.reviewLabel}>Hair color</span>
+          <span className={styles.reviewValue}>{config.hairColor?.replace(/-/g, ' ') ?? '—'}</span>
+        </div>
+        <div className={styles.reviewRow}>
+          <span className={styles.reviewLabel}>Hair style</span>
+          <span className={styles.reviewValue}>{config.hairStyle?.replace(/-/g, ' ') ?? '—'}</span>
         </div>
       </div>
 
