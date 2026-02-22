@@ -16,9 +16,9 @@ import styles from './create.module.css';
 /* ── option data ─────────────────────────────────── */
 
 const GENDER_OPTIONS = [
-  { value: 'femenino', label: 'Femenino', emoji: '♀' },
-  { value: 'masculino', label: 'Masculino', emoji: '♂' },
-];
+    { value: 'femenino', label: 'Femenino', emoji: '♀', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/female.jpg' },
+    { value: 'masculino', label: 'Masculino', emoji: '♂', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/anime.jpg' },
+  ];
 
 const ETHNICITY_OPTIONS = [
   { value: 'latinas', label: 'Latinas' },

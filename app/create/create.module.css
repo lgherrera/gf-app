@@ -115,6 +115,27 @@
     color: #fff;
   }
   
+  .optionCardWithImage {
+    padding: 0;
+    overflow: hidden;
+    gap: 0;
+  }
+  
+  .optionImage {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+  }
+  
+  .optionCardWithImage .optionEmoji,
+  .optionCardWithImage .optionLabel {
+    padding: 4px 8px;
+  }
+  
+  .optionCardWithImage .optionLabel {
+    padding-bottom: 12px;
+  }
+  
   .optionEmoji {
     font-size: 22px;
   }

@@ -7,6 +7,7 @@ interface Option {
   value: string;
   label: string;
   emoji?: string;
+  image?: string;
 }
 
 interface StepSelectorProps {
@@ -40,10 +41,17 @@ export default function StepSelector({
         {options.map((option) => (
           <button
             key={option.value}
-            className={`${styles.optionCard} ${isSelected(option.value) ? styles.optionSelected : ''}`}
+            className={`${styles.optionCard} ${isSelected(option.value) ? styles.optionSelected : ''} ${option.image ? styles.optionCardWithImage : ''}`}
             onClick={() => onSelect(option.value)}
             type="button"
           >
+            {option.image && (
+              <img
+                src={option.image}
+                alt={option.label}
+                className={styles.optionImage}
+              />
+            )}
             {option.emoji && <span className={styles.optionEmoji}>{option.emoji}</span>}
             <span className={styles.optionLabel}>{option.label}</span>
           </button>
