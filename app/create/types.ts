@@ -1,6 +1,6 @@
 // app/create/types.ts
 
-export type Gender = 'female' | 'male' | 'non-binary';
+export type Gender = 'female' | 'male' ;
 
 export type Ethnicity =
   | 'asian'

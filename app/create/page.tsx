@@ -21,9 +21,8 @@ import styles from './create.module.css';
 /* ── option data ─────────────────────────────────── */
 
 const GENDER_OPTIONS = [
-  { value: 'female', label: 'Female', emoji: '♀' },
-  { value: 'male', label: 'Male', emoji: '♂' },
-  { value: 'non-binary', label: 'Non-Binary', emoji: '⚧' },
+  { value: 'femenino', label: 'Femenino', emoji: '♀' },
+  { value: 'masculino', label: 'Masculino', emoji: '♂' },
 ];
 
 const ETHNICITY_OPTIONS = [
