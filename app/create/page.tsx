@@ -10,7 +10,6 @@ import {
   INITIAL_CONFIG,
   STEP_LABELS,
   StepIndex,
-  Personality,
 } from './types';
 import styles from './create.module.css';
 
@@ -77,7 +76,7 @@ export default function CreatePage() {
       case 0: return config.gender !== null;
       case 1: return config.ethnicity !== null;
       case 2: return config.ageRange !== null;
-      case 3: return config.personality.length > 0;
+      case 3: return config.personality !== null;
       case 4: return config.physicalTrait !== null;
       case 5: return config.hairColor !== null;
       case 6: return config.hairStyle !== null;
@@ -86,18 +85,8 @@ export default function CreatePage() {
     }
   };
 
-  const handleSingleSelect = (key: 'gender' | 'ethnicity' | 'ageRange' | 'physicalTrait' | 'hairColor' | 'hairStyle', value: string) => {
+  const handleSingleSelect = (key: 'gender' | 'ethnicity' | 'ageRange' | 'personality' | 'physicalTrait' | 'hairColor' | 'hairStyle', value: string) => {
     setConfig((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleMultiSelect = (key: 'personality', value: string) => {
-    setConfig((prev) => {
-      const current = prev[key];
-      const updated = current.includes(value as Personality)
-        ? current.filter((v) => v !== value)
-        : [...current, value as Personality];
-      return { ...prev, [key]: updated };
-    });
   };
 
   const handleSubmit = async () => {
@@ -150,8 +139,7 @@ export default function CreatePage() {
             subtitle="¿Qué onda te gusta?"
             options={PERSONALITY_OPTIONS}
             selected={config.personality}
-            onSelect={(v) => handleMultiSelect('personality', v)}
-            multiSelect
+            onSelect={(v) => handleSingleSelect('personality', v)}
           />
         );
       case 4:

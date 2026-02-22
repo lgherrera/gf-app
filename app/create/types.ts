@@ -29,7 +29,7 @@ export interface CustomGirlfriendConfig {
   gender: Gender | null;
   ethnicity: Ethnicity | null;
   ageRange: AgeRange | null;
-  personality: Personality[];
+  personality: Personality | null;
   physicalTrait: PhysicalTrait | null;
   hairColor: HairColor | null;
   hairStyle: HairStyle | null;
@@ -43,7 +43,7 @@ export const INITIAL_CONFIG: CustomGirlfriendConfig = {
   gender: null,
   ethnicity: null,
   ageRange: null,
-  personality: [],
+  personality: null,
   physicalTrait: null,
   hairColor: null,
   hairStyle: null,

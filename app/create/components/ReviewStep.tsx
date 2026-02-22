@@ -12,19 +12,16 @@ interface ReviewStepProps {
 }
 
 export default function ReviewStep({ config, onNameChange, onSubmit, isSubmitting }: ReviewStepProps) {
-  const formatList = (items: string[]) =>
-    items.map((i) => i.replace(/-/g, ' ')).join(', ');
-
   return (
     <div className={styles.stepContainer}>
-      <h2 className={styles.stepTitle}>Almost done!</h2>
-      <p className={styles.stepSubtitle}>Name your companion and review your choices</p>
+      <h2 className={styles.stepTitle}>¡Casi listo!</h2>
+      <p className={styles.stepSubtitle}>Ponle un nombre y revisa tus opciones</p>
 
       <div className={styles.nameInputWrapper}>
         <input
           type="text"
           className={styles.nameInput}
-          placeholder="Enter a name..."
+          placeholder="Escribe un nombre..."
           value={config.name}
           onChange={(e) => onNameChange(e.target.value)}
           maxLength={20}
@@ -33,33 +30,31 @@ export default function ReviewStep({ config, onNameChange, onSubmit, isSubmittin
 
       <div className={styles.reviewCard}>
         <div className={styles.reviewRow}>
-          <span className={styles.reviewLabel}>Gender</span>
+          <span className={styles.reviewLabel}>Género</span>
           <span className={styles.reviewValue}>{config.gender ?? '—'}</span>
         </div>
         <div className={styles.reviewRow}>
-          <span className={styles.reviewLabel}>Ethnicity</span>
-          <span className={styles.reviewValue}>{config.ethnicity?.replace(/-/g, ' ') ?? '—'}</span>
+          <span className={styles.reviewLabel}>Etnia</span>
+          <span className={styles.reviewValue}>{config.ethnicity ?? '—'}</span>
         </div>
         <div className={styles.reviewRow}>
-          <span className={styles.reviewLabel}>Age range</span>
+          <span className={styles.reviewLabel}>Edad</span>
           <span className={styles.reviewValue}>{config.ageRange ?? '—'}</span>
         </div>
         <div className={styles.reviewRow}>
-          <span className={styles.reviewLabel}>Personality</span>
-          <span className={styles.reviewValue}>
-            {config.personality.length > 0 ? formatList(config.personality) : '—'}
-          </span>
+          <span className={styles.reviewLabel}>Personalidad</span>
+          <span className={styles.reviewValue}>{config.personality ?? '—'}</span>
         </div>
         <div className={styles.reviewRow}>
-          <span className={styles.reviewLabel}>Body type</span>
+          <span className={styles.reviewLabel}>Cuerpo</span>
           <span className={styles.reviewValue}>{config.physicalTrait ?? '—'}</span>
         </div>
         <div className={styles.reviewRow}>
-          <span className={styles.reviewLabel}>Hair color</span>
+          <span className={styles.reviewLabel}>Color de pelo</span>
           <span className={styles.reviewValue}>{config.hairColor?.replace(/-/g, ' ') ?? '—'}</span>
         </div>
         <div className={styles.reviewRow}>
-          <span className={styles.reviewLabel}>Hair style</span>
+          <span className={styles.reviewLabel}>Estilo de pelo</span>
           <span className={styles.reviewValue}>{config.hairStyle?.replace(/-/g, ' ') ?? '—'}</span>
         </div>
       </div>
@@ -70,7 +65,7 @@ export default function ReviewStep({ config, onNameChange, onSubmit, isSubmittin
         disabled={isSubmitting || !config.name.trim()}
         type="button"
       >
-        {isSubmitting ? 'Creating...' : 'Create Companion'}
+        {isSubmitting ? 'Creando...' : 'Crear Compañera'}
       </button>
     </div>
   );
