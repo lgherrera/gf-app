@@ -10,6 +10,7 @@ import {
   INITIAL_CONFIG,
   STEP_LABELS,
   StepIndex,
+  Personality,
 } from './types';
 import styles from './create.module.css';
 
@@ -91,10 +92,10 @@ export default function CreatePage() {
 
   const handleMultiSelect = (key: 'personality', value: string) => {
     setConfig((prev) => {
-      const current = prev[key] as string[];
-      const updated = current.includes(value)
+      const current = prev[key];
+      const updated = current.includes(value as Personality)
         ? current.filter((v) => v !== value)
-        : [...current, value];
+        : [...current, value as Personality];
       return { ...prev, [key]: updated };
     });
   };
