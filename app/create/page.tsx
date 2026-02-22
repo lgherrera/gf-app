@@ -26,13 +26,9 @@ const GENDER_OPTIONS = [
 ];
 
 const ETHNICITY_OPTIONS = [
-  { value: 'asian', label: 'Asian' },
-  { value: 'black', label: 'Black' },
-  { value: 'caucasian', label: 'Caucasian' },
-  { value: 'hispanic', label: 'Hispanic' },
-  { value: 'middle-eastern', label: 'Middle Eastern' },
-  { value: 'mixed', label: 'Mixed' },
-  { value: 'south-asian', label: 'South Asian' },
+  { value: 'latinas', label: 'Latinas' },
+  { value: 'europeas', label: 'Europeas' },
+  { value: 'asiaticas', label: 'Asiáticas' },
 ];
 
 const AGE_OPTIONS = [

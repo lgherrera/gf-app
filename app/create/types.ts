@@ -3,13 +3,9 @@
 export type Gender = 'female' | 'male' ;
 
 export type Ethnicity =
-  | 'asian'
-  | 'black'
-  | 'caucasian'
-  | 'hispanic'
-  | 'middle-eastern'
-  | 'mixed'
-  | 'south-asian';
+  | 'latinas'
+  | 'europeas'
+  | 'asiaticas';
 
 export type AgeRange = '18-22' | '23-27' | '28-35' | '36-45' | '46+';
 
