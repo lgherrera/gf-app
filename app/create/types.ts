@@ -1,6 +1,6 @@
 // app/create/types.ts
 
-export type Gender = 'female' | 'male';
+export type Gender = 'femenino' | 'anime';
 
 export type Ethnicity =
   | 'latinas'
