@@ -32,11 +32,11 @@ const ETHNICITY_OPTIONS = [
 ];
 
 const AGE_OPTIONS = [
-  { value: '18-22', label: '18–22' },
-  { value: '23-27', label: '23–27' },
-  { value: '28-35', label: '28–35' },
-  { value: '36-45', label: '36–45' },
-  { value: '46+', label: '46+' },
+  { value: '18-19', label: '18–19' },
+  { value: '20s', label: '20s' },
+  { value: '30s', label: '30s' },
+  { value: '40s', label: '40s' },
+  { value: '50+', label: '50+' },
 ];
 
 const PERSONALITY_OPTIONS = [

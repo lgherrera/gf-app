@@ -7,7 +7,7 @@ export type Ethnicity =
   | 'europeas'
   | 'asiaticas';
 
-export type AgeRange = '18-22' | '23-27' | '28-35' | '36-45' | '46+';
+export type AgeRange = '18-19' | '20s' | '30s' | '40s' | '50+';
 
 export type Personality =
   | 'shy'
