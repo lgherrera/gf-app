@@ -21,9 +21,16 @@ export type Personality =
 
 export type PhysicalTrait = 'atletica' | 'curvy' | 'delgada';
 
-export type HairColor = 'pelirroja' | 'rubia' | 'morena';
+export type HairColor = 'pelirroja' | 'rubia' | 'morena' | 'rosado';
 
 export type HairStyle = 'pelo-corto' | 'pelo-largo';
+
+export interface VoiceOption {
+  id: number;
+  name: string;
+  elevenlabs_voice_id: string;
+  preview_url: string;
+}
 
 export interface CustomGirlfriendConfig {
   gender: Gender | null;
@@ -33,11 +40,12 @@ export interface CustomGirlfriendConfig {
   physicalTrait: PhysicalTrait | null;
   hairColor: HairColor | null;
   hairStyle: HairStyle | null;
+  voiceId: string | null;
   name: string;
 }
 
-export const STEP_LABELS = ['Género', 'Etnia', 'Edad', 'Personalidad', 'Cuerpo', 'Color Pelo', 'Estilo Pelo', 'Revisión'] as const;
-export type StepIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+export const STEP_LABELS = ['Género', 'Etnia', 'Edad', 'Personalidad', 'Cuerpo', 'Color Pelo', 'Estilo Pelo', 'Voz', 'Revisión'] as const;
+export type StepIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
 export const INITIAL_CONFIG: CustomGirlfriendConfig = {
   gender: null,
@@ -47,5 +55,6 @@ export const INITIAL_CONFIG: CustomGirlfriendConfig = {
   physicalTrait: null,
   hairColor: null,
   hairStyle: null,
+  voiceId: null,
   name: '',
 };

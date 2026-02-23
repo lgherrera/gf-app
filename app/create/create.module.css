@@ -152,6 +152,63 @@
     margin: 0;
   }
   
+  /* ── voice step ──────────────────────────────────── */
+  .voiceList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .voiceCard {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 16px;
+    background-color: #141414;
+    border: 1.5px solid #222;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s;
+  }
+  
+  .voiceCard:hover {
+    border-color: #444;
+  }
+  
+  .voiceSelected {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-15);
+  }
+  
+  .voiceLabel {
+    font-size: 16px;
+    font-weight: 500;
+    color: #ccc;
+  }
+  
+  .voiceSelected .voiceLabel {
+    color: #fff;
+  }
+  
+  .voicePlayButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1.5px solid var(--color-primary-50);
+    background: none;
+    color: var(--color-primary);
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+  }
+  
+  .voicePlayButton:hover {
+    background-color: var(--color-primary-15);
+    border-color: var(--color-primary);
+  }
+  
   /* ── review step ─────────────────────────────────── */
   .nameInputWrapper {
     margin-bottom: 8px;

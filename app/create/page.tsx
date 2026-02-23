@@ -1,24 +1,26 @@
 // app/create/page.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import StepSelector from './components/StepSelector';
 import ReviewStep from './components/ReviewStep';
+import VoiceStep from './components/VoiceStep';
 import {
   CustomGirlfriendConfig,
   INITIAL_CONFIG,
   STEP_LABELS,
   StepIndex,
+  VoiceOption,
 } from './types';
 import styles from './create.module.css';
 
 /* ── option data ─────────────────────────────────── */
 
 const GENDER_OPTIONS = [
-    { value: 'femenino', label: 'Femenino', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/female.jpg' },
-    { value: 'anime', label: 'Anime', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/anime.jpg' },
-  ];
+  { value: 'femenino', label: 'Femenino', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/female.jpg' },
+  { value: 'anime', label: 'Anime', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/anime.jpg' },
+];
 
 const ETHNICITY_OPTIONS = [
   { value: 'latinas', label: 'Latinas' },
@@ -35,27 +37,28 @@ const AGE_OPTIONS = [
 ];
 
 const PERSONALITY_OPTIONS = [
-  { value: 'timida', label: 'Tímida', emoji: '🙈' },
-  { value: 'coqueta', label: 'Coqueta', emoji: '😏' },
-  { value: 'intelectual', label: 'Intelectual', emoji: '🧠' },
-  { value: 'rebelde', label: 'Rebelde', emoji: '🌍' },
-  { value: 'romantica', label: 'Romántica', emoji: '💗' },
-  { value: 'celosa', label: 'Celosa', emoji: '🎮' },
-  { value: 'dominante', label: 'Dominante', emoji: '👑' },
-  { value: 'sumisa', label: 'Sumisa', emoji: '🦋' },
-];
+    { value: 'timida', label: 'Tímida' },
+    { value: 'coqueta', label: 'Coqueta' },
+    { value: 'intelectual', label: 'Intelectual' },
+    { value: 'rebelde', label: 'Rebelde' },
+    { value: 'romantica', label: 'Romántica' },
+    { value: 'celosa', label: 'Celosa' },
+    { value: 'dominante', label: 'Dominante' },
+    { value: 'sumisa', label: 'Sumisa' },
+  ];
 
 const PHYSICAL_TRAIT_OPTIONS = [
-  { value: 'atletica', label: 'Atlética', emoji: '💪' },
-  { value: 'curvy', label: 'Curvy', emoji: '🍑' },
-  { value: 'delgada', label: 'Delgada', emoji: '🩰' },
-];
+    { value: 'atletica', label: 'Atlética', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/body-type/athletic.jpg' },
+    { value: 'curvy', label: 'Curvy', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/body-type/voluptuous.jpg' },
+    { value: 'delgada', label: 'Delgada', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/body-type/slim.jpg' },
+  ];
 
 const HAIR_COLOR_OPTIONS = [
-  { value: 'pelirroja', label: 'Pelirroja', emoji: '🔥' },
-  { value: 'rubia', label: 'Rubia', emoji: '✨' },
-  { value: 'morena', label: 'Morena', emoji: '🤎' },
-];
+    { value: 'pelirroja', label: 'Pelirroja', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-color/redhead.jpg' },
+    { value: 'rubia', label: 'Rubia', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-color/blond.jpg' },
+    { value: 'morena', label: 'Morena', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-color/brunette.jpg' },
+    { value: 'rosado', label: 'Rosado', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-color/pink.jpg' },
+  ];
 
 const HAIR_STYLE_OPTIONS = [
   { value: 'pelo-corto', label: 'Pelo Corto', emoji: '✂️' },
@@ -69,6 +72,20 @@ export default function CreatePage() {
   const [step, setStep] = useState<StepIndex>(0);
   const [config, setConfig] = useState<CustomGirlfriendConfig>(INITIAL_CONFIG);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [voices, setVoices] = useState<VoiceOption[]>([]);
+  const [voicesLoading, setVoicesLoading] = useState(false);
+
+  /* fetch voices when reaching voice step */
+  useEffect(() => {
+    if (step === 7 && voices.length === 0) {
+      setVoicesLoading(true);
+      fetch('/api/voices')
+        .then((res) => res.json())
+        .then((data) => setVoices(data))
+        .catch((err) => console.error('Failed to fetch voices:', err))
+        .finally(() => setVoicesLoading(false));
+    }
+  }, [step, voices.length]);
 
   /* helpers */
   const canGoNext = (): boolean => {
@@ -80,12 +97,13 @@ export default function CreatePage() {
       case 4: return config.physicalTrait !== null;
       case 5: return config.hairColor !== null;
       case 6: return config.hairStyle !== null;
-      case 7: return config.name.trim().length > 0;
+      case 7: return config.voiceId !== null;
+      case 8: return config.name.trim().length > 0;
       default: return false;
     }
   };
 
-  const handleSingleSelect = (key: 'gender' | 'ethnicity' | 'ageRange' | 'personality' | 'physicalTrait' | 'hairColor' | 'hairStyle', value: string) => {
+  const handleSingleSelect = (key: 'gender' | 'ethnicity' | 'ageRange' | 'personality' | 'physicalTrait' | 'hairColor' | 'hairStyle' | 'voiceId', value: string) => {
     setConfig((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -100,6 +118,13 @@ export default function CreatePage() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  /* get voice name for review */
+  const getVoiceName = (): string => {
+    if (!config.voiceId) return '—';
+    const voice = voices.find((v) => v.elevenlabs_voice_id === config.voiceId);
+    return voice?.name ?? '—';
   };
 
   /* step content */
@@ -171,8 +196,18 @@ export default function CreatePage() {
         );
       case 7:
         return (
+          <VoiceStep
+            voices={voices}
+            selected={config.voiceId}
+            onSelect={(v) => handleSingleSelect('voiceId', v)}
+            isLoading={voicesLoading}
+          />
+        );
+      case 8:
+        return (
           <ReviewStep
             config={config}
+            voiceName={getVoiceName()}
             onNameChange={(name) => setConfig((prev) => ({ ...prev, name }))}
             onSubmit={handleSubmit}
             isSubmitting={isSubmitting}
@@ -218,7 +253,7 @@ export default function CreatePage() {
       </div>
 
       {/* Footer nav (hidden on review step which has its own CTA) */}
-      {step < 7 && (
+      {step < 8 && (
         <div className={styles.footer}>
           <button
             className={styles.nextButton}

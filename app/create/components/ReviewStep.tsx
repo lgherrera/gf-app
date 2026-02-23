@@ -6,12 +6,13 @@ import styles from '../create.module.css';
 
 interface ReviewStepProps {
   config: CustomGirlfriendConfig;
+  voiceName: string;
   onNameChange: (name: string) => void;
   onSubmit: () => void;
   isSubmitting: boolean;
 }
 
-export default function ReviewStep({ config, onNameChange, onSubmit, isSubmitting }: ReviewStepProps) {
+export default function ReviewStep({ config, voiceName, onNameChange, onSubmit, isSubmitting }: ReviewStepProps) {
   return (
     <div className={styles.stepContainer}>
       <h2 className={styles.stepTitle}>¡Casi listo!</h2>
@@ -56,6 +57,10 @@ export default function ReviewStep({ config, onNameChange, onSubmit, isSubmittin
         <div className={styles.reviewRow}>
           <span className={styles.reviewLabel}>Estilo de pelo</span>
           <span className={styles.reviewValue}>{config.hairStyle?.replace(/-/g, ' ') ?? '—'}</span>
+        </div>
+        <div className={styles.reviewRow}>
+          <span className={styles.reviewLabel}>Voz</span>
+          <span className={styles.reviewValue}>{voiceName}</span>
         </div>
       </div>
 
