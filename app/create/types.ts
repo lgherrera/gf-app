@@ -23,7 +23,7 @@ export type PhysicalTrait = 'atletica' | 'curvy' | 'delgada';
 
 export type HairColor = 'pelirroja' | 'rubia' | 'morena' | 'rosado';
 
-export type HairStyle = 'pelo-corto' | 'pelo-largo';
+export type HairStyle = 'liso' | 'corto' | 'crespo' | 'ondulado';
 
 export interface VoiceOption {
   id: number;

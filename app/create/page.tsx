@@ -23,10 +23,10 @@ const GENDER_OPTIONS = [
 ];
 
 const ETHNICITY_OPTIONS = [
-  { value: 'latinas', label: 'Latinas' },
-  { value: 'europeas', label: 'Europeas' },
-  { value: 'asiaticas', label: 'Asiáticas' },
-];
+    { value: 'latinas', label: 'Latinas', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/raza/eth-latin.jpg' },
+    { value: 'europeas', label: 'Europeas', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/raza/eth-european.jpg' },
+    { value: 'asiaticas', label: 'Asiáticas', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/raza/eth-asian.jpg' },
+  ];
 
 const AGE_OPTIONS = [
   { value: '18-19', label: '18–19' },
@@ -60,10 +60,12 @@ const HAIR_COLOR_OPTIONS = [
     { value: 'rosado', label: 'Rosado', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-color/pink.jpg' },
   ];
 
-const HAIR_STYLE_OPTIONS = [
-  { value: 'pelo-corto', label: 'Pelo Corto', emoji: '✂️' },
-  { value: 'pelo-largo', label: 'Pelo Largo', emoji: '💇‍♀️' },
-];
+  const HAIR_STYLE_OPTIONS = [
+    { value: 'liso', label: 'Liso', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-style/pelo-liso.jpg' },
+    { value: 'corto', label: 'Corto', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-style/pelo-corto.jpg' },
+    { value: 'crespo', label: 'Crespo', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-style/pelo-crespo.jpg' },
+    { value: 'ondulado', label: 'Ondulado', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-style/pelo-ondulado.jpg' },
+  ];
 
 /* ── component ───────────────────────────────────── */
 
