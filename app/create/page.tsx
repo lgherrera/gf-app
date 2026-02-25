@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from '@/lib/hooks/useSession';
 import StepSelector from './components/StepSelector';
 import ReviewStep from './components/ReviewStep';
 import VoiceStep from './components/VoiceStep';
@@ -18,15 +19,15 @@ import styles from './create.module.css';
 /* ── option data ─────────────────────────────────── */
 
 const GENDER_OPTIONS = [
-  { value: 'femenino', label: 'Femenino', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/female.jpg' },
+  { value: 'female', label: 'Femenino', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/female.jpg' },
   { value: 'anime', label: 'Anime', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/anime.jpg' },
 ];
 
 const ETHNICITY_OPTIONS = [
-    { value: 'latinas', label: 'Latinas', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/raza/eth-latin.jpg' },
-    { value: 'europeas', label: 'Europeas', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/raza/eth-european.jpg' },
-    { value: 'asiaticas', label: 'Asiáticas', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/raza/eth-asian.jpg' },
-  ];
+  { value: 'latin', label: 'Latinas', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/raza/eth-latin.jpg' },
+  { value: 'european', label: 'Europeas', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/raza/eth-european.jpg' },
+  { value: 'asian', label: 'Asiáticas', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/raza/eth-asian.jpg' },
+];
 
 const AGE_OPTIONS = [
   { value: '18-19', label: '18–19' },
@@ -37,40 +38,41 @@ const AGE_OPTIONS = [
 ];
 
 const PERSONALITY_OPTIONS = [
-    { value: 'timida', label: 'Tímida' },
-    { value: 'coqueta', label: 'Coqueta' },
-    { value: 'intelectual', label: 'Intelectual' },
-    { value: 'rebelde', label: 'Rebelde' },
-    { value: 'romantica', label: 'Romántica' },
-    { value: 'celosa', label: 'Celosa' },
-    { value: 'dominante', label: 'Dominante' },
-    { value: 'sumisa', label: 'Sumisa' },
-  ];
+  { value: 'shy', label: 'Tímida' },
+  { value: 'flirty', label: 'Coqueta' },
+  { value: 'intellectual', label: 'Intelectual' },
+  { value: 'rebellious', label: 'Rebelde' },
+  { value: 'romantic', label: 'Romántica' },
+  { value: 'jealous', label: 'Celosa' },
+  { value: 'dominant', label: 'Dominante' },
+  { value: 'submissive', label: 'Sumisa' },
+];
 
 const PHYSICAL_TRAIT_OPTIONS = [
-    { value: 'atletica', label: 'Atlética', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/body-type/athletic.jpg' },
-    { value: 'curvy', label: 'Curvy', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/body-type/voluptuous.jpg' },
-    { value: 'delgada', label: 'Delgada', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/body-type/slim.jpg' },
-  ];
+  { value: 'athletic', label: 'Atlética', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/body-type/athletic.jpg' },
+  { value: 'curvy', label: 'Curvy', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/body-type/voluptuous.jpg' },
+  { value: 'slim', label: 'Delgada', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/body-type/slim.jpg' },
+];
 
 const HAIR_COLOR_OPTIONS = [
-    { value: 'pelirroja', label: 'Pelirroja', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-color/redhead.jpg' },
-    { value: 'rubia', label: 'Rubia', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-color/blond.jpg' },
-    { value: 'morena', label: 'Morena', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-color/brunette.jpg' },
-    { value: 'rosado', label: 'Rosado', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-color/pink.jpg' },
-  ];
+  { value: 'redhead', label: 'Pelirroja', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-color/redhead.jpg' },
+  { value: 'blonde', label: 'Rubia', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-color/blond.jpg' },
+  { value: 'brunette', label: 'Morena', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-color/brunette.jpg' },
+  { value: 'pink', label: 'Rosado', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-color/pink.jpg' },
+];
 
-  const HAIR_STYLE_OPTIONS = [
-    { value: 'liso', label: 'Liso', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-style/pelo-liso.jpg' },
-    { value: 'corto', label: 'Corto', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-style/pelo-corto.jpg' },
-    { value: 'crespo', label: 'Crespo', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-style/pelo-crespo.jpg' },
-    { value: 'ondulado', label: 'Ondulado', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-style/pelo-ondulado.jpg' },
-  ];
+const HAIR_STYLE_OPTIONS = [
+  { value: 'straight', label: 'Liso', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-style/pelo-liso.jpg' },
+  { value: 'short', label: 'Corto', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-style/pelo-corto.jpg' },
+  { value: 'curly', label: 'Crespo', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-style/pelo-crespo.jpg' },
+  { value: 'wavy', label: 'Ondulado', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-style/pelo-ondulado.jpg' },
+];
 
 /* ── component ───────────────────────────────────── */
 
 export default function CreatePage() {
   const router = useRouter();
+  const userId = useSession();
   const [step, setStep] = useState<StepIndex>(0);
   const [config, setConfig] = useState<CustomGirlfriendConfig>(INITIAL_CONFIG);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -112,9 +114,20 @@ export default function CreatePage() {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      // TODO: POST to /api/create-girlfriend
-      console.log('Creating custom girlfriend:', config);
-      // router.push(`/gf/${newSlug}`);
+      const res = await fetch('/api/create-girlfriend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ config, userId }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error('Error creating girlfriend:', data.error);
+        return;
+      }
+
+      router.push(`/${data.slug}/chat`);
     } catch (err) {
       console.error(err);
     } finally {

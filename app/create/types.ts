@@ -1,29 +1,29 @@
 // app/create/types.ts
 
-export type Gender = 'femenino' | 'anime';
+export type Gender = 'female' | 'anime';
 
 export type Ethnicity =
-  | 'latinas'
-  | 'europeas'
-  | 'asiaticas';
+  | 'latin'
+  | 'european'
+  | 'asian';
 
 export type AgeRange = '18-19' | '20s' | '30s' | '40s' | '50+';
 
 export type Personality =
-  | 'timida'
-  | 'coqueta'
-  | 'intelectual'
-  | 'rebelde'
-  | 'romantica'
-  | 'celosa'
-  | 'dominante'
-  | 'sumisa';
+  | 'shy'
+  | 'flirty'
+  | 'intellectual'
+  | 'rebellious'
+  | 'romantic'
+  | 'jealous'
+  | 'dominant'
+  | 'submissive';
 
-export type PhysicalTrait = 'atletica' | 'curvy' | 'delgada';
+export type PhysicalTrait = 'athletic' | 'curvy' | 'slim';
 
-export type HairColor = 'pelirroja' | 'rubia' | 'morena' | 'rosado';
+export type HairColor = 'redhead' | 'blonde' | 'brunette' | 'pink';
 
-export type HairStyle = 'liso' | 'corto' | 'crespo' | 'ondulado';
+export type HairStyle = 'straight' | 'short' | 'curly' | 'wavy';
 
 export interface VoiceOption {
   id: number;
