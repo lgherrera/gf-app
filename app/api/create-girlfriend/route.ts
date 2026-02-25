@@ -2,6 +2,15 @@
 import { supabase } from '@/lib/supabase';
 import { NextResponse } from 'next/server';
 
+// Map age range to a default age
+const ageMap: Record<string, number> = {
+  '18-19': 18,
+  '20s': 25,
+  '30s': 30,
+  '40s': 40,
+  '50+': 50,
+};
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -33,10 +42,14 @@ export async function POST(request: Request) {
       .replace(/^-|-$/g, '');
     const slug = `${baseSlug}-${Date.now()}`;
 
+    // Map age range to default age
+    const age = ageMap[config.ageRange] || 25;
+
     // Build the row
     const newGirlfriend = {
       name: config.name,
       slug,
+      age,
       appearance: JSON.stringify(appearance),
       voice_id: config.voiceId || null,
       voice_provider: config.voiceId ? 'elevenlabs' : null,
@@ -65,10 +78,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ 
-      id: data.id, 
+    return NextResponse.json({
+      id: data.id,
       slug: data.slug,
-      message: 'Girlfriend created successfully' 
+      message: 'Girlfriend created successfully',
     });
 
   } catch (err) {
