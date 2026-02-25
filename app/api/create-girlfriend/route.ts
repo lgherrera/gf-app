@@ -64,7 +64,7 @@ export async function POST(request: Request) {
       temperature: 0.8,
       max_tokens: 500,
       description: `Custom AI companion - ${config.name}`,
-      image_url: null,
+      image_url: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/placeholder.jpg',
     };
 
     const { data, error } = await supabase
