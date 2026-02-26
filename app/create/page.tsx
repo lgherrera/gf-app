@@ -1,7 +1,7 @@
 // app/create/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from '@/lib/hooks/useSession';
 import StepSelector from './components/StepSelector';
@@ -80,6 +80,7 @@ export default function CreatePage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [voices, setVoices] = useState<VoiceOption[]>([]);
   const [voicesLoading, setVoicesLoading] = useState(false);
+  const hasStartedCreation = useRef(false);
 
   /* fetch voices when reaching voice step */
   useEffect(() => {
@@ -92,6 +93,41 @@ export default function CreatePage() {
         .finally(() => setVoicesLoading(false));
     }
   }, [step, voices.length]);
+
+  /* start API call AFTER generating screen has rendered */
+  useEffect(() => {
+    if (!isGenerating || hasStartedCreation.current) return;
+    hasStartedCreation.current = true;
+
+    const createGirlfriend = async () => {
+      try {
+        const res = await fetch('/api/create-girlfriend', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ config, userId }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          console.error('Error creating girlfriend:', data.error);
+          setIsGenerating(false);
+          setIsSubmitting(false);
+          hasStartedCreation.current = false;
+          return;
+        }
+
+        router.push(`/${data.slug}/chat`);
+      } catch (err) {
+        console.error('Submit error:', err);
+        setIsGenerating(false);
+        setIsSubmitting(false);
+        hasStartedCreation.current = false;
+      }
+    };
+
+    createGirlfriend();
+  }, [isGenerating, config, userId, router]);
 
   /* helpers */
   const canGoNext = (): boolean => {
@@ -113,31 +149,10 @@ export default function CreatePage() {
     setConfig((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSubmit = async () => {
+  /* handleSubmit only sets state — the useEffect above does the actual work */
+  const handleSubmit = () => {
     setIsSubmitting(true);
     setIsGenerating(true);
-    try {
-      const res = await fetch('/api/create-girlfriend', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ config, userId }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        console.error('Error creating girlfriend:', data.error);
-        setIsGenerating(false);
-        setIsSubmitting(false);
-        return;
-      }
-
-      router.push(`/${data.slug}/chat`);
-    } catch (err) {
-      console.error('Submit error:', err);
-      setIsGenerating(false);
-      setIsSubmitting(false);
-    }
   };
 
   /* get voice name for review */
