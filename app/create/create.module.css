@@ -316,3 +316,57 @@
   .nextButton:not(:disabled):hover {
     opacity: 0.9;
   }
+  
+  /* ── generating screen ───────────────────────────── */
+  .generatingScreen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100dvh;
+    max-width: 500px;
+    margin: 0 auto;
+    background-color: #0a0a0a;
+    padding: 24px;
+    gap: 20px;
+  }
+  
+  .spinnerWrapper {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 8px;
+  }
+  
+  .spinner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 3px solid #1a1a1a;
+    border-top-color: var(--color-primary);
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .generatingName {
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+  }
+  
+  .generatingMessage {
+    font-size: 14px;
+    color: #888;
+    margin: 0;
+    animation: fadeInOut 3s ease-in-out infinite;
+  }
+  
+  @keyframes fadeInOut {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }

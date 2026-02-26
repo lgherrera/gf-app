@@ -7,6 +7,7 @@ import { useSession } from '@/lib/hooks/useSession';
 import StepSelector from './components/StepSelector';
 import ReviewStep from './components/ReviewStep';
 import VoiceStep from './components/VoiceStep';
+import GeneratingScreen from './components/GeneratingScreen';
 import {
   CustomGirlfriendConfig,
   INITIAL_CONFIG,
@@ -76,6 +77,7 @@ export default function CreatePage() {
   const [step, setStep] = useState<StepIndex>(0);
   const [config, setConfig] = useState<CustomGirlfriendConfig>(INITIAL_CONFIG);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [voices, setVoices] = useState<VoiceOption[]>([]);
   const [voicesLoading, setVoicesLoading] = useState(false);
 
@@ -113,6 +115,7 @@ export default function CreatePage() {
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
+    setIsGenerating(true);
     try {
       const res = await fetch('/api/create-girlfriend', {
         method: 'POST',
@@ -124,12 +127,14 @@ export default function CreatePage() {
 
       if (!res.ok) {
         console.error('Error creating girlfriend:', data.error);
+        setIsGenerating(false);
         return;
       }
 
       router.push(`/${data.slug}/chat`);
     } catch (err) {
       console.error(err);
+      setIsGenerating(false);
     } finally {
       setIsSubmitting(false);
     }
@@ -141,6 +146,11 @@ export default function CreatePage() {
     const voice = voices.find((v) => v.elevenlabs_voice_id === config.voiceId);
     return voice?.name ?? '—';
   };
+
+  /* show generating screen */
+  if (isGenerating) {
+    return <GeneratingScreen name={config.name} />;
+  }
 
   /* step content */
   const renderStep = () => {
