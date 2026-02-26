@@ -1,11 +1,18 @@
 // app/api/create-girlfriend/route.ts
 import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { fal } from '@fal-ai/client';
 
 fal.config({
   credentials: process.env.FAL_KEY,
 });
+
+// Admin client for storage uploads (bypasses RLS)
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 // Map age range to a default age
 const ageMap: Record<string, number> = {
@@ -120,15 +127,17 @@ export async function POST(request: Request) {
         },
       }) as any;
 
+      console.log('FAL result:', JSON.stringify(result));
+
       if (result.data?.images?.[0]?.url) {
         const generatedImageUrl = result.data.images[0].url;
 
-        // Upload to Supabase Storage
+        // Upload to Supabase Storage using admin client
         const imageResponse = await fetch(generatedImageUrl);
         const imageBuffer = await imageResponse.arrayBuffer();
         const fileName = `custom/${userId}/${slug}.jpg`;
 
-        const { error: uploadError } = await supabase.storage
+        const { error: uploadError } = await supabaseAdmin.storage
           .from('girlfriends')
           .upload(fileName, imageBuffer, {
             contentType: 'image/jpeg',
@@ -136,7 +145,7 @@ export async function POST(request: Request) {
           });
 
         if (!uploadError) {
-          const { data: publicUrl } = supabase.storage
+          const { data: publicUrl } = supabaseAdmin.storage
             .from('girlfriends')
             .getPublicUrl(fileName);
           imageUrl = publicUrl.publicUrl;
