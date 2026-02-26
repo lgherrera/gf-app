@@ -124,6 +124,7 @@ export async function POST(request: Request) {
       const result = await fal.subscribe('xai/grok-imagine-image', {
         input: {
           prompt,
+          aspect_ratio: '2:3',
         },
       }) as any;
 
