@@ -128,14 +128,14 @@ export default function CreatePage() {
       if (!res.ok) {
         console.error('Error creating girlfriend:', data.error);
         setIsGenerating(false);
+        setIsSubmitting(false);
         return;
       }
 
       router.push(`/${data.slug}/chat`);
     } catch (err) {
-      console.error(err);
+      console.error('Submit error:', err);
       setIsGenerating(false);
-    } finally {
       setIsSubmitting(false);
     }
   };
