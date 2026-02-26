@@ -4,6 +4,7 @@ import { withContentFilter } from '@/lib/girlfriends';
 import GFHeader from '@/app/components/GFHeader';
 import GFCard from '@/app/components/GFCard';
 import GFFooter from '@/app/components/GFFooter';
+import CustomGirlfriends from '@/app/components/CustomGirlfriends';
 import styles from './page.module.css';
 
 interface Girlfriend {
@@ -20,6 +21,7 @@ export default async function GirlfriendPage() {
     supabase
       .from('girlfriends')
       .select('id, slug, name, age, description, image_url')
+      .in('girlfriend_type', ['standard', 'premium'])
   ).order('created_at', { ascending: false }) as { data: Girlfriend[] | null; error: any };
 
   if (error) {
@@ -31,29 +33,23 @@ export default async function GirlfriendPage() {
       <GFHeader />
       
       <main className={styles.main}>
-        {girlfriends && girlfriends.length > 0 ? (
-          <div className={styles.cardsContainer}>
-            {girlfriends.map((gf) => (
-              <GFCard
-                key={gf.id}
-                id={gf.id}
-                slug={gf.slug}
-                name={gf.name}
-                age={gf.age}
-                description={gf.description}
-                image_url={gf.image_url}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className={styles.emptyState}>
-            <p>No AI girlfriends available at the moment.</p>
-          </div>
-        )}
+        <div className={styles.cardsContainer}>
+          <CustomGirlfriends />
+          {girlfriends && girlfriends.map((gf) => (
+            <GFCard
+              key={gf.id}
+              id={gf.id}
+              slug={gf.slug}
+              name={gf.name}
+              age={gf.age}
+              description={gf.description}
+              image_url={gf.image_url}
+            />
+          ))}
+        </div>
       </main>
 
       <GFFooter />
-
     </div>
   );
 }
