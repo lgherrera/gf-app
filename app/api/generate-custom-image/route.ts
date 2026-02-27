@@ -40,6 +40,13 @@ function buildImagePrompt(config: any): string {
     slim: 'slim body',
   };
 
+  const breastSizeMap: Record<string, string> = {
+    small: 'small breasts',
+    medium: 'medium breasts',
+    large: 'large breasts',
+    'very-large': 'very large breasts',
+  };
+
   const hairColorMap: Record<string, string> = {
     redhead: 'red hair',
     blonde: 'blonde hair',
@@ -58,16 +65,17 @@ function buildImagePrompt(config: any): string {
   const ethnicity = ethnicityMap[config.ethnicity] || '';
   const age = ageRangeMap[config.ageRange] || '';
   const body = bodyMap[config.physicalTrait] || '';
+  const breastSize = breastSizeMap[config.breastSize] || '';
   const hairColor = hairColorMap[config.hairColor] || '';
   const hairStyle = hairStyleMap[config.hairStyle] || '';
 
   const isAnime = config.gender === 'anime';
 
   if (isAnime) {
-    return `${subject}, ${ethnicity}, ${age}, ${body}, ${hairColor}, ${hairStyle}, anime art style, detailed, vibrant colors, high quality illustration, portrait, looking at viewer`;
+    return `${subject}, ${ethnicity}, ${age}, ${body}, ${breastSize}, ${hairColor}, ${hairStyle}, anime art style, detailed, vibrant colors, high quality illustration, portrait, looking at viewer`;
   }
 
-  return `Photorealistic portrait of ${subject}, ${ethnicity}, ${age}, ${body}, ${hairColor}, ${hairStyle}, natural lighting, soft focus background, high quality photography, looking at viewer, warm expression`;
+  return `Photorealistic portrait of ${subject}, ${ethnicity}, ${age}, ${body}, ${breastSize}, ${hairColor}, ${hairStyle}, natural lighting, soft focus background, high quality photography, looking at viewer, warm expression`;
 }
 
 export async function POST(request: Request) {
@@ -130,7 +138,7 @@ export async function POST(request: Request) {
     });
 
   } catch (err) {
-    console.error('Error in generate-image:', err);
+    console.error('Error in generate-custom-image:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -35,6 +35,7 @@ export async function POST(request: Request) {
       age_range: config.ageRange,
       personality: config.personality,
       body_type: config.physicalTrait,
+      breast_size: config.breastSize,
       hair_color: config.hairColor,
       hair_style: config.hairStyle,
     };

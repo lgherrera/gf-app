@@ -56,6 +56,13 @@ const PHYSICAL_TRAIT_OPTIONS = [
   { value: 'slim', label: 'Delgada', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/body-type/slim.jpg' },
 ];
 
+const BREAST_SIZE_OPTIONS = [
+  { value: 'small', label: 'Pequeños' },
+  { value: 'medium', label: 'Medianos' },
+  { value: 'large', label: 'Grandes' },
+  { value: 'very-large', label: 'Muy Grandes' },
+];
+
 const HAIR_COLOR_OPTIONS = [
   { value: 'redhead', label: 'Pelirroja', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-color/redhead.jpg' },
   { value: 'blonde', label: 'Rubia', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-color/blond.jpg' },
@@ -105,7 +112,7 @@ export default function CreatePage() {
       case 1: return config.ethnicity !== null;
       case 2: return config.ageRange !== null;
       case 3: return config.personality !== null;
-      case 4: return config.physicalTrait !== null;
+      case 4: return config.physicalTrait !== null && config.breastSize !== null;
       case 5: return config.hairColor !== null;
       case 6: return config.hairStyle !== null;
       case 7: return config.voiceId !== null;
@@ -116,7 +123,7 @@ export default function CreatePage() {
   };
 
   const handleSingleSelect = (
-    key: 'gender' | 'ethnicity' | 'ageRange' | 'personality' | 'physicalTrait' | 'hairColor' | 'hairStyle' | 'voiceId',
+    key: 'gender' | 'ethnicity' | 'ageRange' | 'personality' | 'physicalTrait' | 'breastSize' | 'hairColor' | 'hairStyle' | 'voiceId',
     value: string,
   ) => {
     setConfig((prev) => ({ ...prev, [key]: value }));
@@ -237,12 +244,20 @@ export default function CreatePage() {
         );
       case 4:
         return (
-          <StepSelector
-            title="Tipo de Cuerpo"
-            options={PHYSICAL_TRAIT_OPTIONS}
-            selected={config.physicalTrait}
-            onSelect={(v) => handleSingleSelect('physicalTrait', v)}
-          />
+          <div className={styles.stepContainer}>
+            <StepSelector
+              title="Tipo de Cuerpo"
+              options={PHYSICAL_TRAIT_OPTIONS}
+              selected={config.physicalTrait}
+              onSelect={(v) => handleSingleSelect('physicalTrait', v)}
+            />
+            <StepSelector
+              title="Tamaño de Pechos"
+              options={BREAST_SIZE_OPTIONS}
+              selected={config.breastSize}
+              onSelect={(v) => handleSingleSelect('breastSize', v)}
+            />
+          </div>
         );
       case 5:
         return (

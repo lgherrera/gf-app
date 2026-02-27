@@ -51,6 +51,10 @@ export default function ReviewStep({ config, voiceName, onNameChange, onSubmit, 
           <span className={styles.reviewValue}>{config.physicalTrait ?? '—'}</span>
         </div>
         <div className={styles.reviewRow}>
+          <span className={styles.reviewLabel}>Pechos</span>
+          <span className={styles.reviewValue}>{config.breastSize?.replace(/-/g, ' ') ?? '—'}</span>
+        </div>
+        <div className={styles.reviewRow}>
           <span className={styles.reviewLabel}>Color de pelo</span>
           <span className={styles.reviewValue}>{config.hairColor?.replace(/-/g, ' ') ?? '—'}</span>
         </div>

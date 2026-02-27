@@ -21,6 +21,8 @@ export type Personality =
 
 export type PhysicalTrait = 'athletic' | 'curvy' | 'slim';
 
+export type BreastSize = 'small' | 'medium' | 'large' | 'very-large';
+
 export type HairColor = 'redhead' | 'blonde' | 'brunette' | 'pink';
 
 export type HairStyle = 'straight' | 'short' | 'curly' | 'wavy';
@@ -38,6 +40,7 @@ export interface CustomGirlfriendConfig {
   ageRange: AgeRange | null;
   personality: Personality | null;
   physicalTrait: PhysicalTrait | null;
+  breastSize: BreastSize | null;
   hairColor: HairColor | null;
   hairStyle: HairStyle | null;
   voiceId: string | null;
@@ -65,6 +68,7 @@ export const INITIAL_CONFIG: CustomGirlfriendConfig = {
   ageRange: null,
   personality: null,
   physicalTrait: null,
+  breastSize: null,
   hairColor: null,
   hairStyle: null,
   voiceId: null,
