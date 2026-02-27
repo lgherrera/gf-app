@@ -44,8 +44,20 @@ export interface CustomGirlfriendConfig {
   name: string;
 }
 
-export const STEP_LABELS = ['Género', 'Etnia', 'Edad', 'Personalidad', 'Cuerpo', 'Color Pelo', 'Estilo Pelo', 'Voz', 'Revisión'] as const;
-export type StepIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+export const STEP_LABELS = [
+  'Género',
+  'Etnia',
+  'Edad',
+  'Personalidad',
+  'Cuerpo',
+  'Color Pelo',
+  'Estilo Pelo',
+  'Voz',
+  'Revisión',
+  'Aprobar Imagen',
+] as const;
+
+export type StepIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 
 export const INITIAL_CONFIG: CustomGirlfriendConfig = {
   gender: null,

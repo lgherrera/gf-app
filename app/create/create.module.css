@@ -287,6 +287,78 @@
     opacity: 0.9;
   }
   
+  /* ── image approval step ─────────────────────────── */
+  .imagePreviewWrapper {
+    display: flex;
+    justify-content: center;
+    margin: 8px 0;
+  }
+  
+  .imagePreview {
+    width: 100%;
+    max-width: 320px;
+    border-radius: 12px;
+    object-fit: cover;
+    aspect-ratio: 2 / 3;
+    border: 1.5px solid #222;
+  }
+  
+  .approvalButtons {
+    display: flex;
+    gap: 12px;
+  }
+  
+  .regenerateButton {
+    flex: 1;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1.5px solid #222;
+    background-color: #141414;
+    color: #ccc;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s;
+  }
+  
+  .regenerateButton:hover {
+    border-color: #444;
+    background-color: #1a1a1a;
+  }
+  
+  .regenerateButton:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  
+  .approveButton {
+    flex: 1;
+    padding: 16px;
+    border-radius: 12px;
+    border: none;
+    background-color: var(--color-primary);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  
+  .approveButton:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  
+  .approveButton:not(:disabled):hover {
+    opacity: 0.9;
+  }
+  
+  .imageSpinnerWrapper {
+    display: flex;
+    justify-content: center;
+    padding: 4rem 0;
+  }
+  
   /* ── footer nav ──────────────────────────────────── */
   .footer {
     padding: 16px;

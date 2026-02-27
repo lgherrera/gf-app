@@ -1,12 +1,13 @@
 // app/create/page.tsx
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from '@/lib/hooks/useSession';
 import StepSelector from './components/StepSelector';
 import ReviewStep from './components/ReviewStep';
 import VoiceStep from './components/VoiceStep';
+import ImageApprovalStep from './components/ImageApprovalStep';
 import GeneratingScreen from './components/GeneratingScreen';
 import {
   CustomGirlfriendConfig,
@@ -80,7 +81,10 @@ export default function CreatePage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [voices, setVoices] = useState<VoiceOption[]>([]);
   const [voicesLoading, setVoicesLoading] = useState(false);
-  const hasStartedCreation = useRef(false);
+
+  // Image approval state
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
   /* fetch voices when reaching voice step */
   useEffect(() => {
@@ -94,41 +98,6 @@ export default function CreatePage() {
     }
   }, [step, voices.length]);
 
-  /* start API call AFTER generating screen has rendered */
-  useEffect(() => {
-    if (!isGenerating || hasStartedCreation.current) return;
-    hasStartedCreation.current = true;
-
-    const createGirlfriend = async () => {
-      try {
-        const res = await fetch('/api/create-girlfriend', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ config, userId }),
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          console.error('Error creating girlfriend:', data.error);
-          setIsGenerating(false);
-          setIsSubmitting(false);
-          hasStartedCreation.current = false;
-          return;
-        }
-
-        router.push(`/${data.slug}/chat`);
-      } catch (err) {
-        console.error('Submit error:', err);
-        setIsGenerating(false);
-        setIsSubmitting(false);
-        hasStartedCreation.current = false;
-      }
-    };
-
-    createGirlfriend();
-  }, [isGenerating, config, userId, router]);
-
   /* helpers */
   const canGoNext = (): boolean => {
     switch (step) {
@@ -141,18 +110,77 @@ export default function CreatePage() {
       case 6: return config.hairStyle !== null;
       case 7: return config.voiceId !== null;
       case 8: return config.name.trim().length > 0;
+      case 9: return generatedImageUrl !== null;
       default: return false;
     }
   };
 
-  const handleSingleSelect = (key: 'gender' | 'ethnicity' | 'ageRange' | 'personality' | 'physicalTrait' | 'hairColor' | 'hairStyle' | 'voiceId', value: string) => {
+  const handleSingleSelect = (
+    key: 'gender' | 'ethnicity' | 'ageRange' | 'personality' | 'physicalTrait' | 'hairColor' | 'hairStyle' | 'voiceId',
+    value: string,
+  ) => {
     setConfig((prev) => ({ ...prev, [key]: value }));
   };
 
-  /* handleSubmit only sets state — the useEffect above does the actual work */
-  const handleSubmit = () => {
+  /* Phase 1: Generate image preview (called from ReviewStep) */
+  const handleGenerateImage = async () => {
+    setIsSubmitting(true);
+    setStep(9);
+    setIsGeneratingImage(true);
+    setGeneratedImageUrl(null);
+
+    try {
+      const res = await fetch('/api/generate-custom-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ config, userId }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error('Error generating image:', data.error);
+        return;
+      }
+
+      setGeneratedImageUrl(data.imageUrl);
+    } catch (err) {
+      console.error('Image generation error:', err);
+    } finally {
+      setIsGeneratingImage(false);
+      setIsSubmitting(false);
+    }
+  };
+
+  /* Phase 2: Approve image and create girlfriend */
+  const handleApprove = async () => {
     setIsSubmitting(true);
     setIsGenerating(true);
+
+    await new Promise((r) => requestAnimationFrame(r));
+
+    try {
+      const res = await fetch('/api/create-girlfriend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ config, userId, imageUrl: generatedImageUrl }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error('Error creating girlfriend:', data.error);
+        setIsGenerating(false);
+        setIsSubmitting(false);
+        return;
+      }
+
+      router.push(`/${data.slug}/chat`);
+    } catch (err) {
+      console.error('Submit error:', err);
+      setIsGenerating(false);
+      setIsSubmitting(false);
+    }
   };
 
   /* get voice name for review */
@@ -162,7 +190,7 @@ export default function CreatePage() {
     return voice?.name ?? '—';
   };
 
-  /* show generating screen */
+  /* show generating screen (after approval, during DB insert) */
   if (isGenerating) {
     return <GeneratingScreen name={config.name} />;
   }
@@ -249,7 +277,17 @@ export default function CreatePage() {
             config={config}
             voiceName={getVoiceName()}
             onNameChange={(name) => setConfig((prev) => ({ ...prev, name }))}
-            onSubmit={handleSubmit}
+            onSubmit={handleGenerateImage}
+            isSubmitting={isSubmitting}
+          />
+        );
+      case 9:
+        return (
+          <ImageApprovalStep
+            imageUrl={generatedImageUrl}
+            isGenerating={isGeneratingImage}
+            onApprove={handleApprove}
+            onRegenerate={handleGenerateImage}
             isSubmitting={isSubmitting}
           />
         );
@@ -292,7 +330,7 @@ export default function CreatePage() {
         {renderStep()}
       </div>
 
-      {/* Footer nav (hidden on review step which has its own CTA) */}
+      {/* Footer nav (hidden on review and approval steps) */}
       {step < 8 && (
         <div className={styles.footer}>
           <button
