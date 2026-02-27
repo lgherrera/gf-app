@@ -63,6 +63,10 @@ export default function ReviewStep({ config, voiceName, onNameChange, onSubmit, 
           <span className={styles.reviewValue}>{config.hairStyle?.replace(/-/g, ' ') ?? '—'}</span>
         </div>
         <div className={styles.reviewRow}>
+          <span className={styles.reviewLabel}>Tenida</span>
+          <span className={styles.reviewValue}>{config.outfit?.replace(/-/g, ' ') ?? '—'}</span>
+        </div>
+        <div className={styles.reviewRow}>
           <span className={styles.reviewLabel}>Voz</span>
           <span className={styles.reviewValue}>{voiceName}</span>
         </div>

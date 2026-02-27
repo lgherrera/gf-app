@@ -27,6 +27,8 @@ export type HairColor = 'redhead' | 'blonde' | 'brunette' | 'pink';
 
 export type HairStyle = 'straight' | 'short' | 'curly' | 'wavy';
 
+export type Outfit = 'strapless-dress' | 'bikini' | 'yoga-outfit' | 'deep-cleavage-dress' | 'underwear';
+
 export interface VoiceOption {
   id: number;
   name: string;
@@ -43,6 +45,7 @@ export interface CustomGirlfriendConfig {
   breastSize: BreastSize | null;
   hairColor: HairColor | null;
   hairStyle: HairStyle | null;
+  outfit: Outfit | null;
   voiceId: string | null;
   name: string;
 }
@@ -55,12 +58,13 @@ export const STEP_LABELS = [
   'Cuerpo',
   'Color Pelo',
   'Estilo Pelo',
+  'Tenida',
   'Voz',
   'Revisión',
   'Aprobar Imagen',
 ] as const;
 
-export type StepIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+export type StepIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 
 export const INITIAL_CONFIG: CustomGirlfriendConfig = {
   gender: null,
@@ -71,6 +75,7 @@ export const INITIAL_CONFIG: CustomGirlfriendConfig = {
   breastSize: null,
   hairColor: null,
   hairStyle: null,
+  outfit: null,
   voiceId: null,
   name: '',
 };

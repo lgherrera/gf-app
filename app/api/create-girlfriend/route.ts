@@ -38,6 +38,7 @@ export async function POST(request: Request) {
       breast_size: config.breastSize,
       hair_color: config.hairColor,
       hair_style: config.hairStyle,
+      outfit: config.outfit,
     };
 
     // Generate slug from name

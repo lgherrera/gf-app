@@ -77,6 +77,14 @@ const HAIR_STYLE_OPTIONS = [
   { value: 'wavy', label: 'Ondulado', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-style/pelo-ondulado.jpg' },
 ];
 
+const OUTFIT_OPTIONS = [
+  { value: 'strapless-dress', label: 'Vestido Strapless' },
+  { value: 'bikini', label: 'Bikini' },
+  { value: 'yoga-outfit', label: 'Yoga Outfit' },
+  { value: 'deep-cleavage-dress', label: 'Vestido Escotado' },
+  { value: 'underwear', label: 'Ropa Interior' },
+];
+
 /* ── component ───────────────────────────────────── */
 
 export default function CreatePage() {
@@ -95,7 +103,7 @@ export default function CreatePage() {
 
   /* fetch voices when reaching voice step */
   useEffect(() => {
-    if (step === 7 && voices.length === 0) {
+    if (step === 8 && voices.length === 0) {
       setVoicesLoading(true);
       fetch('/api/voices')
         .then((res) => res.json())
@@ -115,15 +123,16 @@ export default function CreatePage() {
       case 4: return config.physicalTrait !== null && config.breastSize !== null;
       case 5: return config.hairColor !== null;
       case 6: return config.hairStyle !== null;
-      case 7: return config.voiceId !== null;
-      case 8: return config.name.trim().length > 0;
-      case 9: return generatedImageUrl !== null;
+      case 7: return config.outfit !== null;
+      case 8: return config.voiceId !== null;
+      case 9: return config.name.trim().length > 0;
+      case 10: return generatedImageUrl !== null;
       default: return false;
     }
   };
 
   const handleSingleSelect = (
-    key: 'gender' | 'ethnicity' | 'ageRange' | 'personality' | 'physicalTrait' | 'breastSize' | 'hairColor' | 'hairStyle' | 'voiceId',
+    key: 'gender' | 'ethnicity' | 'ageRange' | 'personality' | 'physicalTrait' | 'breastSize' | 'hairColor' | 'hairStyle' | 'outfit' | 'voiceId',
     value: string,
   ) => {
     setConfig((prev) => ({ ...prev, [key]: value }));
@@ -132,7 +141,7 @@ export default function CreatePage() {
   /* Phase 1: Generate image preview (called from ReviewStep) */
   const handleGenerateImage = async () => {
     setIsSubmitting(true);
-    setStep(9);
+    setStep(10);
     setIsGeneratingImage(true);
     setGeneratedImageUrl(null);
 
@@ -279,6 +288,15 @@ export default function CreatePage() {
         );
       case 7:
         return (
+          <StepSelector
+            title="Tenida de Ropa"
+            options={OUTFIT_OPTIONS}
+            selected={config.outfit}
+            onSelect={(v) => handleSingleSelect('outfit', v)}
+          />
+        );
+      case 8:
+        return (
           <VoiceStep
             voices={voices}
             selected={config.voiceId}
@@ -286,7 +304,7 @@ export default function CreatePage() {
             isLoading={voicesLoading}
           />
         );
-      case 8:
+      case 9:
         return (
           <ReviewStep
             config={config}
@@ -296,7 +314,7 @@ export default function CreatePage() {
             isSubmitting={isSubmitting}
           />
         );
-      case 9:
+      case 10:
         return (
           <ImageApprovalStep
             imageUrl={generatedImageUrl}
@@ -346,7 +364,7 @@ export default function CreatePage() {
       </div>
 
       {/* Footer nav (hidden on review and approval steps) */}
-      {step < 8 && (
+      {step < 9 && (
         <div className={styles.footer}>
           <button
             className={styles.nextButton}

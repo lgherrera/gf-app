@@ -61,6 +61,14 @@ function buildImagePrompt(config: any): string {
     wavy: 'wavy hair',
   };
 
+  const outfitMap: Record<string, string> = {
+    'strapless-dress': 'wearing a strapless dress',
+    'bikini': 'wearing a bikini',
+    'yoga-outfit': 'wearing a yoga outfit',
+    'deep-cleavage-dress': 'wearing a dress with deep cleavage',
+    'underwear': 'wearing underwear',
+  };
+
   const subject = genderMap[config.gender] || 'a beautiful woman';
   const ethnicity = ethnicityMap[config.ethnicity] || '';
   const age = ageRangeMap[config.ageRange] || '';
@@ -68,14 +76,15 @@ function buildImagePrompt(config: any): string {
   const breastSize = breastSizeMap[config.breastSize] || '';
   const hairColor = hairColorMap[config.hairColor] || '';
   const hairStyle = hairStyleMap[config.hairStyle] || '';
+  const outfit = outfitMap[config.outfit] || '';
 
   const isAnime = config.gender === 'anime';
 
   if (isAnime) {
-    return `${subject}, ${ethnicity}, ${age}, ${body}, ${breastSize}, ${hairColor}, ${hairStyle}, anime art style, detailed, vibrant colors, high quality illustration, portrait, looking at viewer`;
+    return `${subject}, ${ethnicity}, ${age}, ${body}, ${breastSize}, ${hairColor}, ${hairStyle}, ${outfit}, anime art style, detailed, vibrant colors, high quality illustration, portrait, looking at viewer`;
   }
 
-  return `Photorealistic portrait of ${subject}, ${ethnicity}, ${age}, ${body}, ${breastSize}, ${hairColor}, ${hairStyle}, natural lighting, soft focus background, high quality photography, looking at viewer, warm expression`;
+  return `Photorealistic portrait of ${subject}, ${ethnicity}, ${age}, ${body}, ${breastSize}, ${hairColor}, ${hairStyle}, ${outfit}, natural lighting, soft focus background, high quality photography, looking at viewer, warm expression`;
 }
 
 export async function POST(request: Request) {
