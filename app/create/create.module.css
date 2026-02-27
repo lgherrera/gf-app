@@ -356,7 +356,13 @@
   .imageSpinnerWrapper {
     display: flex;
     justify-content: center;
+    align-items: center;
     padding: 4rem 0;
+  }
+  
+  .imageSpinnerWrapper .spinner {
+    width: 64px;
+    height: 64px;
   }
   
   /* ── footer nav ──────────────────────────────────── */
