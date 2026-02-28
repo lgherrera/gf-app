@@ -1,6 +1,13 @@
 // app/api/create-girlfriend/route.ts
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
+import sharp from 'sharp';
+
+// Admin client for storage uploads (bypasses RLS)
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 // Map age range to a default age
 const ageMap: Record<string, number> = {
@@ -10,6 +17,26 @@ const ageMap: Record<string, number> = {
   '40s': 40,
   '50+': 50,
 };
+
+async function generateAvatar(imageUrl: string): Promise<Buffer> {
+  const response = await fetch(imageUrl);
+  const buffer = Buffer.from(await response.arrayBuffer());
+
+  const metadata = await sharp(buffer).metadata();
+  const width = metadata.width || 1024;
+  const height = metadata.height || 1536;
+
+  // Crop top-center square (face area)
+  const size = Math.min(width, Math.floor(height * 0.65));
+  const left = Math.floor((width - size) / 2);
+  const top = 0;
+
+  return sharp(buffer)
+    .extract({ left, top, width: size, height: size })
+    .resize(512, 512)
+    .jpeg({ quality: 85 })
+    .toBuffer();
+}
 
 export async function POST(request: Request) {
   try {
@@ -51,6 +78,31 @@ export async function POST(request: Request) {
     // Map age range to default age
     const age = ageMap[config.ageRange] || 25;
 
+    // Generate avatar from the approved image
+    let avatarUrl: string | null = null;
+    try {
+      const avatarBuffer = await generateAvatar(imageUrl);
+      const avatarFileName = `custom/${userId}/${slug}-avatar.jpg`;
+
+      const { error: avatarUploadError } = await supabaseAdmin.storage
+        .from('girlfriends')
+        .upload(avatarFileName, avatarBuffer, {
+          contentType: 'image/jpeg',
+          upsert: true,
+        });
+
+      if (!avatarUploadError) {
+        const { data: avatarPublicUrl } = supabaseAdmin.storage
+          .from('girlfriends')
+          .getPublicUrl(avatarFileName);
+        avatarUrl = avatarPublicUrl.publicUrl;
+      } else {
+        console.error('Avatar upload error:', avatarUploadError);
+      }
+    } catch (avatarErr) {
+      console.error('Avatar generation error:', avatarErr);
+    }
+
     // Build the row
     const newGirlfriend = {
       name: config.name,
@@ -71,9 +123,10 @@ export async function POST(request: Request) {
       max_tokens: 400,
       description: `Custom AI companion - ${config.name}`,
       image_url: imageUrl,
+      avatar: avatarUrl,
     };
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('girlfriends')
       .insert(newGirlfriend)
       .select('id, slug')
