@@ -1,0 +1,120 @@
+/* app/components/GalleryGrid.module.css */
+
+/* Instagram-style 3-column grid */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3px;
+    width: 100%;
+  }
+  
+  .gridItem {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background-color: #1a1a1a;
+    cursor: pointer;
+  }
+  
+  .image {
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  
+  .gridItem:hover .image {
+    transform: scale(1.05);
+  }
+  
+  /* Lightbox overlay */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.95);
+  }
+  
+  .lightboxContent {
+    position: relative;
+    width: 90vw;
+    height: 80vh;
+    max-width: 900px;
+  }
+  
+  .lightboxImage {
+    object-fit: contain;
+  }
+  
+  /* Close button */
+  .closeBtn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 1001;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 8px;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+  }
+  
+  .closeBtn:hover {
+    opacity: 1;
+  }
+  
+  /* Navigation arrows */
+  .navBtn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1001;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 3rem;
+    cursor: pointer;
+    padding: 16px;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+    user-select: none;
+  }
+  
+  .navBtn:hover {
+    opacity: 1;
+  }
+  
+  .navPrev {
+    left: 8px;
+  }
+  
+  .navNext {
+    right: 8px;
+  }
+  
+  /* Caption */
+  .lightboxCaption {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #fff;
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 8px 16px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
+    max-width: 80%;
+  }
+  
+  /* Responsive: 4 columns on larger screens */
+  @media (min-width: 768px) {
+    .grid {
+      gap: 4px;
+    }
+  }
