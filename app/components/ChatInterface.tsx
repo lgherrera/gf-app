@@ -4,6 +4,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import IntroVideoMessage from './IntroVideoMessage';
+import GFSidebar from './GFSidebar';
 import styles from './ChatInterface.module.css';
 import { useUser } from '@/lib/hooks/useUser';
 import { saveChatMessage } from '@/lib/saveChatMessage';
@@ -119,7 +120,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   const buildOpeningMessages = (): Message[] => {
     const messages: Message[] = [];
     
-    // Show description first (pink bubble)
     if (currentScenario?.description) {
       messages.push({
         id: 'description_' + generateMessageId(),
@@ -129,7 +129,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
       });
     }
     
-    // Then show opener (regular bubble)
     if (currentScenario?.opener) {
       messages.push({
         id: 'opener_' + generateMessageId(),
@@ -241,18 +240,15 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
       return;
     }
     
-    // If already playing, pause it
     if (isPlayingAudio && audioRef.current) {
       audioRef.current.pause();
       setIsPlayingAudio(false);
       return;
     }
     
-    // Create new audio or reuse existing
     if (!audioRef.current) {
       audioRef.current = new Audio(currentScenario.audio_slug);
       
-      // Set up event listeners
       audioRef.current.addEventListener('ended', () => {
         setIsPlayingAudio(false);
       });
@@ -264,7 +260,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
       });
     }
     
-    // Play audio
     audioRef.current.play()
       .then(() => {
         setIsPlayingAudio(true);
@@ -276,7 +271,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   };
 
   const handlePlayMessageAudio = async (messageId: string, audioUrl?: string, messageContent?: string) => {
-    // If this message is already playing, pause it
     if (playingMessageId === messageId) {
       const audio = messageAudioRefs.current.get(messageId);
       if (audio) {
@@ -286,7 +280,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
       return;
     }
 
-    // Pause any currently playing message audio
     if (playingMessageId) {
       const currentAudio = messageAudioRefs.current.get(playingMessageId);
       if (currentAudio) {
@@ -294,7 +287,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
       }
     }
 
-    // If audio URL exists, play it
     if (audioUrl) {
       let audio = messageAudioRefs.current.get(messageId);
       if (!audio) {
@@ -317,10 +309,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
       } catch (error) {
         console.error('Error playing audio:', error);
       }
-    } 
-    // If no audio URL but we have content, generate it
-    else if (messageContent) {
-      // Only generate audio if girlfriend has voice settings
+    } else if (messageContent) {
       if (!girlfriend.voice_id) {
         console.warn('No voice_id configured for this girlfriend');
         return;
@@ -342,14 +331,12 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
         const data = await response.json();
 
         if (data.audioUrl) {
-          // Update message with audio URL
           setMessages(prev => prev.map(msg => 
             msg.id === messageId 
               ? { ...msg, audioUrl: data.audioUrl }
               : msg
           ));
 
-          // Create and play audio
           const audio = new Audio(data.audioUrl);
           messageAudioRefs.current.set(messageId, audio);
 
@@ -408,7 +395,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     setInputValue('');
     setIsLoading(true);
 
-    // Save user message to database
     saveChatMessage({ userId, girlfriendId: girlfriend.id, role: 'user', content: trimmedInput });
 
     try {
@@ -417,7 +403,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
         content: msg.content,
       }));
 
-      // Start chat request
       const chatResponse = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -443,7 +428,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
 
       const messageId = generateMessageId();
 
-      // Add message immediately without audio
       const assistantMessage: Message = {
         id: messageId,
         role: 'assistant',
@@ -453,10 +437,8 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
 
       setMessages(prev => [...prev, assistantMessage]);
 
-      // Save assistant message to database
       saveChatMessage({ userId, girlfriendId: girlfriend.id, role: 'assistant', content: chatData.message });
 
-      // Generate audio in background only if girlfriend has voice settings
       if (girlfriend.voice_id) {
         fetch('/api/elevenlabs', {
           method: 'POST',
@@ -470,7 +452,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
           .then(res => res.json())
           .then(audioData => {
             if (audioData.audioUrl) {
-              // Update message with audio URL
               setMessages(prev => prev.map(msg => 
                 msg.id === messageId 
                   ? { ...msg, audioUrl: audioData.audioUrl }
@@ -543,70 +524,17 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
         </button>
       </header>
 
-      {/* Sidebar Overlay */}
-      {isSidebarOpen && (
-        <div 
-          className={styles.sidebarOverlay}
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
-
       {/* Sidebar */}
-      <div className={`${styles.sidebar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
-        <div className={styles.sidebarHeader}>
-          <h2 className={styles.sidebarTitle}>Profile</h2>
-          <button 
-            className={styles.sidebarClose}
-            onClick={() => setIsSidebarOpen(false)}
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="18" y1="6" x2="6" y2="18"/>
-              <line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          </button>
-        </div>
-
-        <div className={styles.sidebarContent}>
-          {/* Profile Section */}
-          <div className={styles.profileSection}>
-            {girlfriend.image_url && (
-              <img 
-                src={girlfriend.image_url} 
-                alt={girlfriend.name}
-                className={styles.profileImage}
-              />
-            )}
-            <p className={styles.profileDescription}>
-              {girlfriend.description || 'No description available.'}
-            </p>
-          </div>
-
-          {/* Navigation Links */}
-          <nav className={styles.sidebarNav}>
-            <Link 
-              href={`/${girlfriend.slug}/videos`}
-              className={styles.sidebarLink}
-              onClick={() => setIsSidebarOpen(false)}
-            >
-              Videos
-            </Link>
-            <Link 
-              href={`/${girlfriend.slug}/images`}
-              className={styles.sidebarLink}
-              onClick={() => setIsSidebarOpen(false)}
-            >
-              Imagenes
-            </Link>
-            <Link 
-              href={`/${girlfriend.slug}/audio`}
-              className={styles.sidebarLink}
-              onClick={() => setIsSidebarOpen(false)}
-            >
-              Audios
-            </Link>
-          </nav>
-        </div>
-      </div>
+      <GFSidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        girlfriend={{
+          slug: girlfriend.slug,
+          name: girlfriend.name,
+          description: girlfriend.description,
+          image_url: girlfriend.image_url,
+        }}
+      />
 
       {/* Chat Area */}
       <div className={styles.chatArea}>
@@ -635,7 +563,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
               </div>
             ) : message.id.startsWith('description_') ? (
               <div className={styles.messageBubbleScenario}>
-                {/* Shuffle button - top right */}
                 {scenarios.length > 1 && (
                   <button 
                     className={styles.shuffleButton}
@@ -648,7 +575,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
                   </button>
                 )}
                 
-                {/* Play/Pause button for scenario audio - bottom right */}
                 {currentScenario?.audio_slug && (
                   <button 
                     className={`${styles.playButton} ${isPlayingAudio ? styles.playing : ''}`}
@@ -670,7 +596,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
                 {formatMessageContent(message.content)}
               </div>
             ) : (
-              // Regular assistant message with button below
               <div className={styles.messageWithButton}>
                 <div className={styles.messageBubbleLeft}>
                   {formatMessageContent(message.content)}

@@ -36,7 +36,7 @@ export default function GFHeader() {
 
         {/* Middle: Logo */}
         <div className={styles.logoContainer}>
-          <Link href="/gf">
+          <Link href="/">
             <img 
               src={currentBrand.logo} 
               alt={`${currentBrand.name} Logo`} 

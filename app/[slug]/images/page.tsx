@@ -15,7 +15,7 @@ interface Image {
   title: string | null;
   image_url: string;
   thumbnail_url: string | null;
-  display_order: number;
+  display_order: number | null;
 }
 
 async function getGirlfriend(slug: string) {
@@ -36,10 +36,10 @@ async function getGirlfriend(slug: string) {
 
 async function getImages(girlfriendId: string) {
   const { data, error } = await supabase
-    .from('profile_images')
+    .from('gallery_images')
     .select('id, title, image_url, thumbnail_url, display_order')
     .eq('girlfriend_id', girlfriendId)
-    .order('display_order', { ascending: true });
+    .order('display_order', { ascending: true, nullsFirst: false });
 
   if (error) {
     console.error('Error fetching images:', error.message);
