@@ -16,7 +16,7 @@ interface Image {
   title: string | null;
   image_url: string;
   thumbnail_url: string | null;
-  display_order: number;
+  display_order: number | null;
 }
 
 interface ImagesClientProps {
@@ -49,7 +49,7 @@ export default function ImagesClient({ girlfriend, images }: ImagesClientProps) 
 
       {/* Images Grid */}
       <div className={styles.content}>
-        <h2 className={styles.sectionTitle}>Imagenes</h2>
+        <h2 className={styles.sectionTitle}>Galería</h2>
         
         {images.length === 0 ? (
           <div className={styles.emptyState}>
