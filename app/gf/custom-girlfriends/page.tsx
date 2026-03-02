@@ -21,12 +21,15 @@ interface CustomGirlfriend {
 export default function CustomGirlfriendsPage() {
   const [girlfriends, setGirlfriends] = useState<CustomGirlfriend[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     const fetchCustomGirlfriends = async () => {
-      const userId = localStorage.getItem('user_id');
-      if (!userId) {
+      const id = localStorage.getItem('user_id');
+      setUserId(id);
+
+      if (!id) {
         setLoading(false);
         return;
       }
@@ -34,7 +37,7 @@ export default function CustomGirlfriendsPage() {
       const { data, error } = await supabase
         .from('girlfriends')
         .select('id, slug, name, age, avatar, occupation, created_at')
-        .eq('created_by', userId)
+        .eq('created_by', id)
         .eq('girlfriend_type', 'custom')
         .order('created_at', { ascending: false });
 
@@ -67,6 +70,9 @@ export default function CustomGirlfriendsPage() {
 
       <main className={styles.main}>
         <h1 className={styles.title}>Mis Novias Personalizadas</h1>
+        <p style={{ textAlign: 'center', color: '#666', fontSize: '0.75rem' }}>
+          user_id: {userId || 'not found'}
+        </p>
 
         {loading ? (
           <p className={styles.message}>Cargando...</p>
