@@ -34,7 +34,6 @@ export default async function GirlfriendPage() {
       
       <main className={styles.main}>
         <div className={styles.cardsContainer}>
-          <CustomGirlfriends />
           {girlfriends && girlfriends.map((gf) => (
             <GFCard
               key={gf.id}
@@ -46,6 +45,7 @@ export default async function GirlfriendPage() {
               image_url={gf.image_url}
             />
           ))}
+          <CustomGirlfriends />
         </div>
       </main>
 
