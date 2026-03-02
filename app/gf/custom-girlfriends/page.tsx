@@ -1,0 +1,108 @@
+// app/gf/custom-girlfriends/page.tsx
+'use client';
+
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
+import GFHeader from '@/app/components/GFHeader';
+import GFFooter from '@/app/components/GFFooter';
+import styles from './page.module.css';
+
+interface CustomGirlfriend {
+  id: string;
+  slug: string;
+  name: string;
+  age: number;
+  avatar: string;
+  occupation: string;
+  created_at: string;
+}
+
+export default function CustomGirlfriendsPage() {
+  const [girlfriends, setGirlfriends] = useState<CustomGirlfriend[]>([]);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchCustomGirlfriends = async () => {
+      const userId = localStorage.getItem('user_id');
+      if (!userId) {
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('girlfriends')
+        .select('id, slug, name, age, avatar, occupation, created_at')
+        .eq('created_by', userId)
+        .eq('girlfriend_type', 'custom')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching custom girlfriends:', error);
+      } else {
+        setGirlfriends(data || []);
+      }
+      setLoading(false);
+    };
+
+    fetchCustomGirlfriends();
+  }, []);
+
+  const handleClick = (slug: string) => {
+    router.push(`/${slug}/chat`);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('es-CL', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+  };
+
+  return (
+    <div className={styles.page}>
+      <GFHeader />
+
+      <main className={styles.main}>
+        <h1 className={styles.title}>Mis Novias Personalizadas</h1>
+
+        {loading ? (
+          <p className={styles.message}>Cargando...</p>
+        ) : girlfriends.length === 0 ? (
+          <p className={styles.message}>Aún no has creado ninguna novia personalizada.</p>
+        ) : (
+          <div className={styles.grid}>
+            {girlfriends.map((gf) => (
+              <div
+                key={gf.id}
+                className={styles.card}
+                onClick={() => handleClick(gf.slug)}
+              >
+                <div className={styles.avatarWrapper}>
+                  <img
+                    src={gf.avatar}
+                    alt={gf.name}
+                    className={styles.avatar}
+                  />
+                </div>
+                <div className={styles.info}>
+                  <h2 className={styles.name}>{gf.name}</h2>
+                  <p className={styles.occupation}>{gf.occupation}</p>
+                  <div className={styles.meta}>
+                    <span>{gf.age} años</span>
+                    <span>·</span>
+                    <span>{formatDate(gf.created_at)}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </main>
+
+      <GFFooter />
+    </div>
+  );
+}
