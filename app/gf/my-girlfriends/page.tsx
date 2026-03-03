@@ -67,7 +67,7 @@ export default function CustomGirlfriendsPage() {
       <GFHeader />
 
       <main className={styles.main}>
-        <h1 className={styles.title}>Mis Novias Personalizadas</h1>
+        <h1 className={styles.title}>Mis Novias</h1>
 
         {loading ? (
           <p className={styles.message}>Cargando...</p>
