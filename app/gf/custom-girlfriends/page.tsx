@@ -26,7 +26,7 @@ export default function CustomGirlfriendsPage() {
 
   useEffect(() => {
     const fetchCustomGirlfriends = async () => {
-      const id = localStorage.getItem('user_id');
+      const id = localStorage.getItem('gf_user_id');
       setUserId(id);
 
       if (!id) {
