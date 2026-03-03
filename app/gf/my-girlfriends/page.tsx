@@ -1,4 +1,4 @@
-// app/gf/custom-girlfriends/page.tsx
+// app/gf/my-girlfriends/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -26,7 +26,7 @@ export default function CustomGirlfriendsPage() {
 
   useEffect(() => {
     const fetchCustomGirlfriends = async () => {
-      const id = localStorage.getItem('gf_user_id');
+      const id = localStorage.getItem('session_id');
       setUserId(id);
 
       if (!id) {
