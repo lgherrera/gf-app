@@ -21,13 +21,11 @@ interface CustomGirlfriend {
 export default function CustomGirlfriendsPage() {
   const [girlfriends, setGirlfriends] = useState<CustomGirlfriend[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     const fetchCustomGirlfriends = async () => {
       const id = localStorage.getItem('session_id');
-      setUserId(id);
 
       if (!id) {
         setLoading(false);
@@ -70,20 +68,17 @@ export default function CustomGirlfriendsPage() {
 
       <main className={styles.main}>
         <h1 className={styles.title}>Mis Novias Personalizadas</h1>
-        <p style={{ textAlign: 'center', color: '#666', fontSize: '0.75rem' }}>
-          user_id: {userId || 'not found'}
-        </p>
 
         {loading ? (
           <p className={styles.message}>Cargando...</p>
         ) : girlfriends.length === 0 ? (
           <p className={styles.message}>Aún no has creado ninguna novia personalizada.</p>
         ) : (
-          <div className={styles.grid}>
+          <div className={styles.list}>
             {girlfriends.map((gf) => (
               <div
                 key={gf.id}
-                className={styles.card}
+                className={styles.row}
                 onClick={() => handleClick(gf.slug)}
               >
                 <div className={styles.avatarWrapper}>
@@ -96,11 +91,10 @@ export default function CustomGirlfriendsPage() {
                 <div className={styles.info}>
                   <h2 className={styles.name}>{gf.name}</h2>
                   <p className={styles.occupation}>{gf.occupation}</p>
-                  <div className={styles.meta}>
-                    <span>{gf.age} años</span>
-                    <span>·</span>
-                    <span>{formatDate(gf.created_at)}</span>
-                  </div>
+                </div>
+                <div className={styles.meta}>
+                  <span className={styles.age}>{gf.age} años</span>
+                  <span className={styles.date}>{formatDate(gf.created_at)}</span>
                 </div>
               </div>
             ))}
