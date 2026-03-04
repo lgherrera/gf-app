@@ -17,9 +17,12 @@ interface ProfileImage {
 }
 
 export default async function GaleriaPage() {
+  const contentMode = process.env.NEXT_PUBLIC_CONTENT_MODE ?? 'sfw';
+
   const { data: images, error } = await supabase
     .from('gallery_images')
     .select('id, girlfriend_id, title, image_url, thumbnail_url, display_order, created_at, content_rating')
+    .eq('content_rating', contentMode)
     .order('created_at', { ascending: false }) as { data: ProfileImage[] | null; error: any };
 
   if (error) {
