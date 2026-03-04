@@ -22,6 +22,9 @@ interface Girlfriend {
   voice_provider?: string;
   voice_model?: string;
   voice_id?: string;
+  occupation?: string;
+  gender?: string;
+  style?: string;
 }
 
 interface Scenario {
@@ -533,6 +536,9 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
           name: girlfriend.name,
           description: girlfriend.description,
           image_url: girlfriend.image_url,
+          occupation: girlfriend.occupation,
+          gender: girlfriend.gender,
+          style: girlfriend.style,
         }}
       />
 
