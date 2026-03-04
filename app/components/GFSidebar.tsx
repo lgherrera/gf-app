@@ -5,6 +5,14 @@ import React from 'react';
 import Link from 'next/link';
 import styles from './GFSidebar.module.css';
 
+const STAGE_LABELS: Record<number, string> = {
+  1: 'Primera cita',
+  2: 'Conocidas',
+  3: 'Amigas',
+  4: 'Cercanas',
+  5: 'Íntimas',
+};
+
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
@@ -20,6 +28,8 @@ interface SidebarProps {
 }
 
 export default function GFSidebar({ isOpen, onClose, girlfriend }: SidebarProps) {
+  const stage = 1; // hardcoded for now
+
   return (
     <>
       {/* Sidebar Overlay */}
@@ -75,6 +85,22 @@ export default function GFSidebar({ isOpen, onClose, girlfriend }: SidebarProps)
               Galería
             </Link>
           </nav>
+
+          {/* Relationship Stage */}
+          <div className={styles.stageSection}>
+            <div className={styles.stageHeader}>
+              <span className={styles.stageLabel}>Etapa de relación</span>
+              <span className={styles.stageName}>{STAGE_LABELS[stage]}</span>
+            </div>
+            <div className={styles.stageDots}>
+              {[1, 2, 3, 4, 5].map((step) => (
+                <div
+                  key={step}
+                  className={`${styles.stageDot} ${step <= stage ? styles.stageDotActive : ''}`}
+                />
+              ))}
+            </div>
+          </div>
 
           {/* Girlfriend Info */}
           {(girlfriend.name || girlfriend.occupation || girlfriend.gender || girlfriend.style) && (

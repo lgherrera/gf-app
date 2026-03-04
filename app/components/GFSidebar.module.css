@@ -174,3 +174,52 @@
       width: 280px;
     }
   }
+
+/* Relationship Stage */
+.stageSection {
+  margin-top: 8px;
+  padding: 14px 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 4px;
+}
+
+.stageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.stageLabel {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.stageName {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.stageDots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.stageDot {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-primary-15);
+  transition: background 0.3s ease;
+}
+
+.stageDotActive {
+  background: var(--color-primary);
+  box-shadow: 0 0 6px var(--color-primary-50);
+}
