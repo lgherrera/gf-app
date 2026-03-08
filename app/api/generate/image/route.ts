@@ -1,10 +1,10 @@
 // app/api/generate/image/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
-export const runtime    = "nodejs";
+export const runtime     = "nodejs";
 export const maxDuration = 120;
 
-// Map our ratio labels to fal.ai image_size presets
+// Map ratio labels to fal.ai image_size objects
 const RATIO_TO_SIZE: Record<string, { width: number; height: number }> = {
   "1:1":  { width: 1024, height: 1024 },
   "16:9": { width: 1820, height: 1024 },
@@ -15,6 +15,29 @@ const RATIO_TO_SIZE: Record<string, { width: number; height: number }> = {
   "2:3":  { width: 1024, height: 1536 },
   "21:9": { width: 2048, height: 878  },
 };
+
+async function falPost(endpoint: string, body: Record<string, unknown>, falKey: string) {
+  const url = `https://fal.ai/api/v1/${endpoint}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Authorization": `Key ${falKey}`,
+      "Content-Type":  "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  const text = await res.text();
+  if (!res.ok) {
+    console.error(`fal.ai [${res.status}] ${url}:`, text);
+    throw new Error(`fal.ai ${res.status}: ${text.slice(0, 200)}`);
+  }
+  try {
+    return JSON.parse(text);
+  } catch {
+    console.error("fal.ai non-JSON response:", text);
+    throw new Error(`fal.ai respuesta inesperada: ${text.slice(0, 200)}`);
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -40,15 +63,14 @@ export async function POST(req: NextRequest) {
     while (formData.get(`reference_${i}`)) {
       const file   = formData.get(`reference_${i}`) as File;
       const bytes  = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
 
-      const uploadRes = await fetch("https://fal.run/fal-ai/storage/upload", {
+      const uploadRes = await fetch("https://fal.ai/api/v1/storage/upload", {
         method: "POST",
         headers: {
           Authorization: `Key ${FAL_KEY}`,
           "Content-Type": file.type || "image/jpeg",
         },
-        body: buffer,
+        body: bytes,
       });
 
       if (uploadRes.ok) {
@@ -60,10 +82,10 @@ export async function POST(req: NextRequest) {
 
     const imageSize = RATIO_TO_SIZE[aspectRatio] ?? { width: 1024, height: 1024 };
 
-    // Use text-to-image endpoint, or edit endpoint when reference images provided
-    const endpoint = referenceUrls.length > 0
-      ? "https://fal.run/fal-ai/bytedance/seedream/v4.5/edit"
-      : "https://fal.run/fal-ai/bytedance/seedream/v4.5/text-to-image";
+    const hasRefs    = referenceUrls.length > 0;
+    const modelPath  = hasRefs
+      ? "fal-ai/bytedance/seedream/v4.5/edit"
+      : "fal-ai/bytedance/seedream/v4.5/text-to-image";
 
     const body: Record<string, unknown> = {
       prompt,
@@ -72,29 +94,11 @@ export async function POST(req: NextRequest) {
       enable_safety_checker: false,
     };
 
-    if (referenceUrls.length > 0) {
+    if (hasRefs) {
       body.image_urls = referenceUrls;
     }
 
-    const falRes = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        Authorization: `Key ${FAL_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-
-    if (!falRes.ok) {
-      const errText = await falRes.text();
-      console.error("fal.ai error:", errText);
-      return NextResponse.json(
-        { error: `Error de fal.ai: ${falRes.status}` },
-        { status: 502 }
-      );
-    }
-
-    const falData = await falRes.json();
+    const falData = await falPost(modelPath, body, FAL_KEY);
 
     const imageUrl =
       falData?.images?.[0]?.url ||
@@ -102,7 +106,7 @@ export async function POST(req: NextRequest) {
       falData?.output?.images?.[0]?.url;
 
     if (!imageUrl) {
-      console.error("fal.ai unexpected response:", JSON.stringify(falData));
+      console.error("fal.ai unexpected shape:", JSON.stringify(falData));
       return NextResponse.json(
         { error: "No se recibió imagen de fal.ai" },
         { status: 502 }
@@ -111,10 +115,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url: imageUrl });
   } catch (err) {
-    console.error("Generate image error:", err);
-    return NextResponse.json(
-      { error: "Error interno del servidor" },
-      { status: 500 }
-    );
+    const msg = err instanceof Error ? err.message : "Error desconocido";
+    console.error("Generate image error:", msg);
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
