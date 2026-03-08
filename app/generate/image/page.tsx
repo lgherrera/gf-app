@@ -78,8 +78,15 @@ export default function ImageGenerationPage() {
         body: formData,
       });
 
-      const data = await res.json();
+      const text = await res.text();
+      let data: { url?: string; error?: string };
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(`Respuesta del servidor: ${text.slice(0, 120)}`);
+      }
       if (!res.ok) throw new Error(data.error || "Error al generar la imagen");
+      if (!data.url) throw new Error("No se recibió URL de imagen");
 
       setResult({ url: data.url, prompt, ratio });
     } catch (err: unknown) {

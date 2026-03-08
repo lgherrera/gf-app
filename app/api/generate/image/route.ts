@@ -17,7 +17,7 @@ const RATIO_TO_SIZE: Record<string, { width: number; height: number }> = {
 };
 
 async function falPost(endpoint: string, body: Record<string, unknown>, falKey: string) {
-  const url = `https://fal.ai/api/v1/${endpoint}`;
+  const url = `https://fal.run/${endpoint}`;
   const res = await fetch(url, {
     method: "POST",
     headers: {
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
       const file   = formData.get(`reference_${i}`) as File;
       const bytes  = await file.arrayBuffer();
 
-      const uploadRes = await fetch("https://fal.ai/api/v1/storage/upload", {
+      const uploadRes = await fetch("https://fal.run/fal-ai/storage/upload", {
         method: "POST",
         headers: {
           Authorization: `Key ${FAL_KEY}`,
