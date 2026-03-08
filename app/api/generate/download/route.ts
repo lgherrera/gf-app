@@ -30,7 +30,10 @@ export async function GET(req: NextRequest) {
       contentType = "image/jpeg";
     }
 
-    return new NextResponse(output, {
+    // Convert Buffer to Uint8Array for NextResponse compatibility
+    const uint8 = new Uint8Array(output.buffer, output.byteOffset, output.byteLength);
+
+    return new NextResponse(uint8, {
       headers: {
         "Content-Type":        contentType,
         "Content-Disposition": `attachment; filename="generado-${Date.now()}.${format}"`,
