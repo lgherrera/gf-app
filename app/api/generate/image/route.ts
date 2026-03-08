@@ -127,8 +127,15 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // OpenRouter Seedream returns images in message.images array
     if (!imageUrl) {
-      // Return the full raw response so we can see what shape it actually is
+      const images = choices?.[0]?.message?.images as { type?: string; image_url?: { url?: string } }[] | undefined;
+      if (images?.[0]?.image_url?.url) {
+        imageUrl = images[0].image_url.url;
+      }
+    }
+
+    if (!imageUrl) {
       return NextResponse.json(
         { error: `Forma inesperada. Raw: ${JSON.stringify(data).slice(0, 500)}` },
         { status: 502 }
