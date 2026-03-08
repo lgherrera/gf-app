@@ -36,20 +36,36 @@ async function compressImage(file: File): Promise<File> {
     const url = URL.createObjectURL(file);
     img.onload = () => {
       const MAX = 1024;
-      let { width, height } = img;
+      // Use naturalWidth/naturalHeight to get true dimensions regardless of EXIF orientation
+      let width  = img.naturalWidth  || img.width;
+      let height = img.naturalHeight || img.height;
+
       if (width > MAX || height > MAX) {
-        if (width > height) { height = Math.round((height * MAX) / width); width = MAX; }
-        else { width = Math.round((width * MAX) / height); height = MAX; }
+        if (width > height) {
+          height = Math.round((height * MAX) / width);
+          width  = MAX;
+        } else {
+          width  = Math.round((width * MAX) / height);
+          height = MAX;
+        }
       }
+
       const canvas = document.createElement("canvas");
-      canvas.width = width; canvas.height = height;
-      canvas.getContext("2d")!.drawImage(img, 0, 0, width, height);
+      canvas.width  = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext("2d")!;
+      // Draw image — browser already applies EXIF orientation when rendering to canvas
+      ctx.drawImage(img, 0, 0, width, height);
+
       URL.revokeObjectURL(url);
       canvas.toBlob(
         (blob) => resolve(blob ? new File([blob], file.name, { type: "image/jpeg" }) : file),
-        "image/jpeg", 0.82
+        "image/jpeg",
+        0.82
       );
     };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
     img.src = url;
   });
 }
