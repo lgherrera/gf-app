@@ -4,22 +4,10 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime     = "nodejs";
 export const maxDuration = 120;
 
-const RATIO_TO_SIZE: Record<string, string> = {
-  "1:1":  "1024x1024",
-  "16:9": "1820x1024",
-  "9:16": "1024x1820",
-  "4:3":  "1365x1024",
-  "3:4":  "1024x1365",
-  "3:2":  "1536x1024",
-  "2:3":  "1024x1536",
-  "21:9": "2048x878",
-};
-
 export async function POST(req: NextRequest) {
   try {
     const formData    = await req.formData();
-    const prompt      = formData.get("prompt") as string;
-    const aspectRatio = (formData.get("aspect_ratio") as string) || "1:1";
+    const prompt = formData.get("prompt") as string;
 
     if (!prompt) {
       return NextResponse.json({ error: "Prompt requerido" }, { status: 400 });
@@ -55,13 +43,10 @@ export async function POST(req: NextRequest) {
     });
     content.push({ type: "text", text: prompt });
 
-    const size = RATIO_TO_SIZE[aspectRatio] ?? "1024x1024";
-
     const body = {
       model:      "bytedance-seed/seedream-4.5",
       modalities: ["image"],
       messages:   [{ role: "user", content }],
-      image_generation_config: { size },
     };
 
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
