@@ -4,11 +4,23 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime    = "nodejs";
 export const maxDuration = 120;
 
+// Map our ratio labels to fal.ai image_size presets
+const RATIO_TO_SIZE: Record<string, { width: number; height: number }> = {
+  "1:1":  { width: 1024, height: 1024 },
+  "16:9": { width: 1820, height: 1024 },
+  "9:16": { width: 1024, height: 1820 },
+  "4:3":  { width: 1365, height: 1024 },
+  "3:4":  { width: 1024, height: 1365 },
+  "3:2":  { width: 1536, height: 1024 },
+  "2:3":  { width: 1024, height: 1536 },
+  "21:9": { width: 2048, height: 878  },
+};
+
 export async function POST(req: NextRequest) {
   try {
     const formData    = await req.formData();
     const prompt      = formData.get("prompt") as string;
-    const aspect_ratio = (formData.get("aspect_ratio") as string) || "1:1";
+    const aspectRatio = (formData.get("aspect_ratio") as string) || "1:1";
 
     if (!prompt) {
       return NextResponse.json({ error: "Prompt requerido" }, { status: 400 });
@@ -46,22 +58,25 @@ export async function POST(req: NextRequest) {
       i++;
     }
 
-    // Build Seedream 4.5 request body
+    const imageSize = RATIO_TO_SIZE[aspectRatio] ?? { width: 1024, height: 1024 };
+
+    // Use text-to-image endpoint, or edit endpoint when reference images provided
+    const endpoint = referenceUrls.length > 0
+      ? "https://fal.run/fal-ai/bytedance/seedream/v4.5/edit"
+      : "https://fal.run/fal-ai/bytedance/seedream/v4.5/text-to-image";
+
     const body: Record<string, unknown> = {
       prompt,
-      aspect_ratio,
+      image_size: imageSize,
       num_images: 1,
       enable_safety_checker: false,
     };
 
     if (referenceUrls.length > 0) {
-      body.image_url = referenceUrls[0];
-      if (referenceUrls.length > 1) {
-        body.reference_image_urls = referenceUrls;
-      }
+      body.image_urls = referenceUrls;
     }
 
-    const falRes = await fetch("https://fal.run/fal-ai/seedream-4-5", {
+    const falRes = await fetch(endpoint, {
       method: "POST",
       headers: {
         Authorization: `Key ${FAL_KEY}`,
