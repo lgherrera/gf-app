@@ -8,6 +8,7 @@ import GFSidebar from './GFSidebar';
 import styles from './ChatInterface.module.css';
 import { useUser } from '@/lib/hooks/useUser';
 import { saveChatMessage } from '@/lib/saveChatMessage';
+import { updateProgress } from '@/lib/progress';
 
 interface Girlfriend {
   id: string;
@@ -27,7 +28,7 @@ interface Girlfriend {
   style?: string;
 }
 
-interface Scenario {
+interface Scene {
   id: string;
   scene_name: string;
   girlfriend_id: string;
@@ -37,7 +38,8 @@ interface Scenario {
   audio_slug: string | null;
   mood: string | null;
   opener: string;
-  is_premium: boolean;
+  relationship_stage: number;
+  content_rating: string;
 }
 
 interface Message {
@@ -63,14 +65,19 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   const [error, setError] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
-  // Scenario state
-  const [scenarios, setScenarios] = useState<Scenario[]>([]);
-  const [currentScenario, setCurrentScenario] = useState<Scenario | null>(null);
-  const [isLoadingScenarios, setIsLoadingScenarios] = useState(true);
+  // Scene state
+  const [scenes, setScenes] = useState<Scene[]>([]);
+  const [currentScene, setCurrentScene] = useState<Scene | null>(null);
+  const [isLoadingScenes, setIsLoadingScenes] = useState(true);
   const [hasInitialized, setHasInitialized] = useState(false);
   const [imageGenerated, setImageGenerated] = useState(false);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
-  
+
+  // Progress state
+  const [currentStage, setCurrentStage] = useState(1);
+  const [currentScore, setCurrentScore] = useState(0);
+  const [isFirstMessageInScene, setIsFirstMessageInScene] = useState(false);
+
   // Audio playback state - track which message is playing
   const [playingMessageId, setPlayingMessageId] = useState<string | null>(null);
   const [audioLoadingMessageId, setAudioLoadingMessageId] = useState<string | null>(null);
@@ -84,28 +91,27 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     return `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   };
 
-  // Fetch scenarios on mount
+  // Fetch scenes on mount and when stage changes
   useEffect(() => {
-    const fetchScenarios = async () => {
+    const fetchScenes = async () => {
       try {
-        const response = await fetch(`/api/scenarios/${girlfriend.id}`);
+        const response = await fetch(`/api/scenes/${girlfriend.id}?stage=${currentStage}`);
         const data = await response.json();
         
-        if (data.scenarios && data.scenarios.length > 0) {
-          setScenarios(data.scenarios);
-          // Select random scenario
-          const randomIndex = Math.floor(Math.random() * data.scenarios.length);
-          setCurrentScenario(data.scenarios[randomIndex]);
+        if (data.scenes && data.scenes.length > 0) {
+          setScenes(data.scenes);
+          const randomIndex = Math.floor(Math.random() * data.scenes.length);
+          setCurrentScene(data.scenes[randomIndex]);
         }
       } catch (err) {
-        console.error('Error fetching scenarios:', err);
+        console.error('Error fetching scenes:', err);
       } finally {
-        setIsLoadingScenarios(false);
+        setIsLoadingScenes(false);
       }
     };
 
-    fetchScenarios();
-  }, [girlfriend.id]);
+    fetchScenes();
+  }, [girlfriend.id, currentStage]);
 
   // Cleanup audio on unmount
   useEffect(() => {
@@ -119,24 +125,24 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     };
   }, []);
 
-  // Build opening messages from scenario description + opener only
+  // Build opening messages from scene description + opener only
   const buildOpeningMessages = (): Message[] => {
     const messages: Message[] = [];
     
-    if (currentScenario?.description) {
+    if (currentScene?.description) {
       messages.push({
         id: 'description_' + generateMessageId(),
         role: 'assistant',
-        content: currentScenario.description,
+        content: currentScene.description,
         timestamp: new Date()
       });
     }
     
-    if (currentScenario?.opener) {
+    if (currentScene?.opener) {
       messages.push({
         id: 'opener_' + generateMessageId(),
         role: 'assistant',
-        content: currentScenario.opener,
+        content: currentScene.opener,
         timestamp: new Date()
       });
     }
@@ -144,16 +150,17 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     return messages;
   };
 
-  // Show opening message on mount if no video and scenario is loaded
+  // Show opening message on mount if no video and scene is loaded
   useEffect(() => {
-    if (!girlfriend.hello_url && currentScenario && !isLoadingScenarios && !hasInitialized) {
+    if (!girlfriend.hello_url && currentScene && !isLoadingScenes && !hasInitialized) {
       const openingMessages = buildOpeningMessages();
       if (openingMessages.length > 0) {
         setMessages(openingMessages);
         setHasInitialized(true);
+        setIsFirstMessageInScene(true);
       }
     }
-  }, [currentScenario, isLoadingScenarios, hasInitialized]);
+  }, [currentScene, isLoadingScenes, hasInitialized]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -174,6 +181,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
       if (openingMessages.length > 0) {
         setMessages(openingMessages);
         setHasInitialized(true);
+        setIsFirstMessageInScene(true);
       }
     }
   };
@@ -186,14 +194,15 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
       if (openingMessages.length > 0) {
         setMessages(openingMessages);
         setHasInitialized(true);
+        setIsFirstMessageInScene(true);
       }
     }
   };
 
-  const handleRandomScenario = () => {
-    if (scenarios.length <= 1) return;
+  const handleRandomScene = () => {
+    if (scenes.length <= 1) return;
     
-    // Stop any playing audio when switching scenarios
+    // Stop any playing audio when switching scenes
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
@@ -205,31 +214,32 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     messageAudioRefs.current.clear();
     setPlayingMessageId(null);
     
-    let newScenario: Scenario;
+    let newScene: Scene;
     do {
-      const randomIndex = Math.floor(Math.random() * scenarios.length);
-      newScenario = scenarios[randomIndex];
-    } while (newScenario.id === currentScenario?.id && scenarios.length > 1);
+      const randomIndex = Math.floor(Math.random() * scenes.length);
+      newScene = scenes[randomIndex];
+    } while (newScene.id === currentScene?.id && scenes.length > 1);
     
-    setCurrentScenario(newScenario);
+    setCurrentScene(newScene);
     setImageGenerated(false);
+    setIsFirstMessageInScene(true);
     
     const newMessages: Message[] = [];
     
-    if (newScenario.description) {
+    if (newScene.description) {
       newMessages.push({
         id: 'description_' + generateMessageId(),
         role: 'assistant',
-        content: newScenario.description,
+        content: newScene.description,
         timestamp: new Date()
       });
     }
     
-    if (newScenario.opener) {
+    if (newScene.opener) {
       newMessages.push({
         id: 'opener_' + generateMessageId(),
         role: 'assistant',
-        content: newScenario.opener,
+        content: newScene.opener,
         timestamp: new Date()
       });
     }
@@ -238,8 +248,8 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   };
 
   const handlePlayAudio = () => {
-    if (!currentScenario?.audio_slug) {
-      console.error('No audio_slug available for current scenario');
+    if (!currentScene?.audio_slug) {
+      console.error('No audio_slug available for current scene');
       return;
     }
     
@@ -250,7 +260,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     }
     
     if (!audioRef.current) {
-      audioRef.current = new Audio(currentScenario.audio_slug);
+      audioRef.current = new Audio(currentScene.audio_slug);
       
       audioRef.current.addEventListener('ended', () => {
         setIsPlayingAudio(false);
@@ -364,8 +374,8 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   };
 
   const handleGenerateImage = () => {
-    if (!currentScenario?.image_slug) {
-      console.error('No image_slug available for current scenario');
+    if (!currentScene?.image_slug) {
+      console.error('No image_slug available for current scene');
       return;
     }
 
@@ -374,7 +384,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
       role: 'assistant',
       content: '',
       timestamp: new Date(),
-      imageUrl: currentScenario.image_slug
+      imageUrl: currentScene.image_slug
     };
 
     setMessages(prev => [...prev, imageMessage]);
@@ -400,6 +410,19 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
 
     saveChatMessage({ userId, girlfriendId: girlfriend.id, role: 'user', content: trimmedInput });
 
+    // Update progress — pass sceneUsed=true only on first message after a scene loads
+    updateProgress(userId, girlfriend.id, isFirstMessageInScene)
+      .then(result => {
+        setCurrentScore(result.score);
+        if (result.stage !== currentStage) {
+          setCurrentStage(result.stage);
+        }
+      })
+      .catch(err => console.error('Error updating progress:', err));
+
+    // Reset scene flag after first message
+    if (isFirstMessageInScene) setIsFirstMessageInScene(false);
+
     try {
       const conversationHistory = [...messages, userMessage].map(msg => ({
         role: msg.role,
@@ -415,7 +438,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
           girlfriendId: girlfriend.id,
           userId: userId,
           messages: conversationHistory,
-          scenarioDescription: currentScenario?.description,
+          scenarioDescription: currentScene?.description,
         }),
       });
 
@@ -540,6 +563,8 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
           gender: girlfriend.gender,
           style: girlfriend.style,
         }}
+        stage={currentStage}
+        score={currentScore}
       />
 
       {/* Chat Area */}
@@ -569,11 +594,11 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
               </div>
             ) : message.id.startsWith('description_') ? (
               <div className={styles.messageBubbleScenario}>
-                {scenarios.length > 1 && (
+                {scenes.length > 1 && (
                   <button 
                     className={styles.shuffleButton}
-                    onClick={handleRandomScenario}
-                    title="Cambiar escenario"
+                    onClick={handleRandomScene}
+                    title="Cambiar escena"
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
@@ -581,7 +606,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
                   </button>
                 )}
                 
-                {currentScenario?.audio_slug && (
+                {currentScene?.audio_slug && (
                   <button 
                     className={`${styles.playButton} ${isPlayingAudio ? styles.playing : ''}`}
                     onClick={handlePlayAudio}
@@ -633,7 +658,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
               </div>
             )}
             
-            {message.id.startsWith('description_') && !imageGenerated && currentScenario?.image_slug && (
+            {message.id.startsWith('description_') && !imageGenerated && currentScene?.image_slug && (
               <button 
                 className={styles.imageGeneratorButton}
                 onClick={handleGenerateImage}
