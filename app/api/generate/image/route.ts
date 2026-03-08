@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime     = "nodejs";
 export const maxDuration = 120;
 
-// Map ratio labels to width x height strings OpenRouter accepts
 const RATIO_TO_SIZE: Record<string, string> = {
   "1:1":  "1024x1024",
   "16:9": "1820x1024",
@@ -29,7 +28,7 @@ export async function POST(req: NextRequest) {
     const OR_KEY = process.env.OPENROUTER_API_KEY;
     if (!OR_KEY) {
       return NextResponse.json(
-        { error: "OPENROUTER_API_KEY no configurada en variables de entorno" },
+        { error: "OPENROUTER_API_KEY no configurada" },
         { status: 500 }
       );
     }
@@ -46,17 +45,14 @@ export async function POST(req: NextRequest) {
       i++;
     }
 
-    // Build content array — images first, then the text prompt
     type ContentPart =
       | { type: "text"; text: string }
       | { type: "image_url"; image_url: { url: string } };
 
     const content: ContentPart[] = [];
-
     refDataUrls.forEach((url) => {
       content.push({ type: "image_url", image_url: { url } });
     });
-
     content.push({ type: "text", text: prompt });
 
     const size = RATIO_TO_SIZE[aspectRatio] ?? "1024x1024";
@@ -64,8 +60,7 @@ export async function POST(req: NextRequest) {
     const body = {
       model:      "bytedance-seed/seedream-4.5",
       modalities: ["image"],
-      messages: [{ role: "user", content }],
-      // Pass size as a generation parameter
+      messages:   [{ role: "user", content }],
       image_generation_config: { size },
     };
 
@@ -81,44 +76,61 @@ export async function POST(req: NextRequest) {
     });
 
     const text = await res.text();
+
     if (!res.ok) {
       console.error("OpenRouter error:", text);
       return NextResponse.json(
-        { error: `OpenRouter ${res.status}: ${text.slice(0, 200)}` },
+        { error: `OpenRouter ${res.status}: ${text.slice(0, 300)}` },
         { status: 502 }
       );
     }
 
-    let data: { choices?: { message?: { content?: string | { type: string; image_url?: { url: string } }[] } }[] };
+    // Log full response so we can debug the shape
+    console.log("OpenRouter raw response:", text.slice(0, 1000));
+
+    let data: Record<string, unknown>;
     try {
       data = JSON.parse(text);
     } catch {
-      console.error("OpenRouter non-JSON:", text);
       return NextResponse.json(
-        { error: `Respuesta inesperada: ${text.slice(0, 120)}` },
+        { error: `Respuesta no-JSON: ${text.slice(0, 200)}` },
         { status: 502 }
       );
     }
 
-    // Extract the image URL/data-URL from the response
-    const messageContent = data?.choices?.[0]?.message?.content;
+    // Try every known shape OpenRouter returns for image models
+    const choices = data?.choices as { message?: { content?: unknown } }[] | undefined;
+    const msgContent = choices?.[0]?.message?.content;
+
     let imageUrl: string | undefined;
 
-    if (typeof messageContent === "string") {
-      // Sometimes returned as a plain data URL string
-      imageUrl = messageContent;
-    } else if (Array.isArray(messageContent)) {
-      const imgPart = messageContent.find(
-        (p): p is { type: string; image_url: { url: string } } =>
-          p.type === "image_url" && !!p.image_url?.url
-      );
-      imageUrl = imgPart?.image_url?.url;
+    if (typeof msgContent === "string") {
+      // Plain data URL or https URL
+      if (msgContent.startsWith("data:") || msgContent.startsWith("http")) {
+        imageUrl = msgContent;
+      }
+    } else if (Array.isArray(msgContent)) {
+      for (const part of msgContent) {
+        if (part?.type === "image_url" && part?.image_url?.url) {
+          imageUrl = part.image_url.url;
+          break;
+        }
+        // Some providers return type: "image"
+        if (part?.type === "image" && part?.source?.url) {
+          imageUrl = part.source.url;
+          break;
+        }
+        if (part?.type === "image" && part?.url) {
+          imageUrl = part.url;
+          break;
+        }
+      }
     }
 
     if (!imageUrl) {
-      console.error("OpenRouter unexpected shape:", JSON.stringify(data));
+      // Return the full raw response so we can see what shape it actually is
       return NextResponse.json(
-        { error: "No se recibió imagen de OpenRouter" },
+        { error: `Forma inesperada. Raw: ${JSON.stringify(data).slice(0, 500)}` },
         { status: 502 }
       );
     }
