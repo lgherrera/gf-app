@@ -4,40 +4,17 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime     = "nodejs";
 export const maxDuration = 120;
 
-// Map ratio labels to fal.ai image_size objects
-const RATIO_TO_SIZE: Record<string, { width: number; height: number }> = {
-  "1:1":  { width: 1024, height: 1024 },
-  "16:9": { width: 1820, height: 1024 },
-  "9:16": { width: 1024, height: 1820 },
-  "4:3":  { width: 1365, height: 1024 },
-  "3:4":  { width: 1024, height: 1365 },
-  "3:2":  { width: 1536, height: 1024 },
-  "2:3":  { width: 1024, height: 1536 },
-  "21:9": { width: 2048, height: 878  },
+// Map ratio labels to width x height strings OpenRouter accepts
+const RATIO_TO_SIZE: Record<string, string> = {
+  "1:1":  "1024x1024",
+  "16:9": "1820x1024",
+  "9:16": "1024x1820",
+  "4:3":  "1365x1024",
+  "3:4":  "1024x1365",
+  "3:2":  "1536x1024",
+  "2:3":  "1024x1536",
+  "21:9": "2048x878",
 };
-
-async function falPost(endpoint: string, body: Record<string, unknown>, falKey: string) {
-  const url = `https://fal.run/${endpoint}`;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Authorization": `Key ${falKey}`,
-      "Content-Type":  "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-  const text = await res.text();
-  if (!res.ok) {
-    console.error(`fal.ai [${res.status}] ${url}:`, text);
-    throw new Error(`fal.ai ${res.status}: ${text.slice(0, 200)}`);
-  }
-  try {
-    return JSON.parse(text);
-  } catch {
-    console.error("fal.ai non-JSON response:", text);
-    throw new Error(`fal.ai respuesta inesperada: ${text.slice(0, 200)}`);
-  }
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -49,66 +26,99 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Prompt requerido" }, { status: 400 });
     }
 
-    const FAL_KEY = process.env.FAL_KEY;
-    if (!FAL_KEY) {
+    const OR_KEY = process.env.OPENROUTER_API_KEY;
+    if (!OR_KEY) {
       return NextResponse.json(
-        { error: "FAL_KEY no configurada en variables de entorno" },
+        { error: "OPENROUTER_API_KEY no configurada en variables de entorno" },
         { status: 500 }
       );
     }
 
-    // Upload reference images to fal storage
-    const referenceUrls: string[] = [];
+    // Collect reference images as base64 data URLs
+    const refDataUrls: string[] = [];
     let i = 0;
     while (formData.get(`reference_${i}`)) {
       const file   = formData.get(`reference_${i}`) as File;
       const bytes  = await file.arrayBuffer();
-
-      const uploadRes = await fetch("https://fal.run/fal-ai/storage/upload", {
-        method: "POST",
-        headers: {
-          Authorization: `Key ${FAL_KEY}`,
-          "Content-Type": file.type || "image/jpeg",
-        },
-        body: bytes,
-      });
-
-      if (uploadRes.ok) {
-        const uploadData = await uploadRes.json();
-        if (uploadData.url) referenceUrls.push(uploadData.url);
-      }
+      const base64 = Buffer.from(bytes).toString("base64");
+      const mime   = file.type || "image/jpeg";
+      refDataUrls.push(`data:${mime};base64,${base64}`);
       i++;
     }
 
-    const imageSize = RATIO_TO_SIZE[aspectRatio] ?? { width: 1024, height: 1024 };
+    // Build content array — images first, then the text prompt
+    type ContentPart =
+      | { type: "text"; text: string }
+      | { type: "image_url"; image_url: { url: string } };
 
-    const hasRefs    = referenceUrls.length > 0;
-    const modelPath  = hasRefs
-      ? "fal-ai/bytedance/seedream/v4.5/edit"
-      : "fal-ai/bytedance/seedream/v4.5/text-to-image";
+    const content: ContentPart[] = [];
 
-    const body: Record<string, unknown> = {
-      prompt,
-      image_size: imageSize,
-      num_images: 1,
-      enable_safety_checker: false,
+    refDataUrls.forEach((url) => {
+      content.push({ type: "image_url", image_url: { url } });
+    });
+
+    content.push({ type: "text", text: prompt });
+
+    const size = RATIO_TO_SIZE[aspectRatio] ?? "1024x1024";
+
+    const body = {
+      model:      "bytedance-seed/seedream-4.5",
+      modalities: ["image"],
+      messages: [{ role: "user", content }],
+      // Pass size as a generation parameter
+      image_generation_config: { size },
     };
 
-    if (hasRefs) {
-      body.image_urls = referenceUrls;
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization:  `Bearer ${OR_KEY}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer":  "https://www.charlare.com",
+        "X-Title":       "Charlare",
+      },
+      body: JSON.stringify(body),
+    });
+
+    const text = await res.text();
+    if (!res.ok) {
+      console.error("OpenRouter error:", text);
+      return NextResponse.json(
+        { error: `OpenRouter ${res.status}: ${text.slice(0, 200)}` },
+        { status: 502 }
+      );
     }
 
-    const falData = await falPost(modelPath, body, FAL_KEY);
+    let data: { choices?: { message?: { content?: string | { type: string; image_url?: { url: string } }[] } }[] };
+    try {
+      data = JSON.parse(text);
+    } catch {
+      console.error("OpenRouter non-JSON:", text);
+      return NextResponse.json(
+        { error: `Respuesta inesperada: ${text.slice(0, 120)}` },
+        { status: 502 }
+      );
+    }
 
-    const imageUrl =
-      falData?.images?.[0]?.url ||
-      falData?.image?.url ||
-      falData?.output?.images?.[0]?.url;
+    // Extract the image URL/data-URL from the response
+    const messageContent = data?.choices?.[0]?.message?.content;
+    let imageUrl: string | undefined;
+
+    if (typeof messageContent === "string") {
+      // Sometimes returned as a plain data URL string
+      imageUrl = messageContent;
+    } else if (Array.isArray(messageContent)) {
+      const imgPart = messageContent.find(
+        (p): p is { type: string; image_url: { url: string } } =>
+          p.type === "image_url" && !!p.image_url?.url
+      );
+      imageUrl = imgPart?.image_url?.url;
+    }
 
     if (!imageUrl) {
-      console.error("fal.ai unexpected shape:", JSON.stringify(falData));
+      console.error("OpenRouter unexpected shape:", JSON.stringify(data));
       return NextResponse.json(
-        { error: "No se recibió imagen de fal.ai" },
+        { error: "No se recibió imagen de OpenRouter" },
         { status: 502 }
       );
     }
