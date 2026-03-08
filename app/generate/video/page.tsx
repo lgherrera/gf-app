@@ -10,15 +10,9 @@ export default function VideoGenerationPage() {
         <h2 className={styles.pageTitle}>Generación de Videos</h2>
         <p className={styles.pageSubtitle}>Próximamente</p>
       </div>
-
       <div className={styles.comingSoon}>
         <div className={styles.icon}>▶</div>
-        <p className={styles.text}>
-          La generación de videos estará disponible pronto.
-        </p>
-        <p className={styles.sub}>
-          Estamos integrando los mejores modelos de video por IA.
-        </p>
+        <p className={styles.text}>La generación de videos estará disponible pronto.</p>
       </div>
     </div>
   );

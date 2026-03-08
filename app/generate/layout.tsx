@@ -15,29 +15,21 @@ export default function GenerateLayout({
   return (
     <div className={styles.layout}>
       <header className={styles.header}>
-        <div className={styles.headerInner}>
-          <h1 className={styles.title}>Estudio Creativo</h1>
-          <nav className={styles.nav}>
-            <Link
-              href="/generate/image"
-              className={`${styles.navLink} ${
-                pathname === "/generate/image" ? styles.active : ""
-              }`}
-            >
-              <span className={styles.navIcon}>✦</span>
-              Imágenes
-            </Link>
-            <Link
-              href="/generate/video"
-              className={`${styles.navLink} ${
-                pathname === "/generate/video" ? styles.active : ""
-              }`}
-            >
-              <span className={styles.navIcon}>▶</span>
-              Videos
-            </Link>
-          </nav>
-        </div>
+        <h1 className={styles.title}>Estudio</h1>
+        <nav className={styles.nav}>
+          <Link
+            href="/generate/image"
+            className={`${styles.navLink} ${pathname === "/generate/image" ? styles.active : ""}`}
+          >
+            Imágenes
+          </Link>
+          <Link
+            href="/generate/video"
+            className={`${styles.navLink} ${pathname === "/generate/video" ? styles.active : ""}`}
+          >
+            Videos
+          </Link>
+        </nav>
       </header>
       <main className={styles.main}>{children}</main>
     </div>

@@ -1,98 +1,83 @@
 /* app/generate/image/image.module.css */
 
 .page {
-    padding-bottom: 60px;
+    padding-bottom: 40px;
   }
   
   .titleBlock {
-    margin-bottom: 40px;
-    padding-bottom: 24px;
-    border-bottom: 1px solid rgba(240, 237, 232, 0.08);
+    margin-bottom: 24px;
   }
   
   .pageTitle {
-    font-size: 28px;
+    font-size: 1.25rem;
     font-weight: 400;
-    letter-spacing: -0.02em;
-    margin: 0 0 6px;
-    color: #f0ede8;
+    letter-spacing: 0.5px;
+    margin: 0 0 4px;
+    color: white;
   }
   
   .pageSubtitle {
-    font-size: 12px;
-    letter-spacing: 0.15em;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: rgba(240, 237, 232, 0.3);
+    color: rgba(255, 255, 255, 0.3);
     margin: 0;
-    font-family: "Georgia", serif;
-  }
-  
-  /* ── Layout grid ── */
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
-    align-items: start;
-  }
-  
-  @media (max-width: 700px) {
-    .grid {
-      grid-template-columns: 1fr;
-    }
   }
   
   /* ── Controls ── */
   .controls {
     display: flex;
     flex-direction: column;
-    gap: 28px;
+    gap: 20px;
   }
   
   .field {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
   }
   
   .label {
-    font-size: 11px;
-    letter-spacing: 0.18em;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: rgba(240, 237, 232, 0.45);
+    color: rgba(255, 255, 255, 0.4);
   }
   
   .optional {
-    font-size: 10px;
-    color: rgba(240, 237, 232, 0.25);
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.2);
     text-transform: none;
     letter-spacing: 0;
   }
   
   .textarea {
-    background: rgba(240, 237, 232, 0.04);
-    border: 1px solid rgba(240, 237, 232, 0.1);
-    border-radius: 8px;
-    padding: 14px 16px;
-    color: #f0ede8;
-    font-family: "Georgia", serif;
-    font-size: 14px;
-    line-height: 1.6;
+    background-color: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 12px 14px;
+    color: white;
+    font-family: inherit;
+    font-size: 0.95rem;
+    line-height: 1.5;
     resize: vertical;
     transition: border-color 0.2s;
     outline: none;
+    width: 100%;
+    box-sizing: border-box;
   }
   
   .textarea:focus {
-    border-color: rgba(240, 237, 232, 0.3);
+    border-color: color-mix(in srgb, var(--color-primary) 50%, transparent);
   }
   
   .textarea::placeholder {
-    color: rgba(240, 237, 232, 0.2);
+    color: rgba(255, 255, 255, 0.2);
   }
   
   .charCount {
-    font-size: 11px;
-    color: rgba(240, 237, 232, 0.2);
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.2);
     text-align: right;
   }
   
@@ -104,57 +89,57 @@
   }
   
   .ratioBtn {
-    background: rgba(240, 237, 232, 0.04);
-    border: 1px solid rgba(240, 237, 232, 0.1);
-    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
     padding: 10px 6px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.15s ease;
-    color: rgba(240, 237, 232, 0.5);
+    color: rgba(255, 255, 255, 0.4);
   }
   
   .ratioBtn:hover {
-    border-color: rgba(240, 237, 232, 0.25);
-    color: #f0ede8;
-    background: rgba(240, 237, 232, 0.07);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    background: rgba(255, 255, 255, 0.08);
   }
   
   .ratioActive {
-    border-color: #c8a96e !important;
-    background: rgba(200, 169, 110, 0.1) !important;
-    color: #c8a96e !important;
+    border-color: color-mix(in srgb, var(--color-primary) 60%, transparent) !important;
+    background: color-mix(in srgb, var(--color-primary) 12%, transparent) !important;
+    color: var(--color-primary) !important;
   }
   
   .ratioLabel {
-    font-size: 11px;
-    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+    letter-spacing: 0.03em;
   }
   
   /* ── Drop zone ── */
   .dropZone {
-    border: 1px dashed rgba(240, 237, 232, 0.2);
-    border-radius: 8px;
-    padding: 24px;
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     cursor: pointer;
     transition: all 0.2s;
     text-align: center;
   }
   
   .dropZone:hover {
-    border-color: rgba(240, 237, 232, 0.4);
-    background: rgba(240, 237, 232, 0.03);
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.03);
   }
   
   .dragOver {
-    border-color: #c8a96e !important;
-    background: rgba(200, 169, 110, 0.06) !important;
+    border-color: var(--color-primary) !important;
+    background: color-mix(in srgb, var(--color-primary) 8%, transparent) !important;
   }
   
   .hiddenInput {
@@ -162,15 +147,14 @@
   }
   
   .dropIcon {
-    font-size: 24px;
-    color: rgba(240, 237, 232, 0.3);
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.25);
     line-height: 1;
   }
   
   .dropText {
-    font-size: 12px;
-    color: rgba(240, 237, 232, 0.35);
-    letter-spacing: 0.03em;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.3);
   }
   
   /* ── Reference previews ── */
@@ -182,11 +166,11 @@
   
   .refItem {
     position: relative;
-    width: 64px;
-    height: 64px;
-    border-radius: 6px;
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
     overflow: hidden;
-    border: 1px solid rgba(240, 237, 232, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
   
   .refImg {
@@ -221,66 +205,53 @@
   
   /* ── Error ── */
   .error {
-    background: rgba(200, 50, 50, 0.1);
+    background: rgba(200, 50, 50, 0.12);
     border: 1px solid rgba(200, 50, 50, 0.3);
-    border-radius: 6px;
-    padding: 12px 16px;
-    font-size: 13px;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
     color: #f08080;
   }
   
   /* ── Generate button ── */
   .generateBtn {
     width: 100%;
-    padding: 16px;
-    background: #c8a96e;
-    border: none;
-    border-radius: 8px;
-    color: #0a0a0a;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    padding: 14px;
+    background: color-mix(in srgb, var(--color-primary) 15%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
+    border-radius: 12px;
+    color: var(--color-primary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
     cursor: pointer;
     transition: all 0.2s;
   }
   
   .generateBtn:hover:not(:disabled) {
-    background: #d4b87d;
+    background: color-mix(in srgb, var(--color-primary) 25%, transparent);
+    border-color: color-mix(in srgb, var(--color-primary) 50%, transparent);
     transform: translateY(-1px);
   }
   
   .generateBtn:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
   }
   
-  .loadingSpinner {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  /* ── Preview panel ── */
-  .preview {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    position: sticky;
-    top: 80px;
-  }
-  
+  /* ── Preview ── */
   .previewFrame {
     width: 100%;
-    background: rgba(240, 237, 232, 0.03);
-    border: 1px solid rgba(240, 237, 232, 0.08);
-    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-    min-height: 180px;
+    min-height: 200px;
+    margin-top: 20px;
   }
   
   .resultImg {
@@ -288,23 +259,23 @@
     height: 100%;
     object-fit: contain;
     display: block;
+    border-radius: 12px;
   }
   
   .emptyState {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
-    color: rgba(240, 237, 232, 0.2);
-    font-size: 13px;
-    letter-spacing: 0.05em;
+    gap: 10px;
+    color: rgba(255, 255, 255, 0.15);
+    font-size: 0.85rem;
     padding: 40px;
     text-align: center;
   }
   
   .emptyIcon {
-    font-size: 28px;
-    opacity: 0.4;
+    font-size: 2rem;
+    opacity: 0.3;
   }
   
   /* ── Loading overlay ── */
@@ -315,21 +286,22 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 20px;
-    background: rgba(10, 10, 10, 0.7);
+    gap: 16px;
+    background: rgba(5, 5, 5, 0.7);
     backdrop-filter: blur(4px);
+    border-radius: 12px;
   }
   
   .loadingDots {
     display: flex;
-    gap: 8px;
+    gap: 6px;
   }
   
   .loadingDots span {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #c8a96e;
+    background: var(--color-primary);
     animation: pulse 1.4s ease-in-out infinite;
   }
   
@@ -342,10 +314,10 @@
   }
   
   .loadingText {
-    font-size: 12px;
-    letter-spacing: 0.12em;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: rgba(240, 237, 232, 0.4);
+    color: rgba(255, 255, 255, 0.3);
     margin: 0;
   }
   
@@ -354,17 +326,18 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 16px;
-    background: rgba(240, 237, 232, 0.04);
-    border: 1px solid rgba(240, 237, 232, 0.08);
-    border-radius: 8px;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    margin-top: 10px;
   }
   
   .downloadLabel {
-    font-size: 11px;
-    letter-spacing: 0.12em;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: rgba(240, 237, 232, 0.4);
+    color: rgba(255, 255, 255, 0.3);
   }
   
   .downloadBtns {
@@ -373,19 +346,19 @@
   }
   
   .dlBtn {
-    padding: 6px 14px;
-    background: transparent;
-    border: 1px solid rgba(200, 169, 110, 0.4);
-    border-radius: 5px;
-    color: #c8a96e;
-    font-size: 11px;
+    padding: 5px 12px;
+    background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
+    border-radius: 20px;
+    color: var(--color-primary);
+    font-size: 0.75rem;
     font-weight: 600;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     cursor: pointer;
     transition: all 0.15s;
   }
   
   .dlBtn:hover {
-    background: rgba(200, 169, 110, 0.12);
-    border-color: #c8a96e;
+    background: color-mix(in srgb, var(--color-primary) 22%, transparent);
+    border-color: color-mix(in srgb, var(--color-primary) 50%, transparent);
   }
