@@ -10,6 +10,8 @@ import { useUser } from '@/lib/hooks/useUser';
 import { saveChatMessage } from '@/lib/saveChatMessage';
 import { updateProgress } from '@/lib/progress';
 
+const contentRating = process.env.NEXT_PUBLIC_APP_SOURCE || 'sfw';
+
 interface Girlfriend {
   id: string;
   slug: string;
@@ -31,7 +33,6 @@ interface Girlfriend {
 interface Scene {
   id: string;
   scene_name: string;
-  girlfriend_id: string;
   description: string;
   video_slug: string | null;
   image_slug: string | null;
@@ -78,7 +79,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   const [currentScore, setCurrentScore] = useState(0);
   const [isFirstMessageInScene, setIsFirstMessageInScene] = useState(false);
 
-  // Audio playback state - track which message is playing
+  // Audio playback state
   const [playingMessageId, setPlayingMessageId] = useState<string | null>(null);
   const [audioLoadingMessageId, setAudioLoadingMessageId] = useState<string | null>(null);
 
@@ -95,7 +96,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   useEffect(() => {
     const fetchScenes = async () => {
       try {
-        const response = await fetch(`/api/scenes/${girlfriend.id}?stage=${currentStage}`);
+        const response = await fetch(`/api/scenes?stage=${currentStage}&contentRating=${contentRating}`);
         const data = await response.json();
         
         if (data.scenes && data.scenes.length > 0) {
@@ -111,7 +112,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     };
 
     fetchScenes();
-  }, [girlfriend.id, currentStage]);
+  }, [currentStage]);
 
   // Cleanup audio on unmount
   useEffect(() => {
@@ -202,14 +203,12 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   const handleRandomScene = () => {
     if (scenes.length <= 1) return;
     
-    // Stop any playing audio when switching scenes
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
       setIsPlayingAudio(false);
     }
     
-    // Stop any message audio
     messageAudioRefs.current.forEach(audio => audio.pause());
     messageAudioRefs.current.clear();
     setPlayingMessageId(null);
@@ -274,9 +273,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     }
     
     audioRef.current.play()
-      .then(() => {
-        setIsPlayingAudio(true);
-      })
+      .then(() => setIsPlayingAudio(true))
       .catch((error) => {
         console.error('Error playing audio:', error);
         setError('Error al reproducir el audio');
@@ -295,9 +292,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
 
     if (playingMessageId) {
       const currentAudio = messageAudioRefs.current.get(playingMessageId);
-      if (currentAudio) {
-        currentAudio.pause();
-      }
+      if (currentAudio) currentAudio.pause();
     }
 
     if (audioUrl) {
@@ -305,17 +300,9 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
       if (!audio) {
         audio = new Audio(audioUrl);
         messageAudioRefs.current.set(messageId, audio);
-
-        audio.addEventListener('ended', () => {
-          setPlayingMessageId(null);
-        });
-
-        audio.addEventListener('error', (e) => {
-          console.error('Error playing message audio:', e);
-          setPlayingMessageId(null);
-        });
+        audio.addEventListener('ended', () => setPlayingMessageId(null));
+        audio.addEventListener('error', () => setPlayingMessageId(null));
       }
-
       try {
         await audio.play();
         setPlayingMessageId(messageId);
@@ -323,10 +310,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
         console.error('Error playing audio:', error);
       }
     } else if (messageContent) {
-      if (!girlfriend.voice_id) {
-        console.warn('No voice_id configured for this girlfriend');
-        return;
-      }
+      if (!girlfriend.voice_id) return;
 
       setAudioLoadingMessageId(messageId);
       
@@ -345,23 +329,13 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
 
         if (data.audioUrl) {
           setMessages(prev => prev.map(msg => 
-            msg.id === messageId 
-              ? { ...msg, audioUrl: data.audioUrl }
-              : msg
+            msg.id === messageId ? { ...msg, audioUrl: data.audioUrl } : msg
           ));
 
           const audio = new Audio(data.audioUrl);
           messageAudioRefs.current.set(messageId, audio);
-
-          audio.addEventListener('ended', () => {
-            setPlayingMessageId(null);
-          });
-
-          audio.addEventListener('error', (e) => {
-            console.error('Error playing message audio:', e);
-            setPlayingMessageId(null);
-          });
-
+          audio.addEventListener('ended', () => setPlayingMessageId(null));
+          audio.addEventListener('error', () => setPlayingMessageId(null));
           await audio.play();
           setPlayingMessageId(messageId);
         }
@@ -374,10 +348,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   };
 
   const handleGenerateImage = () => {
-    if (!currentScene?.image_slug) {
-      console.error('No image_slug available for current scene');
-      return;
-    }
+    if (!currentScene?.image_slug) return;
 
     const imageMessage: Message = {
       id: 'image_' + generateMessageId(),
@@ -410,7 +381,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
 
     saveChatMessage({ userId, girlfriendId: girlfriend.id, role: 'user', content: trimmedInput });
 
-    // Update progress — pass sceneUsed=true only on first message after a scene loads
+    // Update progress
     updateProgress(userId, girlfriend.id, isFirstMessageInScene)
       .then(result => {
         setCurrentScore(result.score);
@@ -420,7 +391,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
       })
       .catch(err => console.error('Error updating progress:', err));
 
-    // Reset scene flag after first message
     if (isFirstMessageInScene) setIsFirstMessageInScene(false);
 
     try {
@@ -431,9 +401,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
 
       const chatResponse = await fetch('/api/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           girlfriendId: girlfriend.id,
           userId: userId,
@@ -479,15 +447,11 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
           .then(audioData => {
             if (audioData.audioUrl) {
               setMessages(prev => prev.map(msg => 
-                msg.id === messageId 
-                  ? { ...msg, audioUrl: audioData.audioUrl }
-                  : msg
+                msg.id === messageId ? { ...msg, audioUrl: audioData.audioUrl } : msg
               ));
             }
           })
-          .catch(err => {
-            console.error('Error generating audio:', err);
-          });
+          .catch(err => console.error('Error generating audio:', err));
       }
 
     } catch (err) {

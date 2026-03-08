@@ -4,7 +4,6 @@ import { supabase } from '@/lib/supabase';
 export interface Scene {
   id: string;
   scene_name: string;
-  girlfriend_id: string;
   description: string;
   video_slug: string | null;
   image_slug: string | null;
@@ -16,12 +15,12 @@ export interface Scene {
   created_at: string;
 }
 
-export async function getScenesByGirlfriend(girlfriendId: string, stage: number = 1): Promise<Scene[]> {
+export async function getScenes(stage: number = 1, contentRating: string = 'sfw'): Promise<Scene[]> {
   const { data, error } = await supabase
     .from('scenes')
     .select('*')
-    .eq('girlfriend_id', girlfriendId)
-    .lte('relationship_stage', stage)   // only unlocked scenes
+    .eq('content_rating', contentRating)
+    .lte('relationship_stage', stage)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -30,15 +29,6 @@ export async function getScenesByGirlfriend(girlfriendId: string, stage: number 
   }
 
   return data || [];
-}
-
-export async function getRandomScene(girlfriendId: string, stage: number = 1): Promise<Scene | null> {
-  const scenes = await getScenesByGirlfriend(girlfriendId, stage);
-
-  if (scenes.length === 0) return null;
-
-  const randomIndex = Math.floor(Math.random() * scenes.length);
-  return scenes[randomIndex];
 }
 
 export async function getSceneById(sceneId: string): Promise<Scene | null> {

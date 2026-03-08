@@ -1,18 +1,15 @@
-// app/api/scenes/[girlfriendId]/route.ts
+// app/api/scenes/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getScenesByGirlfriend } from '@/lib/scenes';
+import { getScenes } from '@/lib/scenes';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ girlfriendId: string }> }
-) {
+export async function GET(request: NextRequest) {
   try {
-    const { girlfriendId } = await params;
     const { searchParams } = new URL(request.url);
     const stage = parseInt(searchParams.get('stage') || '1');
+    const contentRating = searchParams.get('contentRating') || 'sfw';
 
-    const scenes = await getScenesByGirlfriend(girlfriendId, stage);
+    const scenes = await getScenes(stage, contentRating);
 
     return NextResponse.json({ scenes });
   } catch (error) {
