@@ -129,7 +129,8 @@ export async function POST(req: NextRequest) {
 
     // OpenRouter Seedream returns images in message.images array
     if (!imageUrl) {
-      const images = choices?.[0]?.message?.images as { type?: string; image_url?: { url?: string } }[] | undefined;
+      const msg = choices?.[0]?.message as Record<string, unknown> | undefined;
+      const images = msg?.images as { type?: string; image_url?: { url?: string } }[] | undefined;
       if (images?.[0]?.image_url?.url) {
         imageUrl = images[0].image_url.url;
       }
