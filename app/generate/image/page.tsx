@@ -97,17 +97,25 @@ export default function ImageGenerationPage() {
     setReferencePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const toBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload  = () => resolve((reader.result as string).split(",")[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
   const handleGenerate = async () => {
     if (!prompt.trim()) { setError("Ingresa un prompt antes de generar."); return; }
     setLoading(true); setError(null); setResult(null);
     try {
-      const formData = new FormData();
-      formData.append("prompt", prompt);
-      formData.append("aspect_ratio", ratio);
-      const compressed = await Promise.all(referenceImages.map(compressImage));
-      compressed.forEach((file, i) => formData.append(`reference_${i}`, file));
+      const base64Images = await Promise.all(referenceImages.map(toBase64));
 
-      const res  = await fetch("/api/generate/image", { method: "POST", body: formData });
+      const res  = await fetch("/api/generate/image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, aspectRatio: ratio, referenceImages: base64Images }),
+      });
       const text = await res.text();
       let data: { url?: string; error?: string };
       try { data = JSON.parse(text); }
