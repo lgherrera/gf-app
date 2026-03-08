@@ -30,10 +30,14 @@ export async function GET(req: NextRequest) {
       contentType = "image/jpeg";
     }
 
-    // Convert Buffer to Uint8Array for NextResponse compatibility
-    const uint8 = new Uint8Array(output.buffer, output.byteOffset, output.byteLength);
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(new Uint8Array(output));
+        controller.close();
+      },
+    });
 
-    return new NextResponse(uint8, {
+    return new NextResponse(stream, {
       headers: {
         "Content-Type":        contentType,
         "Content-Disposition": `attachment; filename="generado-${Date.now()}.${format}"`,
