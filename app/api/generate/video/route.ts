@@ -1,26 +1,12 @@
 // app/api/generate/video/route.ts
 import { NextRequest, NextResponse } from "next/server";
+import { fal } from "@fal-ai/client";
 
 export const runtime     = "nodejs";
-export const maxDuration = 300; // video generation can take up to 2 min
+export const maxDuration = 300;
 
-async function uploadToFal(base64: string, mime: string, falKey: string): Promise<string> {
-  const buffer = Buffer.from(base64, "base64");
-  const res = await fetch("https://fal.run/fal-ai/storage/upload", {
-    method: "POST",
-    headers: {
-      Authorization: `Key ${falKey}`,
-      "Content-Type": mime,
-    },
-    body: buffer,
-  });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`fal storage upload failed: ${err.slice(0, 200)}`);
-  }
-  const data = await res.json();
-  if (!data.url) throw new Error("fal storage returned no URL");
-  return data.url as string;
+interface WanI2VOutput {
+  video: { url: string };
 }
 
 export async function POST(req: NextRequest) {
@@ -53,65 +39,38 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "FAL_KEY no configurada" }, { status: 500 });
     }
 
-    // Upload image to fal storage — must be a public URL, not base64
-    const imageUrl = await uploadToFal(imageBase64, imageMime || "image/jpeg", FAL_KEY);
+    fal.config({ credentials: FAL_KEY });
 
-    // Upload audio if provided
+    // image_url accepts base64 data URIs directly — no storage upload needed
+    const imageDataUri = `data:${imageMime || "image/jpeg"};base64,${imageBase64}`;
+
+    // audio_url must be a public URL — upload via SDK if provided
     let audioUrl: string | undefined;
     if (audioBase64) {
-      audioUrl = await uploadToFal(audioBase64, audioMime || "audio/mpeg", FAL_KEY);
+      const audioBuffer = Buffer.from(audioBase64, "base64");
+      const audioFile   = new File([audioBuffer], "audio.mp3", { type: audioMime || "audio/mpeg" });
+      audioUrl = await fal.storage.upload(audioFile);
     }
 
-    // Build fal.ai Wan 2.6 image-to-video request body
-    const body: Record<string, unknown> = {
+    const input: Record<string, unknown> = {
       prompt,
-      image_url:             imageUrl,
+      image_url:             imageDataUri,
       aspect_ratio:          aspectRatio || "16:9",
       resolution:            resolution  || "720p",
       duration:              duration    || "5",
-      enable_safety_checker: false, // must be explicitly false — default is true
+      enable_safety_checker: false,
+      enable_prompt_expansion: false, // avoid LLM rewrite altering the prompt
     };
 
-    if (audioUrl) {
-      body.audio_url = audioUrl;
-    }
+    if (audioUrl) input.audio_url = audioUrl;
 
-    const falRes = await fetch("https://fal.run/wan/v2.6/image-to-video/flash", {
-      method: "POST",
-      headers: {
-        Authorization:  `Key ${FAL_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-
-    const text = await falRes.text();
-
-    if (!falRes.ok) {
-      console.error("fal.ai video error:", text);
-      return NextResponse.json(
-        { error: `fal.ai ${falRes.status}: ${text.slice(0, 300)}` },
-        { status: 502 }
-      );
-    }
-
-    let data: Record<string, unknown>;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      return NextResponse.json(
-        { error: `Respuesta no-JSON: ${text.slice(0, 200)}` },
-        { status: 502 }
-      );
-    }
-
-    // fal.ai returns { video: { url: "..." } }
-    const videoUrl = (data?.video as { url?: string })?.url;
+    const result = await fal.subscribe("wan/v2.6/image-to-video/flash", { input }) as { data: WanI2VOutput };
+    const videoUrl = result?.data?.video?.url;
 
     if (!videoUrl) {
-      console.error("fal.ai unexpected video shape:", JSON.stringify(data).slice(0, 500));
+      console.error("fal.ai unexpected shape:", JSON.stringify(result).slice(0, 500));
       return NextResponse.json(
-        { error: `Forma inesperada: ${JSON.stringify(data).slice(0, 300)}` },
+        { error: `Forma inesperada: ${JSON.stringify(result).slice(0, 300)}` },
         { status: 502 }
       );
     }
