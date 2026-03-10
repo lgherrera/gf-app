@@ -4,6 +4,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from '@/lib/hooks/useSession';
+import GFHeader from '../components/GFHeader';
+import GFFooter from '../components/GFFooter';
 import StepSelector from './components/StepSelector';
 import ReviewStep from './components/ReviewStep';
 import VoiceStep from './components/VoiceStep';
@@ -329,6 +331,8 @@ export default function CreatePage() {
 
   return (
     <div className={styles.page}>
+      <GFHeader />
+
       {/* Header */}
       <div className={styles.header}>
         <button
@@ -376,6 +380,8 @@ export default function CreatePage() {
           </button>
         </div>
       )}
+
+      <GFFooter />
     </div>
   );
 }

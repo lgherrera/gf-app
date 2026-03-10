@@ -3,6 +3,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import GFHeader from "../components/GFHeader";
+import GFFooter from "../components/GFFooter";
 import styles from "./generate.module.css";
 
 export default function GenerateLayout({
@@ -14,6 +16,7 @@ export default function GenerateLayout({
 
   return (
     <div className={styles.layout}>
+      <GFHeader />
       <header className={styles.header}>
         <h1 className={styles.title}>Estudio</h1>
         <nav className={styles.nav}>
@@ -32,6 +35,7 @@ export default function GenerateLayout({
         </nav>
       </header>
       <main className={styles.main}>{children}</main>
+      <GFFooter />
     </div>
   );
 }

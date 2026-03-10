@@ -1,0 +1,201 @@
+/* app/sidebar/memory/memory.module.css */
+
+.page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background-color: #050505;
+    color: white;
+    max-width: 500px;
+    margin: 0 auto;
+    border-left: 1px solid #111;
+    border-right: 1px solid #111;
+  }
+  
+  /* ── Header ── */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1rem;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  
+  .backButton {
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    cursor: pointer;
+    color: white;
+    padding: 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+  
+  .backButton:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+  
+  .title {
+    font-size: 1.1rem;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    color: #ffffff;
+  }
+  
+  .manageButton {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.85);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .manageButton:hover {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.22);
+  }
+  
+  /* ── Section card ── */
+  .section {
+    margin: 1.25rem 1rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  
+  .sectionTitle {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.35);
+    padding: 0.85rem 1rem 0.4rem;
+  }
+  
+  /* ── Toggle row ── */
+  .row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem;
+  }
+  
+  .rowText {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+  }
+  
+  .rowLabel {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #ffffff;
+    line-height: 1.3;
+  }
+  
+  .rowDescription {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.4);
+    line-height: 1.4;
+  }
+  
+  .divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.06);
+    margin: 0 1rem;
+  }
+  
+  /* ── Toggle switch ── */
+  .toggle {
+    flex-shrink: 0;
+    width: 48px;
+    height: 28px;
+    border-radius: 14px;
+    border: none;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.15);
+    position: relative;
+    transition: background 0.25s ease;
+    margin-top: 2px;
+  }
+  
+  .toggleOn {
+    background: var(--color-primary, #e60049);
+  }
+  
+  .toggleThumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+    transition: transform 0.25s ease;
+  }
+  
+  .toggleOn .toggleThumb {
+    transform: translateX(20px);
+  }
+  
+  /* ── Saved memories list ── */
+  .memoryItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  
+  .memoryItem:last-child {
+    border-bottom: none;
+  }
+  
+  .memoryText {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.75);
+    line-height: 1.4;
+    flex: 1;
+  }
+  
+  .deleteButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.3);
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    border-radius: 6px;
+    transition: color 0.2s, background 0.2s;
+    flex-shrink: 0;
+  }
+  
+  .deleteButton:hover {
+    color: var(--color-primary, #e60049);
+    background: rgba(230, 0, 73, 0.1);
+  }
+  
+  .emptyState {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.3);
+    text-align: center;
+    padding: 1.5rem 1rem;
+  }

@@ -36,7 +36,6 @@ async function compressImage(file: File): Promise<File> {
     const url = URL.createObjectURL(file);
     img.onload = () => {
       const MAX = 1024;
-      // Use naturalWidth/naturalHeight to get true dimensions regardless of EXIF orientation
       let width  = img.naturalWidth  || img.width;
       let height = img.naturalHeight || img.height;
 
@@ -55,7 +54,6 @@ async function compressImage(file: File): Promise<File> {
       canvas.height = height;
 
       const ctx = canvas.getContext("2d")!;
-      // Draw image — browser already applies EXIF orientation when rendering to canvas
       ctx.drawImage(img, 0, 0, width, height);
 
       URL.revokeObjectURL(url);
@@ -248,6 +246,7 @@ export default function ImageGenerationPage() {
           </div>
         </div>
       )}
+
     </div>
   );
 }
