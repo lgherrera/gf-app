@@ -6,14 +6,9 @@ export const runtime     = "nodejs";
 export const maxDuration = 120;
 
 const RATIO_TO_SIZE: Record<string, { width: number; height: number } | string> = {
-  "1:1":  "square_hd",
   "16:9": "landscape_16_9",
   "9:16": "portrait_16_9",
-  "4:3":  "landscape_4_3",
-  "3:4":  "portrait_4_3",
-  "3:2":  { width: 2880, height: 1920 },
-  "2:3":  { width: 1920, height: 2880 },
-  "21:9": { width: 4096, height: 1746 },
+  "2:3":  { width: 960, height: 1440 },
 };
 
 const MODEL_ENDPOINTS: Record<string, string> = {
@@ -39,12 +34,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "FAL_KEY no configurada" }, { status: 500 });
     }
 
-    const endpoint     = MODEL_ENDPOINTS[model ?? "seedream"] ?? MODEL_ENDPOINTS.seedream;
     const isFlux       = model === "flux2dev";
-    const imageSize    = RATIO_TO_SIZE[aspectRatio] ?? "square_hd";
+    const endpoint     = MODEL_ENDPOINTS[model ?? "seedream"] ?? MODEL_ENDPOINTS.seedream;
+    const imageSize    = RATIO_TO_SIZE[aspectRatio] ?? "portrait_16_9";
     const resolvedSeed = seed ?? Math.floor(Math.random() * 2147483647);
 
-    // Reference images only supported by Seedream
     let referenceImageUrls: string[] = [];
     if (!isFlux && referenceImages?.length) {
       referenceImageUrls = await Promise.all(
@@ -58,12 +52,10 @@ export async function POST(req: NextRequest) {
 
     const input: Record<string, unknown> = {
       prompt,
-      image_size: imageSize,
-      seed:       resolvedSeed,
-      ...(isFlux
-        ? { guidance_scale: 3.5, safety_tolerance: "6" }
-        : { enable_safety_checker: false }
-      ),
+      image_size:            imageSize,
+      seed:                  resolvedSeed,
+      enable_safety_checker: false,
+      ...(isFlux && { guidance_scale: 3.5 }),
     };
 
     if (!isFlux && referenceImageUrls.length > 0) {

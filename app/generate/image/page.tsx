@@ -5,14 +5,9 @@ import { useState, useRef, useCallback } from "react";
 import styles from "./image.module.css";
 
 const ASPECT_RATIOS = [
-  { label: "1:1",  value: "1:1"  },
   { label: "16:9", value: "16:9" },
   { label: "9:16", value: "9:16" },
-  { label: "4:3",  value: "4:3"  },
-  { label: "3:4",  value: "3:4"  },
-  { label: "3:2",  value: "3:2"  },
   { label: "2:3",  value: "2:3"  },
-  { label: "21:9", value: "21:9" },
 ];
 
 const MODELS = [
@@ -21,12 +16,10 @@ const MODELS = [
 ];
 
 const RATIO_H: Record<string, number> = {
-  "1:1": 1, "16:9": 9, "9:16": 16, "4:3": 3, "3:4": 4,
-  "3:2": 2, "2:3": 3, "21:9": 9,
+  "16:9": 9, "9:16": 16, "2:3": 3,
 };
 const RATIO_W: Record<string, number> = {
-  "1:1": 1, "16:9": 16, "9:16": 9, "4:3": 4, "3:4": 3,
-  "3:2": 3, "2:3": 2, "21:9": 21,
+  "16:9": 16, "9:16": 9, "2:3": 2,
 };
 
 const EYE_COLORS = ["blue", "brown", "green", "cyan", "amber", "violet"];
@@ -40,7 +33,7 @@ interface GeneratedImage {
 
 export default function ImageGenerationPage() {
   const [prompt, setPrompt]                       = useState("");
-  const [ratio, setRatio]                         = useState("1:1");
+  const [ratio, setRatio]                         = useState("9:16");
   const [model, setModel]                         = useState("seedream");
   const [seed, setSeed]                           = useState<string>("");
   const [referenceImages, setReferenceImages]     = useState<File[]>([]);
