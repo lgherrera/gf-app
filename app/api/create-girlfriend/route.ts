@@ -3,13 +3,11 @@ import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import sharp from 'sharp';
 
-// Admin client for storage uploads (bypasses RLS)
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Map age range to a default age
 const ageMap: Record<string, number> = {
   '18-19': 18,
   '20s': 25,
@@ -26,7 +24,6 @@ async function generateAvatar(imageUrl: string): Promise<Buffer> {
   const width = metadata.width || 1024;
   const height = metadata.height || 1536;
 
-  // Crop top-center square (face area)
   const size = Math.min(width, Math.floor(height * 0.65));
   const left = Math.floor((width - size) / 2);
   const top = 0;
@@ -41,7 +38,7 @@ async function generateAvatar(imageUrl: string): Promise<Buffer> {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { config, userId, imageUrl } = body;
+    const { config, userId, imageUrl, imagePrompt } = body;
 
     if (!userId) {
       return NextResponse.json({ error: 'User ID required' }, { status: 401 });
@@ -55,7 +52,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Image URL required' }, { status: 400 });
     }
 
-    // Build appearance JSON (snake_case for Postgres)
     const appearance = {
       gender: config.gender,
       ethnicity: config.ethnicity,
@@ -68,17 +64,14 @@ export async function POST(request: Request) {
       outfit: config.outfit,
     };
 
-    // Generate slug from name
     const baseSlug = config.name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '');
     const slug = `${baseSlug}-${Date.now()}`;
 
-    // Map age range to default age
     const age = ageMap[config.ageRange] || 25;
 
-    // Generate avatar from the approved image
     let avatarUrl: string | null = null;
     try {
       const avatarBuffer = await generateAvatar(imageUrl);
@@ -103,7 +96,6 @@ export async function POST(request: Request) {
       console.error('Avatar generation error:', avatarErr);
     }
 
-    // Build the row
     const newGirlfriend = {
       name: config.name,
       slug,
@@ -124,6 +116,7 @@ export async function POST(request: Request) {
       description: `Custom AI companion - ${config.name}`,
       image_url: imageUrl,
       avatar: avatarUrl,
+      image_prompt: imagePrompt || null,
     };
 
     const { data, error } = await supabaseAdmin

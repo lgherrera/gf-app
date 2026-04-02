@@ -7,13 +7,11 @@ fal.config({
   credentials: process.env.FAL_KEY,
 });
 
-// Admin client for storage uploads (bypasses RLS)
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Build image prompt from appearance config
 function buildImagePrompt(config: any): string {
   const genderMap: Record<string, string> = {
     female: 'a beautiful woman',
@@ -117,7 +115,6 @@ export async function POST(request: Request) {
 
     const generatedImageUrl = result.data.images[0].url;
 
-    // Upload to Supabase Storage
     const tempSlug = `preview-${Date.now()}`;
     const fileName = `custom/${userId}/${tempSlug}.jpg`;
 
@@ -133,8 +130,11 @@ export async function POST(request: Request) {
 
     if (uploadError) {
       console.error('Upload error:', uploadError);
-      // Fall back to FAL's temporary URL
-      return NextResponse.json({ imageUrl: generatedImageUrl, storagePath: null });
+      return NextResponse.json({
+        imageUrl: generatedImageUrl,
+        storagePath: null,
+        imagePrompt: prompt,
+      });
     }
 
     const { data: publicUrl } = supabaseAdmin.storage
@@ -144,6 +144,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       imageUrl: publicUrl.publicUrl,
       storagePath: fileName,
+      imagePrompt: prompt,
     });
 
   } catch (err) {
