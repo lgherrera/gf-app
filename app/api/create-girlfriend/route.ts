@@ -9,7 +9,7 @@ const supabaseAdmin = createClient(
 );
 
 const ageMap: Record<string, number> = {
-  '18-19': 18,
+  '18-19': 19,
   '20s': 25,
   '30s': 30,
   '40s': 40,
