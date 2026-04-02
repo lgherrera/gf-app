@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@elevenlabs/elevenlabs-js": "^2.35.0",
-    "@fal-ai/client": "^1.9.3",
+    "@fal-ai/client": "^1.9.5",
     "@supabase/supabase-js": "^2.95.3",
     "next": "16.1.6",
     "react": "19.2.3",
