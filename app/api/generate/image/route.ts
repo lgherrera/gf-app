@@ -28,16 +28,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Prompt requerido" }, { status: 400 });
     }
 
-    const FAL_KEY = process.env.FAL_KEY;
-    if (!FAL_KEY) {
+    if (!process.env.FAL_KEY) {
       return NextResponse.json({ error: "FAL_KEY no configurada" }, { status: 500 });
     }
 
-    fal.config({ credentials: FAL_KEY });
+    // fal automatically reads FAL_KEY from process.env — no config() call needed
 
     const imageSize = RATIO_MAP[aspectRatio] ?? "square";
 
-    // Upload reference images to fal storage if provided
     let referenceImageUrls: string[] = [];
     if (referenceImages?.length) {
       referenceImageUrls = await Promise.all(
@@ -51,8 +49,8 @@ export async function POST(req: NextRequest) {
 
     const input: Record<string, unknown> = {
       prompt,
-      image_size:             imageSize,
-      enable_safety_checker:  false,
+      image_size:            imageSize,
+      enable_safety_checker: false,
     };
 
     if (referenceImageUrls.length > 0) {
