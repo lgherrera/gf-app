@@ -9,7 +9,7 @@ const supabaseAdmin = createClient(
 );
 
 const ageMap: Record<string, number> = {
-  '18-19': 19,
+  '18-19': 18,
   '20s': 25,
   '30s': 30,
   '40s': 40,
@@ -39,6 +39,8 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { config, userId, imageUrl, imagePrompt } = body;
+
+    console.log('imagePrompt received:', imagePrompt);
 
     if (!userId) {
       return NextResponse.json({ error: 'User ID required' }, { status: 401 });
@@ -118,6 +120,8 @@ export async function POST(request: Request) {
       avatar: avatarUrl,
       image_prompt: imagePrompt || null,
     };
+
+    console.log('Inserting girlfriend with image_prompt:', newGirlfriend.image_prompt);
 
     const { data, error } = await supabaseAdmin
       .from('girlfriends')
