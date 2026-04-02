@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
     // fal automatically reads FAL_KEY from process.env — no config() call needed
 
-    const imageSize = RATIO_MAP[aspectRatio] ?? "square_hd";
+    const imageSize = RATIO_TO_SIZE[aspectRatio] ?? "square_hd";
 
     let referenceImageUrls: string[] = [];
     if (referenceImages?.length) {
