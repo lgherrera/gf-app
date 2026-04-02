@@ -18,10 +18,11 @@ const RATIO_TO_SIZE: Record<string, { width: number; height: number } | string> 
 
 export async function POST(req: NextRequest) {
   try {
-    const { prompt, aspectRatio, referenceImages } = await req.json() as {
+    const { prompt, aspectRatio, referenceImages, seed } = await req.json() as {
       prompt: string;
       aspectRatio: string;
       referenceImages?: string[];
+      seed?: number;
     };
 
     if (!prompt) {
@@ -32,9 +33,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "FAL_KEY no configurada" }, { status: 500 });
     }
 
-    // fal automatically reads FAL_KEY from process.env — no config() call needed
-
     const imageSize = RATIO_TO_SIZE[aspectRatio] ?? "square_hd";
+    const resolvedSeed = seed ?? Math.floor(Math.random() * 2147483647);
 
     let referenceImageUrls: string[] = [];
     if (referenceImages?.length) {
@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
       prompt,
       image_size:            imageSize,
       enable_safety_checker: false,
+      seed:                  resolvedSeed,
     };
 
     if (referenceImageUrls.length > 0) {
@@ -71,7 +72,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return NextResponse.json({ url: imageUrl });
+    return NextResponse.json({ url: imageUrl, seed: resolvedSeed });
 
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Error desconocido";
