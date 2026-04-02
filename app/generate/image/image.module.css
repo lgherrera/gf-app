@@ -81,6 +81,52 @@
   text-align: right;
 }
 
+/* ── Model selector ── */
+.modelGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.modelBtn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  transition: all 0.15s ease;
+}
+
+.modelBtn:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.modelActive {
+  border-color: color-mix(in srgb, var(--color-primary) 60%, transparent) !important;
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent) !important;
+}
+
+.modelLabel {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: white;
+}
+
+.modelActive .modelLabel {
+  color: var(--color-primary);
+}
+
+.modelSub {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.25);
+  letter-spacing: 0.03em;
+}
+
 /* ── Ratio grid ── */
 .ratioGrid {
   display: grid;
@@ -147,7 +193,6 @@
   color: rgba(255, 255, 255, 0.2);
 }
 
-/* Chrome: hide number input arrows */
 .seedInput::-webkit-outer-spin-button,
 .seedInput::-webkit-inner-spin-button {
   -webkit-appearance: none;

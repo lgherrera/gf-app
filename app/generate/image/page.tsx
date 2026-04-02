@@ -15,6 +15,11 @@ const ASPECT_RATIOS = [
   { label: "21:9", value: "21:9" },
 ];
 
+const MODELS = [
+  { label: "Seedream 4.5", value: "seedream", sub: "ByteDance" },
+  { label: "Flux 2 Dev",   value: "flux2dev", sub: "Black Forest Labs" },
+];
+
 const RATIO_H: Record<string, number> = {
   "1:1": 1, "16:9": 9, "9:16": 16, "4:3": 3, "3:4": 4,
   "3:2": 2, "2:3": 3, "21:9": 9,
@@ -24,6 +29,8 @@ const RATIO_W: Record<string, number> = {
   "3:2": 3, "2:3": 2, "21:9": 21,
 };
 
+const EYE_COLORS = ["blue", "brown", "green", "cyan", "amber", "violet"];
+
 interface GeneratedImage {
   url: string;
   prompt: string;
@@ -31,47 +38,10 @@ interface GeneratedImage {
   seed: number;
 }
 
-async function compressImage(file: File): Promise<File> {
-  return new Promise((resolve) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      const MAX = 1024;
-      let width  = img.naturalWidth  || img.width;
-      let height = img.naturalHeight || img.height;
-
-      if (width > MAX || height > MAX) {
-        if (width > height) {
-          height = Math.round((height * MAX) / width);
-          width  = MAX;
-        } else {
-          width  = Math.round((width * MAX) / height);
-          height = MAX;
-        }
-      }
-
-      const canvas = document.createElement("canvas");
-      canvas.width  = width;
-      canvas.height = height;
-
-      const ctx = canvas.getContext("2d")!;
-      ctx.drawImage(img, 0, 0, width, height);
-
-      URL.revokeObjectURL(url);
-      canvas.toBlob(
-        (blob) => resolve(blob ? new File([blob], file.name, { type: "image/jpeg" }) : file),
-        "image/jpeg",
-        0.82
-      );
-    };
-    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
-    img.src = url;
-  });
-}
-
 export default function ImageGenerationPage() {
   const [prompt, setPrompt]                       = useState("");
   const [ratio, setRatio]                         = useState("1:1");
+  const [model, setModel]                         = useState("seedream");
   const [seed, setSeed]                           = useState<string>("");
   const [referenceImages, setReferenceImages]     = useState<File[]>([]);
   const [referencePreviews, setReferencePreviews] = useState<string[]>([]);
@@ -109,13 +79,22 @@ export default function ImageGenerationPage() {
     if (!prompt.trim()) { setError("Ingresa un prompt antes de generar."); return; }
     setLoading(true); setError(null); setResult(null);
     try {
-      const base64Images = await Promise.all(referenceImages.map(toBase64));
-      const parsedSeed   = seed.trim() !== "" ? parseInt(seed, 10) : undefined;
+      const base64Images   = await Promise.all(referenceImages.map(toBase64));
+      const parsedSeed     = seed.trim() !== "" ? parseInt(seed, 10) : undefined;
+      const randomEyeColor = EYE_COLORS[Math.floor(Math.random() * EYE_COLORS.length)];
+      const enrichedPrompt = prompt.replace(/\b(cyan|blue|brown|green|amber|violet)\s+eyes\b/gi, `${randomEyeColor} eyes`)
+        || `${prompt}, ${randomEyeColor} eyes`;
 
-      const res  = await fetch("/api/generate/image", {
+      const res = await fetch("/api/generate/image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, aspectRatio: ratio, referenceImages: base64Images, seed: parsedSeed }),
+        body: JSON.stringify({
+          prompt:          enrichedPrompt,
+          aspectRatio:     ratio,
+          referenceImages: base64Images,
+          seed:            parsedSeed,
+          model,
+        }),
       });
       const text = await res.text();
       let data: { url?: string; seed?: number; error?: string };
@@ -123,7 +102,7 @@ export default function ImageGenerationPage() {
       catch { throw new Error(`Respuesta inválida: ${text.slice(0, 120)}`); }
       if (!res.ok) throw new Error(data.error || "Error al generar");
       if (!data.url) throw new Error("No se recibió URL de imagen");
-      setResult({ url: data.url, prompt, ratio, seed: data.seed ?? 0 });
+      setResult({ url: data.url, prompt: enrichedPrompt, ratio, seed: data.seed ?? 0 });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Error desconocido");
     } finally {
@@ -152,10 +131,28 @@ export default function ImageGenerationPage() {
     <div className={styles.page}>
       <div className={styles.titleBlock}>
         <h2 className={styles.pageTitle}>Generación de Imágenes</h2>
-        <p className={styles.pageSubtitle}>Seedream 4.5</p>
+        <p className={styles.pageSubtitle}>IA · Texto a Imagen</p>
       </div>
 
       <div className={styles.controls}>
+
+        {/* Model selector */}
+        <div className={styles.field}>
+          <label className={styles.label}>Modelo</label>
+          <div className={styles.modelGrid}>
+            {MODELS.map((m) => (
+              <button
+                key={m.value}
+                className={`${styles.modelBtn} ${model === m.value ? styles.modelActive : ""}`}
+                onClick={() => setModel(m.value)}
+              >
+                <span className={styles.modelLabel}>{m.label}</span>
+                <span className={styles.modelSub}>{m.sub}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Prompt */}
         <div className={styles.field}>
           <label className={styles.label}>Prompt</label>
@@ -212,34 +209,36 @@ export default function ImageGenerationPage() {
           </div>
         </div>
 
-        {/* Reference images */}
-        <div className={styles.field}>
-          <label className={styles.label}>
-            Imágenes de referencia <span className={styles.optional}>(opcional)</span>
-          </label>
-          <div
-            className={`${styles.dropZone} ${dragOver ? styles.dragOver : ""}`}
-            onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFiles(e.dataTransfer.files); }}
-            onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-            onDragLeave={() => setDragOver(false)}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <input ref={fileInputRef} type="file" accept="image/*" multiple className={styles.hiddenInput} onChange={(e) => handleFiles(e.target.files)} />
-            <span className={styles.dropIcon}>+</span>
-            <span className={styles.dropText}>Arrastra o haz clic para subir referencias</span>
-          </div>
-          {referencePreviews.length > 0 && (
-            <div className={styles.refGrid}>
-              {referencePreviews.map((src, i) => (
-                <div key={i} className={styles.refItem}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt={`Ref ${i + 1}`} className={styles.refImg} />
-                  <button className={styles.removeBtn} onClick={() => removeImage(i)}>×</button>
-                </div>
-              ))}
+        {/* Reference images — Seedream only */}
+        {model === "seedream" && (
+          <div className={styles.field}>
+            <label className={styles.label}>
+              Imágenes de referencia <span className={styles.optional}>(opcional)</span>
+            </label>
+            <div
+              className={`${styles.dropZone} ${dragOver ? styles.dragOver : ""}`}
+              onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFiles(e.dataTransfer.files); }}
+              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+              onDragLeave={() => setDragOver(false)}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <input ref={fileInputRef} type="file" accept="image/*" multiple className={styles.hiddenInput} onChange={(e) => handleFiles(e.target.files)} />
+              <span className={styles.dropIcon}>+</span>
+              <span className={styles.dropText}>Arrastra o haz clic para subir referencias</span>
             </div>
-          )}
-        </div>
+            {referencePreviews.length > 0 && (
+              <div className={styles.refGrid}>
+                {referencePreviews.map((src, i) => (
+                  <div key={i} className={styles.refItem}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={src} alt={`Ref ${i + 1}`} className={styles.refImg} />
+                    <button className={styles.removeBtn} onClick={() => removeImage(i)}>×</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {error && <div className={styles.error}>{error}</div>}
 
@@ -277,7 +276,6 @@ export default function ImageGenerationPage() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

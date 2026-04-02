@@ -16,13 +16,19 @@ const RATIO_TO_SIZE: Record<string, { width: number; height: number } | string> 
   "21:9": { width: 4096, height: 1746 },
 };
 
+const MODEL_ENDPOINTS: Record<string, string> = {
+  seedream: "fal-ai/bytedance/seedream/v4.5/text-to-image",
+  flux2dev: "fal-ai/flux-2/dev",
+};
+
 export async function POST(req: NextRequest) {
   try {
-    const { prompt, aspectRatio, referenceImages, seed } = await req.json() as {
+    const { prompt, aspectRatio, referenceImages, seed, model } = await req.json() as {
       prompt: string;
       aspectRatio: string;
       referenceImages?: string[];
       seed?: number;
+      model?: string;
     };
 
     if (!prompt) {
@@ -33,11 +39,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "FAL_KEY no configurada" }, { status: 500 });
     }
 
-    const imageSize = RATIO_TO_SIZE[aspectRatio] ?? "square_hd";
+    const endpoint     = MODEL_ENDPOINTS[model ?? "seedream"] ?? MODEL_ENDPOINTS.seedream;
+    const isFlux       = model === "flux2dev";
+    const imageSize    = RATIO_TO_SIZE[aspectRatio] ?? "square_hd";
     const resolvedSeed = seed ?? Math.floor(Math.random() * 2147483647);
 
+    // Reference images only supported by Seedream
     let referenceImageUrls: string[] = [];
-    if (referenceImages?.length) {
+    if (!isFlux && referenceImages?.length) {
       referenceImageUrls = await Promise.all(
         referenceImages.map(async (b64) => {
           const blob = base64ToBlob(b64, "image/jpeg");
@@ -49,20 +58,21 @@ export async function POST(req: NextRequest) {
 
     const input: Record<string, unknown> = {
       prompt,
-      image_size:            imageSize,
-      enable_safety_checker: false,
-      seed:                  resolvedSeed,
+      image_size: imageSize,
+      seed:       resolvedSeed,
+      ...(isFlux
+        ? { guidance_scale: 3.5 }
+        : { enable_safety_checker: false }
+      ),
     };
 
-    if (referenceImageUrls.length > 0) {
+    if (!isFlux && referenceImageUrls.length > 0) {
       input.reference_images = referenceImageUrls.map((url) => ({ url }));
     }
 
-    const result = await fal.subscribe("fal-ai/bytedance/seedream/v4.5/text-to-image", {
-      input,
-    });
+    const result = await fal.subscribe(endpoint, { input });
 
-    const images = (result.data as { images?: { url: string }[] })?.images;
+    const images   = (result.data as { images?: { url: string }[] })?.images;
     const imageUrl = images?.[0]?.url;
 
     if (!imageUrl) {
