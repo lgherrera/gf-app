@@ -69,7 +69,7 @@ const HAIR_COLOR_OPTIONS = [
   { value: 'redhead', label: 'Pelirroja', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-color/redhead.jpg' },
   { value: 'blonde', label: 'Rubia', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-color/blond.jpg' },
   { value: 'brunette', label: 'Morena', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-color/brunette.jpg' },
-  { value: 'pink', label: 'Rosado', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-color/pink.jpg' },
+  { value: 'pink', label: 'Rosado', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-style/pelo-liso.jpg' },
 ];
 
 const HAIR_STYLE_OPTIONS = [
@@ -101,6 +101,7 @@ export default function CreatePage() {
 
   // Image approval state
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  const [imagePrompt, setImagePrompt] = useState<string | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
   /* fetch voices when reaching voice step */
@@ -146,6 +147,7 @@ export default function CreatePage() {
     setStep(10);
     setIsGeneratingImage(true);
     setGeneratedImageUrl(null);
+    setImagePrompt(null);
 
     try {
       const res = await fetch('/api/generate-custom-image', {
@@ -162,6 +164,7 @@ export default function CreatePage() {
       }
 
       setGeneratedImageUrl(data.imageUrl);
+      setImagePrompt(data.imagePrompt || null);
     } catch (err) {
       console.error('Image generation error:', err);
     } finally {
@@ -181,7 +184,7 @@ export default function CreatePage() {
       const res = await fetch('/api/create-girlfriend', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ config, userId, imageUrl: generatedImageUrl }),
+        body: JSON.stringify({ config, userId, imageUrl: generatedImageUrl, imagePrompt }),
       });
 
       const data = await res.json();
