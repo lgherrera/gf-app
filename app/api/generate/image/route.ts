@@ -1,6 +1,6 @@
 // app/api/generate/image/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import * as fal from "@fal-ai/client";
+import { fal } from "@fal-ai/client";
 
 export const runtime     = "nodejs";
 export const maxDuration = 120;
