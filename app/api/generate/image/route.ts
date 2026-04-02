@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
       image_size: imageSize,
       seed:       resolvedSeed,
       ...(isFlux
-        ? { guidance_scale: 3.5 }
+        ? { guidance_scale: 3.5, safety_tolerance: "6" }
         : { enable_safety_checker: false }
       ),
     };
