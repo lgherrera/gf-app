@@ -5,15 +5,15 @@ import { fal } from "@fal-ai/client";
 export const runtime     = "nodejs";
 export const maxDuration = 120;
 
-const RATIO_MAP: Record<string, string> = {
-  "1:1":  "square",
+const RATIO_TO_SIZE: Record<string, { width: number; height: number } | string> = {
+  "1:1":  "square_hd",
   "16:9": "landscape_16_9",
-  "9:16": "portrait_9_16",
+  "9:16": "portrait_16_9",
   "4:3":  "landscape_4_3",
-  "3:4":  "portrait_3_4",
-  "3:2":  "landscape_3_2",
-  "2:3":  "portrait_2_3",
-  "21:9": "landscape_21_9",
+  "3:4":  "portrait_4_3",
+  "3:2":  { width: 2880, height: 1920 },
+  "2:3":  { width: 1920, height: 2880 },
+  "21:9": { width: 4096, height: 1746 },
 };
 
 export async function POST(req: NextRequest) {
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
     // fal automatically reads FAL_KEY from process.env — no config() call needed
 
-    const imageSize = RATIO_MAP[aspectRatio] ?? "square";
+    const imageSize = RATIO_MAP[aspectRatio] ?? "square_hd";
 
     let referenceImageUrls: string[] = [];
     if (referenceImages?.length) {
