@@ -5,14 +5,12 @@ import { fal } from "@fal-ai/client";
 export const runtime     = "nodejs";
 export const maxDuration = 120;
 
-// Seedream 4.5 and Flux 2
 const RATIO_TO_SIZE_V4: Record<string, { width: number; height: number } | string> = {
   "16:9": "landscape_16_9",
   "9:16": "portrait_16_9",
   "2:3":  { width: 960, height: 1440 },
 };
 
-// Seedream 5 Lite — min 2560x1440 total pixels, use named enums only
 const RATIO_TO_SIZE_V5: Record<string, string> = {
   "16:9": "landscape_16_9",
   "9:16": "portrait_16_9",
@@ -23,6 +21,7 @@ const MODEL_ENDPOINTS: Record<string, string> = {
   seedream:  "fal-ai/bytedance/seedream/v4.5/text-to-image",
   seedream5: "fal-ai/bytedance/seedream/v5/lite/text-to-image",
   flux2dev:  "fal-ai/flux-2",
+  flux2max:  "fal-ai/flux-2-max",
 };
 
 export async function POST(req: NextRequest) {
@@ -43,7 +42,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "FAL_KEY no configurada" }, { status: 500 });
     }
 
-    const isFlux      = model === "flux2dev";
+    const isFlux      = model === "flux2dev" || model === "flux2max";
+    const isFluxMax   = model === "flux2max";
+    const isFluxDev   = model === "flux2dev";
     const isV5        = model === "seedream5";
     const endpoint    = MODEL_ENDPOINTS[model ?? "seedream"] ?? MODEL_ENDPOINTS.seedream;
     const imageSize   = isV5
@@ -68,7 +69,8 @@ export async function POST(req: NextRequest) {
       image_size:            imageSize,
       seed:                  resolvedSeed,
       enable_safety_checker: false,
-      ...(isFlux && { guidance_scale: 3.5 }),
+      ...(isFluxMax && { safety_tolerance: "5" }),
+      ...(isFluxDev && { guidance_scale: 3.5 }),
     };
 
     if (!isFlux && !isV5 && referenceImageUrls.length > 0) {
