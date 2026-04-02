@@ -28,6 +28,7 @@ interface GeneratedImage {
   url: string;
   prompt: string;
   ratio: string;
+  seed: number;
 }
 
 async function compressImage(file: File): Promise<File> {
@@ -71,6 +72,7 @@ async function compressImage(file: File): Promise<File> {
 export default function ImageGenerationPage() {
   const [prompt, setPrompt]                       = useState("");
   const [ratio, setRatio]                         = useState("1:1");
+  const [seed, setSeed]                           = useState<string>("");
   const [referenceImages, setReferenceImages]     = useState<File[]>([]);
   const [referencePreviews, setReferencePreviews] = useState<string[]>([]);
   const [loading, setLoading]                     = useState(false);
@@ -108,19 +110,20 @@ export default function ImageGenerationPage() {
     setLoading(true); setError(null); setResult(null);
     try {
       const base64Images = await Promise.all(referenceImages.map(toBase64));
+      const parsedSeed   = seed.trim() !== "" ? parseInt(seed, 10) : undefined;
 
       const res  = await fetch("/api/generate/image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, aspectRatio: ratio, referenceImages: base64Images }),
+        body: JSON.stringify({ prompt, aspectRatio: ratio, referenceImages: base64Images, seed: parsedSeed }),
       });
       const text = await res.text();
-      let data: { url?: string; error?: string };
+      let data: { url?: string; seed?: number; error?: string };
       try { data = JSON.parse(text); }
       catch { throw new Error(`Respuesta inválida: ${text.slice(0, 120)}`); }
       if (!res.ok) throw new Error(data.error || "Error al generar");
       if (!data.url) throw new Error("No se recibió URL de imagen");
-      setResult({ url: data.url, prompt, ratio });
+      setResult({ url: data.url, prompt, ratio, seed: data.seed ?? 0 });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Error desconocido");
     } finally {
@@ -182,6 +185,33 @@ export default function ImageGenerationPage() {
           </div>
         </div>
 
+        {/* Seed */}
+        <div className={styles.field}>
+          <label className={styles.label}>
+            Seed <span className={styles.optional}>(opcional — deja vacío para aleatorio)</span>
+          </label>
+          <div className={styles.seedRow}>
+            <input
+              type="number"
+              className={styles.seedInput}
+              placeholder="Ej: 1234567"
+              value={seed}
+              onChange={(e) => setSeed(e.target.value)}
+              min={0}
+              max={2147483647}
+            />
+            {result && (
+              <button
+                className={styles.seedCopy}
+                onClick={() => setSeed(String(result.seed))}
+                title="Reusar seed de la última generación"
+              >
+                ↺ Reusar {result.seed}
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* Reference images */}
         <div className={styles.field}>
           <label className={styles.label}>
@@ -218,7 +248,7 @@ export default function ImageGenerationPage() {
         </button>
       </div>
 
-      {/* Preview — below controls, full width */}
+      {/* Preview */}
       <div className={styles.previewFrame} style={{ aspectRatio: previewAspect }}>
         {loading && (
           <div className={styles.loadingOverlay}>
@@ -239,6 +269,7 @@ export default function ImageGenerationPage() {
 
       {result && !loading && (
         <div className={styles.downloadBar}>
+          <div className={styles.seedBadge}>Seed: {result.seed}</div>
           <span className={styles.downloadLabel}>Descargar en HD</span>
           <div className={styles.downloadBtns}>
             <button className={styles.dlBtn} onClick={() => downloadImage("jpeg")}>JPEG</button>
