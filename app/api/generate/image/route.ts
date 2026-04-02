@@ -5,16 +5,18 @@ import { fal } from "@fal-ai/client";
 export const runtime     = "nodejs";
 export const maxDuration = 120;
 
-const RATIO_TO_SIZE: Record<string, string> = {
-  "16:9": "landscape_16_9",
-  "9:16": "portrait_16_9",
-  "2:3":  "portrait_4_3", // closest available for v5 lite
-};
-
+// Seedream 4.5 and Flux 2
 const RATIO_TO_SIZE_V4: Record<string, { width: number; height: number } | string> = {
   "16:9": "landscape_16_9",
   "9:16": "portrait_16_9",
   "2:3":  { width: 960, height: 1440 },
+};
+
+// Seedream 5 Lite — min 2560x1440 total pixels, use named enums only
+const RATIO_TO_SIZE_V5: Record<string, string> = {
+  "16:9": "landscape_16_9",
+  "9:16": "portrait_16_9",
+  "2:3":  "portrait_4_3",
 };
 
 const MODEL_ENDPOINTS: Record<string, string> = {
@@ -45,8 +47,8 @@ export async function POST(req: NextRequest) {
     const isV5        = model === "seedream5";
     const endpoint    = MODEL_ENDPOINTS[model ?? "seedream"] ?? MODEL_ENDPOINTS.seedream;
     const imageSize   = isV5
-      ? RATIO_TO_SIZE[aspectRatio] ?? "portrait_16_9"
-      : RATIO_TO_SIZE_V4[aspectRatio] ?? "portrait_16_9";
+      ? (RATIO_TO_SIZE_V5[aspectRatio] ?? "portrait_16_9")
+      : (RATIO_TO_SIZE_V4[aspectRatio] ?? "portrait_16_9");
     const resolvedSeed = seed ?? Math.floor(Math.random() * 2147483647);
 
     // Reference images only supported by Seedream 4.5
@@ -61,19 +63,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // v5 Lite has a minimal API — only prompt + image_size
-    const input: Record<string, unknown> = isV5
-      ? {
-          prompt,
-          image_size: imageSize,
-        }
-      : {
-          prompt,
-          image_size:            imageSize,
-          seed:                  resolvedSeed,
-          enable_safety_checker: false,
-          ...(isFlux && { guidance_scale: 3.5 }),
-        };
+    const input: Record<string, unknown> = {
+      prompt,
+      image_size:            imageSize,
+      seed:                  resolvedSeed,
+      enable_safety_checker: false,
+      ...(isFlux && { guidance_scale: 3.5 }),
+    };
 
     if (!isFlux && !isV5 && referenceImageUrls.length > 0) {
       input.reference_images = referenceImageUrls.map((url) => ({ url }));
@@ -91,10 +87,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // v5 doesn't return a seed — return null so UI can handle it
-    const returnedSeed = isV5 ? null : resolvedSeed;
-
-    return NextResponse.json({ url: imageUrl, seed: returnedSeed });
+    return NextResponse.json({ url: imageUrl, seed: resolvedSeed });
 
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Error desconocido";
