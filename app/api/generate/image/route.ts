@@ -18,7 +18,7 @@ const RATIO_TO_SIZE: Record<string, { width: number; height: number } | string> 
 
 const MODEL_ENDPOINTS: Record<string, string> = {
   seedream: "fal-ai/bytedance/seedream/v4.5/text-to-image",
-  flux2dev: "fal-ai/flux-2/dev",
+  flux2dev: "fal-ai/flux-2",
 };
 
 export async function POST(req: NextRequest) {
