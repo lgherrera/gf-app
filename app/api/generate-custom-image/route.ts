@@ -89,7 +89,7 @@ function buildImagePrompt(config: any): string {
   const isAnime = config.gender === 'anime';
 
   if (isAnime) {
-    return `${subject}, ${parts}, anime art style, detailed, vibrant colors, high quality illustration, cinematic composition, soft studio lighting, 4K resolution, looking directly at viewer with inviting gaze`;
+    return `${subject}, ${parts}, anime art style, detailed, vibrant yet natural color palette, high quality illustration, soft studio lighting, 4K resolution, looking directly at viewer with inviting gaze`;
   }
 
   return `Photorealistic portrait of ${subject}, ${parts}, cinematic lighting, dreamy bokeh background, fashion style portrait photography,high resolution 4K, looking directly at viewer with inviting gaze`;
