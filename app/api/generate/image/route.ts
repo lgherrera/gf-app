@@ -23,6 +23,8 @@ const MODEL_ENDPOINTS: Record<string, string> = {
   flux2dev:  "fal-ai/flux-2",
   flux2max:  "fal-ai/flux-2-max",
   wan27:     "fal-ai/wan/v2.7/text-to-image",
+  wan27pro:  "fal-ai/wan/v2.7/pro/text-to-image",
+  wan26:     "wan/v2.6/text-to-image",
 };
 
 export async function POST(req: NextRequest) {
@@ -47,7 +49,7 @@ export async function POST(req: NextRequest) {
     const isFluxMax = model === "flux2max";
     const isFluxDev = model === "flux2dev";
     const isV5      = model === "seedream5";
-    const isWan     = model === "wan27";
+    const isWan     = model === "wan27" || model === "wan27pro" || model === "wan26";
     const endpoint  = MODEL_ENDPOINTS[model ?? "seedream"] ?? MODEL_ENDPOINTS.seedream;
     const imageSize = isV5
       ? (RATIO_TO_SIZE_V5[aspectRatio] ?? "portrait_16_9")
@@ -81,7 +83,7 @@ export async function POST(req: NextRequest) {
 
     const result = await fal.subscribe(endpoint, { input });
 
-    const data     = result.data as { images?: { url: string }[]; seeds?: number[] };
+    const data     = result.data as { images?: { url: string }[] };
     const imageUrl = data?.images?.[0]?.url;
 
     if (!imageUrl) {

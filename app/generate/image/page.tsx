@@ -16,6 +16,8 @@ const MODELS = [
   { label: "Flux 2 Dev",   value: "flux2dev",  sub: "Black Forest Labs" },
   { label: "Flux 2 Max",   value: "flux2max",  sub: "Black Forest Labs" },
   { label: "Wan 2.7",      value: "wan27",     sub: "Alibaba" },
+  { label: "Wan 2.7 Pro",  value: "wan27pro",  sub: "Alibaba" },
+  { label: "Wan 2.6",      value: "wan26",     sub: "Alibaba" },
 ];
 
 const RATIO_H: Record<string, number> = {
