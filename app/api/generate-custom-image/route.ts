@@ -3,10 +3,6 @@ import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { fal } from '@fal-ai/client';
 
-fal.config({
-  credentials: process.env.FAL_KEY,
-});
-
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -15,74 +11,76 @@ const supabaseAdmin = createClient(
 function buildImagePrompt(config: any): string {
   const genderMap: Record<string, string> = {
     female: 'a beautiful woman',
-    anime: 'an anime-style girl',
+    anime:  'an anime-style girl',
   };
 
   const ethnicityMap: Record<string, string> = {
-    latin: 'latina',
+    latin:    'latina',
     european: 'european',
-    asian: 'asian',
+    asian:    'asian',
   };
 
   const ageRangeMap: Record<string, string> = {
     '18-19': 'young, around 18-19 years old',
-    '20s': 'in her 20s',
-    '30s': 'in her 30s',
-    '40s': 'in her 40s',
-    '50+': 'mature, in her 50s',
+    '20s':   'in her 20s',
+    '30s':   'in her 30s',
+    '40s':   'in her 40s',
+    '50+':   'mature, in her 50s',
   };
 
   const bodyMap: Record<string, string> = {
     athletic: 'athletic body',
-    curvy: 'curvy body',
-    slim: 'slim body',
+    curvy:    'curvy body',
+    slim:     'slim body',
   };
 
   const breastSizeMap: Record<string, string> = {
-    small: 'small breasts',
-    medium: 'medium breasts',
-    large: 'large breasts',
+    small:       'small breasts',
+    medium:      'medium breasts',
+    large:       'large breasts',
     'very-large': 'very large breasts',
   };
 
   const hairColorMap: Record<string, string> = {
-    redhead: 'red hair',
-    blonde: 'blonde hair',
+    redhead:  'red hair',
+    blonde:   'blonde hair',
     brunette: 'brunette hair',
-    pink: 'pink hair',
+    pink:     'pink hair',
   };
 
   const hairStyleMap: Record<string, string> = {
     straight: 'straight hair',
-    short: 'short hair',
-    curly: 'curly hair',
-    wavy: 'wavy hair',
+    short:    'short hair',
+    curly:    'curly hair',
+    wavy:     'wavy hair',
   };
 
   const outfitMap: Record<string, string> = {
-    'strapless-dress': 'wearing a strapless dress',
-    'bikini': 'wearing a bikini',
-    'yoga-outfit': 'wearing a yoga outfit',
+    'strapless-dress':    'wearing a strapless dress',
+    'bikini':             'wearing a bikini',
+    'yoga-outfit':        'wearing a yoga outfit',
     'deep-cleavage-dress': 'wearing a dress with deep cleavage',
-    'underwear': 'wearing underwear',
+    'underwear':          'wearing underwear',
   };
 
-  const subject = genderMap[config.gender] || 'a beautiful woman';
-  const ethnicity = ethnicityMap[config.ethnicity] || '';
-  const age = ageRangeMap[config.ageRange] || '';
-  const body = bodyMap[config.physicalTrait] || '';
-  const breastSize = breastSizeMap[config.breastSize] || '';
-  const hairColor = hairColorMap[config.hairColor] || '';
-  const hairStyle = hairStyleMap[config.hairStyle] || '';
-  const outfit = outfitMap[config.outfit] || '';
+  const parts = [
+    ethnicityMap[config.ethnicity],
+    ageRangeMap[config.ageRange],
+    bodyMap[config.physicalTrait],
+    breastSizeMap[config.breastSize],
+    hairColorMap[config.hairColor],
+    hairStyleMap[config.hairStyle],
+    outfitMap[config.outfit],
+  ].filter(Boolean).join(', ');
 
+  const subject = genderMap[config.gender] ?? 'a beautiful woman';
   const isAnime = config.gender === 'anime';
 
   if (isAnime) {
-    return `${subject}, ${ethnicity}, ${age}, ${body}, ${breastSize}, ${hairColor}, ${hairStyle}, ${outfit}, anime art style, detailed, vibrant colors, high quality illustration, portrait, looking at viewer`;
+    return `${subject}, ${parts}, anime art style, detailed, vibrant colors, high quality illustration, portrait, looking at viewer`;
   }
 
-  return `Photorealistic portrait of ${subject}, ${ethnicity}, ${age}, ${body}, ${breastSize}, ${hairColor}, ${hairStyle}, ${outfit}, natural lighting, soft focus background, high quality photography, looking at viewer, warm expression`;
+  return `Photorealistic portrait of ${subject}, ${parts}, natural lighting, soft focus background, high quality photography, looking at viewer, warm expression`;
 }
 
 export async function POST(request: Request) {
@@ -100,10 +98,11 @@ export async function POST(request: Request) {
     const prompt = buildImagePrompt(config);
     console.log('Generating image with prompt:', prompt);
 
-    const result = await fal.subscribe('xai/grok-imagine-image', {
+    const result = await fal.subscribe('fal-ai/bytedance/seedream/v4.5/text-to-image', {
       input: {
         prompt,
-        aspect_ratio: '2:3',
+        image_size:            { width: 832, height: 1248 }, // ~2:3
+        enable_safety_checker: false,
       },
     }) as any;
 
