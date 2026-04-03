@@ -16,20 +16,31 @@ function buildImagePrompt(config: any): string {
 
   const ethnicityMap: Record<string, string> = {
     latin:    'latina',
-    european: 'european',
+    european: 'of European descent',
     asian:    'asian',
   };
 
   const ageRangeMap: Record<string, string> = {
-    '18-19': 'young, around 18-19 years old',
+    '18-19': 'around 18-19 years old',
     '20s':   'in her 20s',
     '30s':   'in her 30s',
     '40s':   'in her 40s',
     '50+':   'mature, in her 50s',
   };
 
+  const personalityMap: Record<string, string> = {
+    shy:          'shy expression, soft gaze, gentle smile',
+    flirty:       'flirty expression, playful smile, confident gaze',
+    intellectual: 'intelligent expression, thoughtful look',
+    rebellious:   'rebellious attitude, intense gaze, edgy expression',
+    romantic:     'romantic expression, soft dreamy look',
+    jealous:      'intense expression, passionate gaze',
+    dominant:     'confident posture, strong direct gaze, commanding presence',
+    submissive:   'soft shy expression, gentle downward gaze',
+  };
+
   const bodyMap: Record<string, string> = {
-    athletic: 'athletic body',
+    athletic: 'athletic slim body',
     curvy:    'curvy body',
     slim:     'slim body',
   };
@@ -43,13 +54,13 @@ function buildImagePrompt(config: any): string {
 
   const hairColorMap: Record<string, string> = {
     redhead:  'red hair',
-    blonde:   'blonde hair',
+    blonde:   'platinum blonde hair',
     brunette: 'brunette hair',
     pink:     'pink hair',
   };
 
   const hairStyleMap: Record<string, string> = {
-    straight: 'straight hair',
+    straight: 'long straight hair',
     short:    'short hair',
     curly:    'curly hair',
     wavy:     'wavy hair',
@@ -59,13 +70,14 @@ function buildImagePrompt(config: any): string {
     'strapless-dress':    'wearing a strapless dress',
     'bikini':             'wearing a bikini',
     'yoga-outfit':        'wearing a yoga outfit',
-    'deep-cleavage-dress': 'wearing a dress with deep cleavage',
+    'deep-cleavage-dress': 'wearing a tightd dress with deep cleavage',
     'underwear':          'wearing underwear',
   };
 
   const parts = [
     ethnicityMap[config.ethnicity],
     ageRangeMap[config.ageRange],
+    personalityMap[config.personality],
     bodyMap[config.physicalTrait],
     breastSizeMap[config.breastSize],
     hairColorMap[config.hairColor],
@@ -80,7 +92,7 @@ function buildImagePrompt(config: any): string {
     return `${subject}, ${parts}, anime art style, detailed, vibrant colors, high quality illustration, portrait, looking at viewer`;
   }
 
-  return `Photorealistic portrait of ${subject}, ${parts}, natural lighting, soft focus background, high quality photography, looking at viewer, warm expression`;
+  return `Photorealistic portrait of ${subject}, ${parts}, cinematic lighting, dreamy bokeh background, high resolution 4K, looking directly at viewer with inviting gaze, warm expression`;
 }
 
 export async function POST(request: Request) {
