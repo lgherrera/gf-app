@@ -29,14 +29,14 @@ function buildImagePrompt(config: any): string {
   };
 
   const personalityMap: Record<string, string> = {
-    shy:          'shy expression, soft gaze, gentle smile',
-    flirty:       'flirty expression, playful smile, confident gaze',
+    shy:          'shy expression, gentle smile',
+    flirty:       'flirty expression, playful smile',
     intellectual: 'intelligent expression, thoughtful look',
-    rebellious:   'rebellious attitude, intense gaze, edgy expression',
+    rebellious:   'rebellious attitude, intense gaze',
     romantic:     'romantic expression, soft dreamy look',
     jealous:      'intense expression, passionate gaze',
     dominant:     'confident posture, strong direct gaze, commanding presence',
-    submissive:   'soft shy expression, gentle downward gaze',
+    submissive:   'soft shy expression',
   };
 
   const bodyMap: Record<string, string> = {
@@ -67,11 +67,11 @@ function buildImagePrompt(config: any): string {
   };
 
   const outfitMap: Record<string, string> = {
-    'strapless-dress':    'wearing a strapless dress',
-    'bikini':             'wearing a bikini',
-    'yoga-outfit':        'wearing a yoga outfit',
-    'deep-cleavage-dress': 'wearing a tightd dress with deep cleavage',
-    'underwear':          'wearing underwear',
+    'strapless-dress':    'wearing a tightstrapless dress',
+    'bikini':             'wearing a smallbikini',
+    'yoga-outfit':        'wearing a tightyoga outfit',
+    'deep-cleavage-dress': 'wearing a tight dress with a deep cleavage',
+    'underwear':          'wearing tight underwear',
   };
 
   const parts = [
@@ -92,7 +92,7 @@ function buildImagePrompt(config: any): string {
     return `${subject}, ${parts}, anime art style, detailed, vibrant colors, high quality illustration, portrait, looking at viewer`;
   }
 
-  return `Photorealistic portrait of ${subject}, ${parts}, cinematic lighting, dreamy bokeh background, high resolution 4K, looking directly at viewer with inviting gaze, warm expression`;
+  return `Photorealistic portrait of ${subject}, ${parts}, cinematic lighting, dreamy bokeh background, fashion style photography,high resolution 4K, looking directly at viewer with inviting gaze`;
 }
 
 export async function POST(request: Request) {
