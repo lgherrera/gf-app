@@ -11,13 +11,13 @@ const supabaseAdmin = createClient(
 function buildImagePrompt(config: any): string {
   const genderMap: Record<string, string> = {
     female: 'a beautiful woman',
-    anime:  'an anime-style girl',
+    anime:  'a beautiful anime-style girl',
   };
 
   const ethnicityMap: Record<string, string> = {
-    latin:    'latina',
+    latin:    'of Latin descent',
     european: 'of European descent',
-    asian:    'asian',
+    asian:    'of Asian descent',
   };
 
   const ageRangeMap: Record<string, string> = {
@@ -31,11 +31,11 @@ function buildImagePrompt(config: any): string {
   const personalityMap: Record<string, string> = {
     shy:          'shy expression, gentle smile',
     flirty:       'flirty expression, playful smile',
-    intellectual: 'intelligent expression, thoughtful look',
+    intellectual: 'thoughtful look, wearing trendy glasses',
     rebellious:   'rebellious attitude, intense gaze',
     romantic:     'romantic expression, soft dreamy look',
     jealous:      'intense expression, passionate gaze',
-    dominant:     'confident posture, strong direct gaze, commanding presence',
+    dominant:     'confident posture, strong direct gaze',
     submissive:   'soft shy expression',
   };
 
@@ -67,11 +67,11 @@ function buildImagePrompt(config: any): string {
   };
 
   const outfitMap: Record<string, string> = {
-    'strapless-dress':    'wearing a tightstrapless dress',
-    'bikini':             'wearing a smallbikini',
-    'yoga-outfit':        'wearing a tightyoga outfit',
+    'strapless-dress':    'wearing a tight strapless dress',
+    'bikini':             'wearing a small bikini',
+    'yoga-outfit':        'wearing a tight yoga outfit',
     'deep-cleavage-dress': 'wearing a tight dress with a deep cleavage',
-    'underwear':          'wearing tight underwear',
+    'underwear':          'wearing tight, sexy underwear',
   };
 
   const parts = [
@@ -89,10 +89,10 @@ function buildImagePrompt(config: any): string {
   const isAnime = config.gender === 'anime';
 
   if (isAnime) {
-    return `${subject}, ${parts}, anime art style, detailed, vibrant colors, high quality illustration, portrait, looking at viewer`;
+    return `${subject}, ${parts}, anime art style, detailed, vibrant colors, high quality illustration, cinematic composition, soft studio lighting, 4K resolution, looking directly at viewer with inviting gaze`;
   }
 
-  return `Photorealistic portrait of ${subject}, ${parts}, cinematic lighting, dreamy bokeh background, fashion style photography,high resolution 4K, looking directly at viewer with inviting gaze`;
+  return `Photorealistic portrait of ${subject}, ${parts}, cinematic lighting, dreamy bokeh background, fashion style portrait photography,high resolution 4K, looking directly at viewer with inviting gaze`;
 }
 
 export async function POST(request: Request) {
