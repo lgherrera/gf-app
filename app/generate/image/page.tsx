@@ -15,7 +15,7 @@ const MODELS = [
   { label: "Seedream 5",   value: "seedream5", sub: "ByteDance · Lite" },
   { label: "Flux 2 Dev",   value: "flux2dev",  sub: "Black Forest Labs" },
   { label: "Flux 2 Max",   value: "flux2max",  sub: "Black Forest Labs" },
-  { label: "Wan 2.5",      value: "wan25",     sub: "Alibaba" },
+  { label: "Wan 2.7",      value: "wan27",     sub: "Alibaba" },
 ];
 
 const RATIO_H: Record<string, number> = {

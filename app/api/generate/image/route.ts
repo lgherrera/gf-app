@@ -22,7 +22,7 @@ const MODEL_ENDPOINTS: Record<string, string> = {
   seedream5: "fal-ai/bytedance/seedream/v5/lite/text-to-image",
   flux2dev:  "fal-ai/flux-2",
   flux2max:  "fal-ai/flux-2-max",
-  wan25:     "fal-ai/wan-25-preview/text-to-image",
+  wan27:     "fal-ai/wan/v2.7/text-to-image",
 };
 
 export async function POST(req: NextRequest) {
@@ -43,13 +43,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "FAL_KEY no configurada" }, { status: 500 });
     }
 
-    const isFlux      = model === "flux2dev" || model === "flux2max";
-    const isFluxMax   = model === "flux2max";
-    const isFluxDev   = model === "flux2dev";
-    const isV5        = model === "seedream5";
-    const isWan       = model === "wan25";
-    const endpoint    = MODEL_ENDPOINTS[model ?? "seedream"] ?? MODEL_ENDPOINTS.seedream;
-    const imageSize   = isV5
+    const isFlux    = model === "flux2dev" || model === "flux2max";
+    const isFluxMax = model === "flux2max";
+    const isFluxDev = model === "flux2dev";
+    const isV5      = model === "seedream5";
+    const isWan     = model === "wan27";
+    const endpoint  = MODEL_ENDPOINTS[model ?? "seedream"] ?? MODEL_ENDPOINTS.seedream;
+    const imageSize = isV5
       ? (RATIO_TO_SIZE_V5[aspectRatio] ?? "portrait_16_9")
       : (RATIO_TO_SIZE_V4[aspectRatio] ?? "portrait_16_9");
     const resolvedSeed = seed ?? Math.floor(Math.random() * 2147483647);
@@ -73,7 +73,6 @@ export async function POST(req: NextRequest) {
       enable_safety_checker: false,
       ...(isFluxMax && { safety_tolerance: "5" }),
       ...(isFluxDev && { guidance_scale: 3.5 }),
-      ...(isWan     && { enable_prompt_expansion: false }),
     };
 
     if (!isFlux && !isV5 && !isWan && referenceImageUrls.length > 0) {
@@ -85,11 +84,6 @@ export async function POST(req: NextRequest) {
     const data     = result.data as { images?: { url: string }[]; seeds?: number[] };
     const imageUrl = data?.images?.[0]?.url;
 
-    // Wan returns `seeds` (array), others return `seed`
-    const returnedSeed = isWan
-      ? (data?.seeds?.[0] ?? resolvedSeed)
-      : resolvedSeed;
-
     if (!imageUrl) {
       return NextResponse.json(
         { error: `Respuesta inesperada: ${JSON.stringify(result.data).slice(0, 300)}` },
@@ -97,7 +91,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return NextResponse.json({ url: imageUrl, seed: returnedSeed });
+    return NextResponse.json({ url: imageUrl, seed: resolvedSeed });
 
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Error desconocido";
