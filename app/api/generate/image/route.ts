@@ -23,6 +23,7 @@ const MODEL_ENDPOINTS: Record<string, string> = {
   flux2dev:  "fal-ai/flux-2",
   flux2max:  "fal-ai/flux-2-max",
   wan25:     "fal-ai/wan-25-preview/text-to-image",
+  hunyuan3:  "fal-ai/hunyuan-image/v3/text-to-image",
 };
 
 export async function POST(req: NextRequest) {
@@ -47,7 +48,8 @@ export async function POST(req: NextRequest) {
     const isFluxMax = model === "flux2max";
     const isFluxDev = model === "flux2dev";
     const isV5      = model === "seedream5";
-    const isWan = model === "wan25";
+    const isWan     = model === "wan25";
+    const isHunyuan = model === "hunyuan3";
     const endpoint  = MODEL_ENDPOINTS[model ?? "seedream"] ?? MODEL_ENDPOINTS.seedream;
     const imageSize = isV5
       ? (RATIO_TO_SIZE_V5[aspectRatio] ?? "portrait_16_9")
@@ -56,7 +58,7 @@ export async function POST(req: NextRequest) {
 
     // Reference images only supported by Seedream 4.5
     let referenceImageUrls: string[] = [];
-    if (!isFlux && !isV5 && !isWan && referenceImages?.length) {
+    if (!isFlux && !isV5 && !isWan && !isHunyuan && referenceImages?.length) {
       referenceImageUrls = await Promise.all(
         referenceImages.map(async (b64) => {
           const blob = base64ToBlob(b64, "image/jpeg");
@@ -71,11 +73,12 @@ export async function POST(req: NextRequest) {
       image_size:            imageSize,
       seed:                  resolvedSeed,
       enable_safety_checker: false,
-      ...(isFluxMax && { safety_tolerance: "5" }),
-      ...(isFluxDev && { guidance_scale: 3.5 }),
+      ...(isFluxMax  && { safety_tolerance: "5" }),
+      ...(isFluxDev  && { guidance_scale: 3.5 }),
+      ...(isHunyuan  && { guidance_scale: 7.5, enable_prompt_expansion: false }),
     };
 
-    if (!isFlux && !isV5 && !isWan && referenceImageUrls.length > 0) {
+    if (!isFlux && !isV5 && !isWan && !isHunyuan && referenceImageUrls.length > 0) {
       input.reference_images = referenceImageUrls.map((url) => ({ url }));
     }
 
