@@ -89,7 +89,7 @@ function buildImagePrompt(config: any): string {
   const isAnime = config.gender === 'anime';
 
   if (isAnime) {
-    return `${subject}, ${parts}, anime art style, detailed, vibrant yet natural color palette, high quality illustration, soft studio lighting, 4K resolution, looking directly at viewer with inviting gaze`;
+    return `${subject}, ${parts}, anime art style, flawless smooth skin with healthy luminous glow, looking directly at the viewer, highly detailed anime illustration, vibrant rich color palette inspired by bright anime aesthetic with luminous skin tones, saturated yet natural colors, vibrant teal eye accents, soft glossy hair highlights, beautiful cel-shading with clean vibrant accents and subtle gradients, soft studio lighting with gentle rim light and soft glow, sparkling eye reflections, intricate hair strands and fabric texture, ultra-detailed, masterpiece`;
   }
 
   return `Photorealistic portrait of ${subject}, ${parts}, cinematic lighting, dreamy bokeh background, fashion style portrait photography,high resolution 4K, looking directly at viewer with inviting gaze`;
