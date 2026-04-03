@@ -110,10 +110,13 @@ export async function POST(request: Request) {
     const prompt = buildImagePrompt(config);
     console.log('Generating image with prompt:', prompt);
 
+    const seed = Math.floor(Math.random() * 2147483647);
+
     const result = await fal.subscribe('fal-ai/bytedance/seedream/v4.5/text-to-image', {
       input: {
         prompt,
         image_size:            { width: 832, height: 1248 }, // ~2:3
+        seed,
         enable_safety_checker: false,
       },
     }) as any;
