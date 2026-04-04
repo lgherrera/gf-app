@@ -80,11 +80,14 @@ const HAIR_STYLE_OPTIONS = [
 ];
 
 const OUTFIT_OPTIONS = [
-  { value: 'strapless-dress', label: 'Vestido Strapless' },
-  { value: 'bikini', label: 'Bikini' },
-  { value: 'yoga-outfit', label: 'Yoga Outfit' },
+  { value: 'strapless-dress',    label: 'Vestido Strapless' },
+  { value: 'bikini',             label: 'Bikini' },
+  { value: 'yoga-outfit',        label: 'Yoga Outfit' },
   { value: 'deep-cleavage-dress', label: 'Vestido Escotado' },
-  { value: 'underwear', label: 'Ropa Interior' },
+  { value: 'lingerie',           label: 'Lingerie' },
+  { value: 'trendy',             label: 'Elegante' },
+  { value: 'casual',             label: 'Casual' },
+  { value: 'nurse',              label: 'Enfermera' },
 ];
 
 /* ── component ───────────────────────────────────── */

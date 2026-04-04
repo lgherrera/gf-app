@@ -11,7 +11,7 @@ const supabaseAdmin = createClient(
 function buildImagePrompt(config: any): string {
   const genderMap: Record<string, string> = {
     female: 'a beautiful woman',
-    anime:  'a beautiful anime-style girl',
+    anime:  'a beautiful anime-style woman',
   };
 
   const ethnicityMap: Record<string, string> = {
@@ -67,11 +67,14 @@ function buildImagePrompt(config: any): string {
   };
 
   const outfitMap: Record<string, string> = {
-    'strapless-dress':    'wearing a tight strapless dress',
-    'bikini':             'wearing a small bikini',
-    'yoga-outfit':        'wearing a tight yoga outfit',
+    'strapless-dress':     'wearing a tight strapless dress',
+    'bikini':              'wearing a small bikini',
+    'yoga-outfit':         'wearing a tight yoga outfit',
     'deep-cleavage-dress': 'wearing a tight dress with a deep cleavage',
-    'underwear':          'wearing tight, sexy underwear',
+    'lingerie':            'wearing tight, trendy lingerie',
+    'trendy':              'wearing a tight trendy dress',
+    'casual':              'wearing casual clothing, t-shirt and jeans',
+    'nurse':               'wearing a tight nurse outfit',
   };
 
   const parts = [
@@ -89,7 +92,7 @@ function buildImagePrompt(config: any): string {
   const isAnime = config.gender === 'anime';
 
   if (isAnime) {
-    return `${subject}, ${parts}, anime art style, flawless smooth skin with healthy luminous glow, looking directly at the viewer, highly detailed anime illustration, vibrant rich color palette inspired by bright anime aesthetic with luminous skin tones, saturated yet natural colors, vibrant teal eye accents, soft glossy hair highlights, beautiful cel-shading with clean vibrant accents and subtle gradients, sparkling eye reflections, intricate hair strands and fabric texture, soft dreamy gradient background from light pink to baby blue, heavy creamy bokeh with glowing circular lights, delicate sparkles and light particles, gentle rim lighting on subject, extremely soft focus background, ultra-detailed, masterpiece`;
+    return `${subject}, ${parts}, anime art style, flawless smooth skin with healthy luminous glow, looking directly at the viewer, highly detailed anime illustration, vibrant rich color palette inspired by bright anime aesthetic with luminous skin tones, luminous glow, glossy highlights, at a cafe, dreamy bokeh background, soft dreamy gradient background from light pink to baby blue, gentle rim lighting on subject, extremely soft focus background, ultra-detailed, masterpiece`;
   }
 
   return `Photorealistic portrait of ${subject}, ${parts}, cinematic lighting, dreamy bokeh background, fashion style portrait photography,high resolution 4K, looking directly at viewer with inviting gaze`;
