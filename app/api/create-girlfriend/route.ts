@@ -108,7 +108,7 @@ export async function POST(request: Request) {
       voice_model: config.voiceId ? 'eleven_turbo_v2_5' : null,
       girlfriend_type: 'custom',
       created_by: userId,
-      content_rating: process.env.NEXT_PUBLIC_CONTENT_FILTER || 'sfw',
+      content_rating: process.env.NEXT_PUBLIC_APP_SOURCE || 'sfw',
       personality: config.personality,
       is_active: true,
       model_provider: 'Grok',
