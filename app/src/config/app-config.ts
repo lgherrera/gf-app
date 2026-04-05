@@ -23,8 +23,8 @@ export const brandConfig: Record<AppVariant, {
     tagline: 'Your AI Companion',
     footer: {
       companyName: 'GirlfriendAI',
-      compliance: '18 USC 257 Record Keeping Requirements Compliant',
-      copyright: 'Copyright TubeAI / Todos los Derechos Reservados / 1300 South Miami Ave, FL, 33031, USA',
+      compliance: 'All Media available on this App is AI generated.',
+      copyright: 'Copyright CompanionAI / Todos los Derechos Reservados / 1400 South Miami Ave, FL, 33031, USA',
     },
   },
   sfw: {
