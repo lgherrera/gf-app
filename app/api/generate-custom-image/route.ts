@@ -53,10 +53,10 @@ function buildImagePrompt(config: any): string {
   };
 
   const hairColorMap: Record<string, string> = {
-    redhead:  'red hair',
+    redhead:  'vibrant red hair with soft volume',
     blonde:   'platinum blonde hair',
-    brunette: 'brunette hair',
-    pink:     'pink hair',
+    brunette: 'stylish brunette hair',
+    pink:     'vibrant pink hair',
   };
 
   const hairStyleMap: Record<string, string> = {

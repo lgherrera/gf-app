@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from '@/lib/hooks/useSession';
-import GFHeader from '../components/GFHeader';
+import WizHeader from '../components/WizHeader';
 import GFFooter from '../components/GFFooter';
 import StepSelector from './components/StepSelector';
 import ReviewStep from './components/ReviewStep';
@@ -337,7 +337,7 @@ export default function CreatePage() {
 
   return (
     <div className={styles.page}>
-      <GFHeader />
+      <WizHeader />
 
       {/* Header */}
       <div className={styles.header}>
