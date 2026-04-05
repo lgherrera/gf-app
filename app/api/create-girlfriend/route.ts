@@ -1,6 +1,8 @@
 // app/api/create-girlfriend/route.ts
+
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
+import { buildSystemPrompt } from '@/lib/prompts';
 import sharp from 'sharp';
 
 const supabaseAdmin = createClient(
@@ -98,6 +100,36 @@ export async function POST(request: Request) {
       console.error('Avatar generation error:', avatarErr);
     }
 
+    // Build system prompt from config
+    const partialGirlfriend = {
+      id: '',
+      name: config.name,
+      age: ageMap[config.ageRange] || 25,
+      appearance: JSON.stringify(appearance),
+      backstory: '',
+      occupation: 'companion',
+      description: `Custom AI companion - ${config.name}`,
+      content_rating: process.env.NEXT_PUBLIC_APP_SOURCE || 'sfw',
+      personality: config.personality,
+      personality_traits: null,
+      core_motivations: '',
+      fears: null,
+      values: null,
+      likes: null,
+      dislikes: null,
+      hobbies: null,
+      boundaries: '',
+      speech_style: '',
+      example_dialogue: null,
+      one_liners: null,
+      model_provider: 'Grok',
+      model_name: 'x-ai/grok-4.1-fast',
+      temperature: 0.7,
+      max_tokens: 400,
+    };
+
+    const systemPrompt = buildSystemPrompt(partialGirlfriend);
+
     const newGirlfriend = {
       name: config.name,
       slug,
@@ -119,6 +151,7 @@ export async function POST(request: Request) {
       image_url: imageUrl,
       avatar: avatarUrl,
       image_prompt: imagePrompt || null,
+      system_prompt: systemPrompt,  // 👈 added
     };
 
     console.log('Inserting girlfriend with image_prompt:', newGirlfriend.image_prompt);
