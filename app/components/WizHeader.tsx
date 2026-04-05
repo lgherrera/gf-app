@@ -1,69 +1,45 @@
 // app/components/WizHeader.tsx
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
-import Sidebar from './Sidebar';
 import styles from './WizHeader.module.css';
-import { currentBrand } from '@/app/src/config/app-config';
+
+const logoSrc = process.env.NEXT_PUBLIC_APP_SOURCE === 'nsfw'
+  ? '/logos/wiz_header_pink.jpg'
+  : '/logos/wiz_header.jpg';
 
 export default function WizHeader() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
   return (
-    <>
-      <header className={styles.header}>
-        
-        {/* Left: Hamburger Menu */}
-        <button 
-          onClick={() => setIsSidebarOpen(true)}
-          className={styles.iconButton}
-          aria-label="Abrir menú"
+    <header className={styles.header}>
+      
+      {/* Left: Home Button */}
+      <Link href="/" className={styles.iconButton} aria-label="Ir al inicio">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          width="24"
+          height="24"
         >
-          <svg 
-            width="24" 
-            height="24" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2"
-          >
-            <line x1="3" y1="12" x2="21" y2="12"/>
-            <line x1="3" y1="6" x2="21" y2="6"/>
-            <line x1="3" y1="18" x2="21" y2="18"/>
-          </svg>
-        </button>
+          <path d="M11.47 3.841a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.061l-8.689-8.69a2.25 2.25 0 0 0-3.182 0l-8.69 8.69a.75.75 0 1 0 1.061 1.06l8.69-8.689Z" />
+          <path d="m12 5.432 8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.625a1.875 1.875 0 0 1-1.875-1.875v-6.198a2.29 2.29 0 0 0 .091-.086L12 5.432Z" />
+        </svg>
+      </Link>
 
-        {/* Middle: Logo */}
-        <div className={styles.logoContainer}>
-          <Link href="/">
-            <img 
-              src={currentBrand.logo} 
-              alt={`${currentBrand.name} Logo`} 
-              className={styles.logo}
-            />
-          </Link>
-        </div>
-
-        {/* Right: Plus Button */}
-        <Link href="/create" className={styles.iconButton}>
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            viewBox="0 0 24 24" 
-            fill="currentColor" 
-            width="24" 
-            height="24"
-          >
-            <path fillRule="evenodd" d="M12 3.75a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75H4.5a.75.75 0 0 1 0-1.5h6.75V4.5a.75.75 0 0 1 .75-.75Z" clipRule="evenodd" />
-          </svg>
+      {/* Middle: Logo */}
+      <div className={styles.logoContainer}>
+        <Link href="/">
+          <img 
+            src={logoSrc}
+            alt="Logo" 
+            className={styles.logo}
+          />
         </Link>
-        
-      </header>
+      </div>
 
-      <Sidebar
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
-      />
-    </>
+      {/* Right: spacer to keep logo centered */}
+      <div style={{ width: 40 }} />
+
+    </header>
   );
 }
