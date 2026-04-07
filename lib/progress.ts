@@ -1,6 +1,6 @@
 // lib/progress.ts
 
-import { PROGRESS_CONFIG as C } from '@/lib/progress.config';
+import { PROGRESS_CONFIG as C, MAX_STAGE } from '@/lib/progress.config';
 import { supabase } from '@/lib/supabase';
 
 export function calculateScore(messageCount: number, scenesUsed: number): number {
@@ -11,7 +11,7 @@ export function calculateScore(messageCount: number, scenesUsed: number): number
 }
 
 export function calculateStage(score: number): number {
-  return Math.min(5, Math.floor(score / C.pointsPerStage) + 1);
+  return Math.min(MAX_STAGE, Math.floor(score / C.pointsPerStage) + 1);
 }
 
 export async function updateProgress(

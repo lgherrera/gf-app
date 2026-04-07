@@ -6,11 +6,10 @@ import Link from 'next/link';
 import styles from './GFSidebar.module.css';
 
 const STAGE_LABELS: Record<number, string> = {
-  1: 'Primera cita',
-  2: 'Conocidas',
-  3: 'Amigas',
-  4: 'Cercanas',
-  5: 'Íntimas',
+  1: 'Blind Date',
+  2: 'Saliendo',
+  3: 'Andando',
+  4: 'Pololos',
 };
 
 interface SidebarProps {
@@ -33,19 +32,17 @@ export default function GFSidebar({ isOpen, onClose, girlfriend, stage = 1, scor
 
   return (
     <>
-      {/* Sidebar Overlay */}
       {isOpen && (
-        <div 
+        <div
           className={styles.sidebarOverlay}
           onClick={onClose}
         />
       )}
 
-      {/* Sidebar Panel */}
       <div className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
         <div className={styles.sidebarHeader}>
           <h2 className={styles.sidebarTitle}>Profile</h2>
-          <button 
+          <button
             className={styles.sidebarClose}
             onClick={onClose}
           >
@@ -60,8 +57,8 @@ export default function GFSidebar({ isOpen, onClose, girlfriend, stage = 1, scor
           {/* Profile Section */}
           <div className={styles.profileSection}>
             {girlfriend.image_url && (
-              <img 
-                src={girlfriend.image_url} 
+              <img
+                src={girlfriend.image_url}
                 alt={girlfriend.name}
                 className={styles.profileImage}
               />
@@ -73,7 +70,7 @@ export default function GFSidebar({ isOpen, onClose, girlfriend, stage = 1, scor
 
           {/* Navigation Links */}
           <nav className={styles.sidebarNav}>
-            <Link 
+            <Link
               href={`/${girlfriend.slug}/images`}
               className={styles.sidebarLink}
               onClick={onClose}
@@ -94,7 +91,7 @@ export default function GFSidebar({ isOpen, onClose, girlfriend, stage = 1, scor
               <span className={styles.stageName}>{STAGE_LABELS[stage]}</span>
             </div>
             <div className={styles.stageDots}>
-              {[1, 2, 3, 4, 5].map((step) => (
+              {[1, 2, 3, 4].map((step) => (
                 <div
                   key={step}
                   className={`${styles.stageDot} ${step <= stage ? styles.stageDotActive : ''}`}
