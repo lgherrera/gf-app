@@ -13,7 +13,6 @@ export async function POST(req: Request) {
   try {
     const { messages, girlfriendId, userId } = await req.json();
 
-    // Validate required fields
     if (!messages || !girlfriendId || !userId) {
       return NextResponse.json(
         { error: 'Missing required fields: messages, girlfriendId, userId' },
@@ -21,45 +20,48 @@ export async function POST(req: Request) {
       );
     }
 
-    // Fetch girlfriend data from Supabase with content filter
     const CONTENT_MODE = process.env.NEXT_PUBLIC_CONTENT_MODE as string;
 
-    const { data: girlfriend, error: girlfriendError } = await supabase
-      .from('girlfriends')
-      .select('*')
-      .eq('id', girlfriendId)
-      .eq('content_rating', CONTENT_MODE)
-      .single();
+    // Fetch girlfriend and user progress in parallel
+    const [{ data: girlfriend, error: girlfriendError }, { data: progress }] = await Promise.all([
+      supabase
+        .from('girlfriends')
+        .select('*')
+        .eq('id', girlfriendId)
+        .eq('content_rating', CONTENT_MODE)
+        .single(),
+      supabase
+        .from('user_progress')
+        .select('stage')
+        .match({ user_id: userId, girlfriend_id: girlfriendId })
+        .single(),
+    ]);
 
     if (girlfriendError || !girlfriend) {
       console.error('Girlfriend fetch error:', girlfriendError);
-      return NextResponse.json(
-        { error: 'Girlfriend not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Girlfriend not found' }, { status: 404 });
     }
 
-    // Build system prompt with girlfriend personality
-    const systemPrompt = buildSystemPrompt(girlfriend);
+    const stage = progress?.stage ?? 1;
 
-    // Prepare messages for OpenRouter
+    // Build system prompt with stage
+    const systemPrompt = buildSystemPrompt(girlfriend, undefined, stage);
+
     const apiMessages = [
       { role: 'system', content: systemPrompt },
       ...messages
     ];
 
-    // Use model_name directly - it already has the full format like "x-ai/grok-4.1-fast"
     const modelString = girlfriend.model_name || 'x-ai/grok-4.1-fast';
 
-    // Log request details
     console.log('Making OpenRouter request with:', {
       model: modelString,
       messageCount: apiMessages.length,
       girlfriendId,
-      userId
+      userId,
+      stage,
     });
 
-    // Call OpenRouter API
     const startTime = Date.now();
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -94,10 +96,9 @@ export async function POST(req: Request) {
     console.log('OpenRouter success:', {
       model: data.model,
       tokens: data.usage?.total_tokens,
-      cost: data.usage?.total_cost
+      cost: data.usage?.total_cost,
     });
 
-    // Extract metadata from OpenRouter response
     const usage = data.usage;
     const metadata = {
       user_id: userId,
@@ -114,7 +115,6 @@ export async function POST(req: Request) {
       raw_metadata: data
     };
 
-    // Store metadata in Supabase
     const { error: metaError } = await supabase
       .from('chat_metadata')
       .insert(metadata);
@@ -125,16 +125,14 @@ export async function POST(req: Request) {
       console.log('✅ Metadata stored successfully');
     }
 
-    // Extract assistant's reply
     const assistantMessage = data.choices?.[0]?.message?.content || 'Sorry, I could not generate a response.';
 
-    // Return the response
     return NextResponse.json({
       message: assistantMessage,
       metadata: {
         tokens: usage?.total_tokens,
         cost: usage?.total_cost,
-        generationTime
+        generationTime,
       }
     });
 
