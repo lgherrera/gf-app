@@ -108,6 +108,7 @@ export async function POST(request: Request) {
       appearance: JSON.stringify(appearance),
       backstory: '',
       occupation: 'companion',
+      nationality: null,
       description: `Custom AI companion - ${config.name}`,
       content_rating: process.env.NEXT_PUBLIC_APP_SOURCE || 'sfw',
       personality: config.personality,
@@ -151,7 +152,7 @@ export async function POST(request: Request) {
       image_url: imageUrl,
       avatar: avatarUrl,
       image_prompt: imagePrompt || null,
-      system_prompt: systemPrompt,  // 👈 added
+      system_prompt: systemPrompt,
     };
 
     console.log('Inserting girlfriend with image_prompt:', newGirlfriend.image_prompt);
