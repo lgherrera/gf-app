@@ -28,6 +28,7 @@ interface Girlfriend {
   occupation?: string;
   gender?: string;
   style?: string;
+  nationality?: string;
 }
 
 interface Scene {
@@ -526,6 +527,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
           occupation: girlfriend.occupation,
           gender: girlfriend.gender,
           style: girlfriend.style,
+          nationality: girlfriend.nationality,
         }}
         stage={currentStage}
         score={currentScore}
