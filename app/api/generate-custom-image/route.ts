@@ -8,7 +8,7 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-function buildImagePrompt(config: any): string {
+function buildImagePrompt(config: any, contentMode: 'sfw' | 'nsfw' = 'sfw'): string {
   const genderMap: Record<string, string> = {
     female: 'a beautiful woman',
     anime:  'a beautiful anime-style woman',
@@ -46,9 +46,9 @@ function buildImagePrompt(config: any): string {
   };
 
   const breastSizeMap: Record<string, string> = {
-    small:       'small breasts',
-    medium:      'medium breasts',
-    large:       'large breasts',
+    small:        'small breasts',
+    medium:       'medium breasts',
+    large:        'large breasts',
     'very-large': 'very large breasts',
   };
 
@@ -66,16 +66,22 @@ function buildImagePrompt(config: any): string {
     wavy:     'wavy hair',
   };
 
-  const outfitMap: Record<string, string> = {
+  const outfitMapSfw: Record<string, string> = {
     'strapless-dress':     'wearing a tight strapless dress',
-    'bikini':              'wearing a small bikini',
+    'bikini':              'wearing a bikini',
     'yoga-outfit':         'wearing a tight yoga outfit',
     'deep-cleavage-dress': 'wearing a tight dress with a deep cleavage',
     'lingerie':            'wearing tight, trendy lingerie',
     'trendy':              'wearing a tight trendy dress',
     'casual':              'wearing casual clothing, t-shirt and jeans',
-    'nurse':               'wearing a tight nurse outfit',
   };
+
+  const outfitMapNsfw: Record<string, string> = {
+    ...outfitMapSfw,
+    'nurse': 'wearing a very tight short nurse outfit',
+  };
+
+  const outfitMap = contentMode === 'nsfw' ? outfitMapNsfw : outfitMapSfw;
 
   const parts = [
     ethnicityMap[config.ethnicity],
@@ -95,12 +101,12 @@ function buildImagePrompt(config: any): string {
     return `${subject}, ${parts}, anime art style, flawless smooth skin with healthy luminous glow, looking directly at the viewer, highly detailed anime illustration, vibrant rich color palette inspired by bright anime aesthetic with luminous skin tones, luminous glow, glossy highlights, at a cafe, dreamy bokeh background, soft dreamy gradient background from light pink to baby blue, gentle rim lighting on subject, extremely soft focus background, ultra-detailed, masterpiece`;
   }
 
-  return `Photorealistic portrait of ${subject}, ${parts}, cinematic lighting, dreamy bokeh background, fashion style portrait photography,high resolution 4K, looking directly at viewer with inviting gaze`;
+  return `Photorealistic portrait of ${subject}, ${parts}, cinematic lighting, dreamy bokeh background, fashion style portrait photography, high resolution 4K, looking directly at viewer with inviting gaze`;
 }
 
 export async function POST(request: Request) {
   try {
-    const { config, userId } = await request.json();
+    const { config, userId, contentMode } = await request.json();
 
     if (!userId) {
       return NextResponse.json({ error: 'User ID required' }, { status: 401 });
@@ -110,7 +116,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid configuration' }, { status: 400 });
     }
 
-    const prompt = buildImagePrompt(config);
+    const prompt = buildImagePrompt(config, contentMode ?? 'sfw');
     console.log('Generating image with prompt:', prompt);
 
     const seed = Math.floor(Math.random() * 2147483647);
@@ -118,7 +124,7 @@ export async function POST(request: Request) {
     const result = await fal.subscribe('fal-ai/bytedance/seedream/v4.5/text-to-image', {
       input: {
         prompt,
-        image_size:            { width: 832, height: 1248 }, // ~2:3
+        image_size:            { width: 832, height: 1248 },
         seed,
         enable_safety_checker: false,
       },
