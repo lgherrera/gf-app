@@ -3,6 +3,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { buildSystemPrompt } from '@/lib/prompts';
+import { uploadToS3 } from '@/lib/s3';
 import sharp from 'sharp';
 
 const supabaseAdmin = createClient(
@@ -42,8 +43,6 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { config, userId, imageUrl, imagePrompt } = body;
 
-    console.log('imagePrompt received:', imagePrompt);
-
     if (!userId) {
       return NextResponse.json({ error: 'User ID required' }, { status: 401 });
     }
@@ -76,31 +75,16 @@ export async function POST(request: Request) {
 
     const age = ageMap[config.ageRange] || 25;
 
+    // Generate and upload avatar to S3
     let avatarUrl: string | null = null;
     try {
       const avatarBuffer = await generateAvatar(imageUrl);
-      const avatarFileName = `custom/${userId}/${slug}-avatar.jpg`;
-
-      const { error: avatarUploadError } = await supabaseAdmin.storage
-        .from('girlfriends')
-        .upload(avatarFileName, avatarBuffer, {
-          contentType: 'image/jpeg',
-          upsert: true,
-        });
-
-      if (!avatarUploadError) {
-        const { data: avatarPublicUrl } = supabaseAdmin.storage
-          .from('girlfriends')
-          .getPublicUrl(avatarFileName);
-        avatarUrl = avatarPublicUrl.publicUrl;
-      } else {
-        console.error('Avatar upload error:', avatarUploadError);
-      }
+      const avatarKey = `gf-custom-images/${userId}/${slug}-avatar.jpg`;
+      avatarUrl = await uploadToS3(avatarBuffer, avatarKey, 'image/jpeg');
     } catch (avatarErr) {
-      console.error('Avatar generation error:', avatarErr);
+      console.error('Avatar generation/upload error:', avatarErr);
     }
 
-    // Build system prompt from config
     const partialGirlfriend = {
       id: '',
       name: config.name,
@@ -154,8 +138,6 @@ export async function POST(request: Request) {
       image_prompt: imagePrompt || null,
       system_prompt: systemPrompt,
     };
-
-    console.log('Inserting girlfriend with image_prompt:', newGirlfriend.image_prompt);
 
     const { data, error } = await supabaseAdmin
       .from('girlfriends')
