@@ -71,15 +71,14 @@ export default function GFSidebar({ isOpen, onClose, girlfriend, stage = 1, scor
 
           {/* My Private Content Button */}
           <div className={styles.privateContentSection}>
-            <Link
-              href={`/${girlfriend.slug}/images`}
-              className={styles.privateContentButton}
-              onClick={onClose}
-            >
+          <Link
+            href={`/${girlfriend.slug}/images`}
+            className={styles.privateContentButton}
+          >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                <path fillRule="evenodd" d="M12 1.5a5.25 5.25 0 0 0-5.25 5.25v3a3 3 0 0 0-3 3v6.75a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3v-6.75a3 3 0 0 0-3-3v-3A5.25 5.25 0 0 0 12 1.5Zm3.75 8.25v-3a3.75 3.75 0 1 0-7.5 0v3h7.5ZM12 15.75a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" clipRule="evenodd" />
+                <path d="M18 1.5c2.9 0 5.25 2.35 5.25 5.25v3.75a.75.75 0 0 1-1.5 0V6.75a3.75 3.75 0 1 0-7.5 0v3a3 3 0 0 1 3 3v6.75a3 3 0 0 1-3 3H3.75a3 3 0 0 1-3-3v-6.75a3 3 0 0 1 3-3h9v-3c0-2.9 2.35-5.25 5.25-5.25Z" fill="currentColor"/>
               </svg>
-              My Private Content
+              Mi Contenido Privado
             </Link>
           </div>
 

@@ -110,13 +110,13 @@
   justify-content: center;
   gap: 10px;
   width: 100%;
-  padding: 14px 20px;
+  padding: 6px 14px;
   background: var(--color-primary);
   color: #fff;
   border: none;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 600;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 550;
   text-decoration: none;
   cursor: pointer;
   transition: opacity 0.2s ease, transform 0.15s ease;
