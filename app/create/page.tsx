@@ -250,32 +250,32 @@ export default function CreatePage() {
             onSelect={(v) => handleSingleSelect('ageRange', v)}
           />
         );
-      case 3:
-        return (
-          <div className={styles.stepContainer}>
-            <StepSelector
-              title="Personalidad"
-              subtitle="¿Qué onda te gusta?"
-              options={PERSONALITY_OPTIONS}
-              selected={config.personality}
-              onSelect={(v) => handleSingleSelect('personality', v)}
-            />
-            <div className={styles.descriptionField}>
-              <label className={styles.descriptionLabel}>
-                Descríbela <span className={styles.optional}>(opcional)</span>
-              </label>
-              <textarea
-                className={styles.descriptionTextarea}
-                placeholder="Ej: Le encanta viajar, habla varios idiomas y tiene un humor increíble..."
-                value={config.description}
-                onChange={(e) => setConfig((prev) => ({ ...prev, description: e.target.value }))}
-                maxLength={500}
-                rows={4}
+        case 3:
+          return (
+            <div className={styles.stepContainer}>
+              <div className={styles.descriptionField}>
+                <label className={styles.descriptionLabel}>
+                  Descríbela <span className={styles.optional}>(opcional)</span>
+                </label>
+                <textarea
+                  className={styles.descriptionTextarea}
+                  placeholder="Ej: Le encanta viajar, habla varios idiomas y tiene un humor increíble..."
+                  value={config.description}
+                  onChange={(e) => setConfig((prev) => ({ ...prev, description: e.target.value }))}
+                  maxLength={500}
+                  rows={4}
+                />
+                <span className={styles.charCount}>{config.description.length}/500</span>
+              </div>
+              <StepSelector
+                title="Personalidad"
+                subtitle="¿Qué onda te gusta?"
+                options={PERSONALITY_OPTIONS}
+                selected={config.personality}
+                onSelect={(v) => handleSingleSelect('personality', v)}
               />
-              <span className={styles.charCount}>{config.description.length}/500</span>
             </div>
-          </div>
-        );
+          );
       case 4:
         return (
           <div className={styles.stepContainer}>

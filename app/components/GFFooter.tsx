@@ -16,7 +16,7 @@ export default function GFFooter() {
         
         <div className={styles.textSection}>
           <p className={styles.terms}>
-            Terminos y condiciones
+            Términos y condiciones
           </p>
           
           {currentBrand.footer.compliance && (
