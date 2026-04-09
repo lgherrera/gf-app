@@ -148,7 +148,7 @@ export async function POST(request: Request) {
       model_name: 'x-ai/grok-4.1-fast',
       temperature: 0.7,
       max_tokens: 400,
-      description: config.description || null,
+      description: config.description || 'Una amiga inteligente, cariñosa y siempre dispuesta a escuchar.',
       image_url: imageUrl,
       avatar: avatarUrl,
       image_prompt: imagePrompt || null,
