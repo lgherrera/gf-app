@@ -262,7 +262,7 @@ export default function CreatePage() {
                   placeholder="Ej: Le encanta viajar, habla varios idiomas y tiene un humor increíble..."
                   value={config.description}
                   onChange={(e) => setConfig((prev) => ({ ...prev, description: e.target.value }))}
-                  maxLength={500}
+                  maxLength={300}
                   rows={4}
                 />
                 <span className={styles.charCount}>{config.description.length}/300</span>
