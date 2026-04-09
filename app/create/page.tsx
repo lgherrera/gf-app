@@ -255,7 +255,7 @@ export default function CreatePage() {
             <div className={styles.stepContainer}>
               <div className={styles.descriptionField}>
                 <label className={styles.descriptionLabel}>
-                  Descríbela <span className={styles.optional}>(opcional)</span>
+                  Descripción <span className={styles.optional}>(opcional)</span>
                 </label>
                 <textarea
                   className={styles.descriptionTextarea}
