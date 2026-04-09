@@ -105,7 +105,6 @@ export default function CreatePage() {
   const [voices, setVoices] = useState<VoiceOption[]>([]);
   const [voicesLoading, setVoicesLoading] = useState(false);
 
-  // Image approval state
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const [imagePrompt, setImagePrompt] = useState<string | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
@@ -128,7 +127,7 @@ export default function CreatePage() {
       case 0:  return config.gender !== null;
       case 1:  return config.ethnicity !== null;
       case 2:  return config.ageRange !== null;
-      case 3:  return config.personality !== null;
+      case 3:  return config.personality !== null; // description is optional
       case 4:  return config.physicalTrait !== null && config.breastSize !== null;
       case 5:  return config.hairColor !== null;
       case 6:  return config.hairStyle !== null;
@@ -217,7 +216,6 @@ export default function CreatePage() {
     return voice?.name ?? '—';
   };
 
-  /* show generating screen (after approval, during DB insert) */
   if (isGenerating) {
     return <GeneratingScreen name={config.name} />;
   }
@@ -254,13 +252,29 @@ export default function CreatePage() {
         );
       case 3:
         return (
-          <StepSelector
-            title="Personalidad"
-            subtitle="¿Qué onda te gusta?"
-            options={PERSONALITY_OPTIONS}
-            selected={config.personality}
-            onSelect={(v) => handleSingleSelect('personality', v)}
-          />
+          <div className={styles.stepContainer}>
+            <StepSelector
+              title="Personalidad"
+              subtitle="¿Qué onda te gusta?"
+              options={PERSONALITY_OPTIONS}
+              selected={config.personality}
+              onSelect={(v) => handleSingleSelect('personality', v)}
+            />
+            <div className={styles.descriptionField}>
+              <label className={styles.descriptionLabel}>
+                Descríbela <span className={styles.optional}>(opcional)</span>
+              </label>
+              <textarea
+                className={styles.descriptionTextarea}
+                placeholder="Ej: Le encanta viajar, habla varios idiomas y tiene un humor increíble..."
+                value={config.description}
+                onChange={(e) => setConfig((prev) => ({ ...prev, description: e.target.value }))}
+                maxLength={500}
+                rows={4}
+              />
+              <span className={styles.charCount}>{config.description.length}/500</span>
+            </div>
+          </div>
         );
       case 4:
         return (
@@ -342,7 +356,6 @@ export default function CreatePage() {
     <div className={styles.page}>
       <WizHeader />
 
-      {/* Header */}
       <div className={styles.header}>
         <button
           className={styles.backButton}
@@ -363,7 +376,6 @@ export default function CreatePage() {
         </span>
       </div>
 
-      {/* Progress bar */}
       <div className={styles.progressTrack}>
         <div
           className={styles.progressFill}
@@ -371,12 +383,10 @@ export default function CreatePage() {
         />
       </div>
 
-      {/* Step content */}
       <div className={styles.content}>
         {renderStep()}
       </div>
 
-      {/* Footer nav (hidden on review and approval steps) */}
       {step < 9 && (
         <div className={styles.footer}>
           <button

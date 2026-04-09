@@ -2,449 +2,498 @@
 
 /* ── page shell ──────────────────────────────────── */
 .page {
-    display: flex;
-    flex-direction: column;
-    min-height: 100dvh;
-    max-width: 500px;
-    margin: 0 auto;
-    background-color: #0a0a0a;
-    color: #fff;
-  }
-  
-  /* ── header ──────────────────────────────────────── */
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 56px;
-    padding: 0 16px;
-    position: sticky;
-    top: 0;
-    background-color: #0a0a0a;
-    z-index: 10;
-  }
-  
-  .backButton {
-    background: none;
-    border: none;
-    color: #fff;
-    cursor: pointer;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-  }
-  
-  .headerTitle {
-    font-size: 16px;
-    font-weight: 600;
-  }
-  
-  .stepIndicator {
-    font-size: 13px;
-    color: #888;
-  }
-  
-  /* ── progress bar ────────────────────────────────── */
-  .progressTrack {
-    height: 3px;
-    background-color: #1a1a1a;
-  }
-  
-  .progressFill {
-    height: 100%;
-    background-color: var(--color-primary);
-    transition: width 0.3s ease;
-  }
-  
-  /* ── content area ────────────────────────────────── */
-  .content {
-    flex: 1;
-    padding: 24px 16px;
-    overflow-y: auto;
-  }
-  
-  /* ── step ────────────────────────────────────────── */
-  .stepContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  
-  .stepTitle {
-    font-size: 22px;
-    font-weight: 700;
-    margin: 0;
-  }
-  
-  .stepSubtitle {
-    font-size: 14px;
-    color: #888;
-    margin: 0;
-  }
-  
-  /* ── options grid ────────────────────────────────── */
-  .optionsGrid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-  
-  .optionCard {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 16px 8px;
-    background-color: #141414;
-    border: 1.5px solid #222;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: border-color 0.2s, background-color 0.2s;
-    color: #ccc;
-    font-size: 14px;
-  }
-  
-  .optionCard:hover {
-    border-color: #444;
-  }
-  
-  .optionSelected {
-    border-color: var(--color-primary);
-    background-color: var(--color-primary-15);
-    color: #fff;
-  }
-  
-  .optionCardWithImage {
-    padding: 0;
-    overflow: hidden;
-    gap: 0;
-  }
-  
-  .optionImage {
-    width: 100%;
-    aspect-ratio: 3 / 4;
-    object-fit: cover;
-  }
-  
-  .optionCardWithImage .optionEmoji,
-  .optionCardWithImage .optionLabel {
-    padding: 4px 8px;
-  }
-  
-  .optionCardWithImage .optionLabel {
-    padding-top: 12px;
-    padding-bottom: 12px;
-  }
-  
-  .optionEmoji {
-    font-size: 22px;
-  }
-  
-  .optionLabel {
-    font-weight: 500;
-  }
-  
-  .multiSelectHint {
-    font-size: 12px;
-    color: #555;
-    text-align: center;
-    margin: 0;
-  }
-  
-  /* ── voice step ──────────────────────────────────── */
-  .voiceList {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .voiceCard {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 18px 16px;
-    background-color: #141414;
-    border: 1.5px solid #222;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: border-color 0.2s, background-color 0.2s;
-  }
-  
-  .voiceCard:hover {
-    border-color: #444;
-  }
-  
-  .voiceSelected {
-    border-color: var(--color-primary);
-    background-color: var(--color-primary-15);
-  }
-  
-  .voiceLabel {
-    font-size: 16px;
-    font-weight: 500;
-    color: #ccc;
-  }
-  
-  .voiceSelected .voiceLabel {
-    color: #fff;
-  }
-  
-  .voicePlayButton {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 1.5px solid var(--color-primary-50);
-    background: none;
-    color: var(--color-primary);
-    cursor: pointer;
-    transition: background-color 0.2s, border-color 0.2s;
-  }
-  
-  .voicePlayButton:hover {
-    background-color: var(--color-primary-15);
-    border-color: var(--color-primary);
-  }
-  
-  /* ── review step ─────────────────────────────────── */
-  .nameInputWrapper {
-    margin-bottom: 8px;
-  }
-  
-  .nameInput {
-    width: 100%;
-    padding: 14px 16px;
-    background-color: #141414;
-    border: 1.5px solid #222;
-    border-radius: 12px;
-    color: #fff;
-    font-size: 16px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  
-  .nameInput::placeholder {
-    color: #555;
-  }
-  
-  .nameInput:focus {
-    border-color: var(--color-primary);
-  }
-  
-  .reviewCard {
-    background-color: #141414;
-    border: 1px solid #1a1a1a;
-    border-radius: 12px;
-    overflow: hidden;
-  }
-  
-  .reviewRow {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 16px;
-  }
-  
-  .reviewRow + .reviewRow {
-    border-top: 1px solid #1a1a1a;
-  }
-  
-  .reviewLabel {
-    font-size: 13px;
-    color: #888;
-  }
-  
-  .reviewValue {
-    font-size: 13px;
-    color: #fff;
-    text-transform: capitalize;
-    text-align: right;
-    max-width: 60%;
-  }
-  
-  .createButton {
-    width: 100%;
-    padding: 16px;
-    background-color: var(--color-primary);
-    border: none;
-    border-radius: 12px;
-    color: #fff;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.2s;
-  }
-  
-  .createButton:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-  
-  .createButton:not(:disabled):hover {
-    opacity: 0.9;
-  }
-  
-  /* ── image approval step ─────────────────────────── */
-  .imagePreviewWrapper {
-    display: flex;
-    justify-content: center;
-    margin: 8px 0;
-  }
-  
-  .imagePreview {
-    width: 100%;
-    max-width: 320px;
-    border-radius: 12px;
-    object-fit: cover;
-    aspect-ratio: 2 / 3;
-    border: 1.5px solid #222;
-  }
-  
-  .approvalButtons {
-    display: flex;
-    gap: 12px;
-  }
-  
-  .regenerateButton {
-    flex: 1;
-    padding: 16px;
-    border-radius: 12px;
-    border: 1.5px solid #222;
-    background-color: #141414;
-    color: #ccc;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: border-color 0.2s, background-color 0.2s;
-  }
-  
-  .regenerateButton:hover {
-    border-color: #444;
-    background-color: #1a1a1a;
-  }
-  
-  .regenerateButton:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-  
-  .approveButton {
-    flex: 1;
-    padding: 16px;
-    border-radius: 12px;
-    border: none;
-    background-color: var(--color-primary);
-    color: #fff;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.2s;
-  }
-  
-  .approveButton:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-  
-  .approveButton:not(:disabled):hover {
-    opacity: 0.9;
-  }
-  
-  .imageSpinnerWrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 4rem 0;
-  }
-  
-  .imageSpinnerWrapper .spinner {
-    width: 64px;
-    height: 64px;
-  }
-  
-  /* ── footer nav ──────────────────────────────────── */
-  .footer {
-    padding: 16px;
-    padding-bottom: max(16px, env(safe-area-inset-bottom));
-    background-color: #0a0a0a;
-    border-top: 1px solid #141414;
-  }
-  
-  .nextButton {
-    width: 100%;
-    padding: 16px;
-    background-color: var(--color-primary);
-    border: none;
-    border-radius: 12px;
-    color: #fff;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.2s;
-  }
-  
-  .nextButton:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-  
-  .nextButton:not(:disabled):hover {
-    opacity: 0.9;
-  }
-  
-  /* ── generating screen ───────────────────────────── */
-  .generatingScreen {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100dvh;
-    max-width: 500px;
-    margin: 0 auto;
-    background-color: #0a0a0a;
-    padding: 24px;
-    gap: 20px;
-  }
-  
-  .spinnerWrapper {
-    width: 64px;
-    height: 64px;
-    margin-bottom: 8px;
-  }
-  
-  .spinner {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    border: 3px solid #1a1a1a;
-    border-top-color: var(--color-primary);
-    animation: spin 1s linear infinite;
-  }
-  
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  
-  .generatingName {
-    font-size: 24px;
-    font-weight: 700;
-    color: #fff;
-    margin: 0;
-  }
-  
-  .generatingMessage {
-    font-size: 14px;
-    color: #888;
-    margin: 0;
-    animation: fadeInOut 3s ease-in-out infinite;
-  }
-  
-  @keyframes fadeInOut {
-    0%, 100% { opacity: 0.4; }
-    50% { opacity: 1; }
-  }
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  max-width: 500px;
+  margin: 0 auto;
+  background-color: #0a0a0a;
+  color: #fff;
+}
+
+/* ── header ──────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  padding: 0 16px;
+  position: sticky;
+  top: 0;
+  background-color: #0a0a0a;
+  z-index: 10;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.headerTitle {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.stepIndicator {
+  font-size: 13px;
+  color: #888;
+}
+
+/* ── progress bar ────────────────────────────────── */
+.progressTrack {
+  height: 3px;
+  background-color: #1a1a1a;
+}
+
+.progressFill {
+  height: 100%;
+  background-color: var(--color-primary);
+  transition: width 0.3s ease;
+}
+
+/* ── content area ────────────────────────────────── */
+.content {
+  flex: 1;
+  padding: 24px 16px;
+  overflow-y: auto;
+}
+
+/* ── step ────────────────────────────────────────── */
+.stepContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stepTitle {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.stepSubtitle {
+  font-size: 14px;
+  color: #888;
+  margin: 0;
+}
+
+/* ── options grid ────────────────────────────────── */
+.optionsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.optionCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 16px 8px;
+  background-color: #141414;
+  border: 1.5px solid #222;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+  color: #ccc;
+  font-size: 14px;
+}
+
+.optionCard:hover {
+  border-color: #444;
+}
+
+.optionSelected {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-15);
+  color: #fff;
+}
+
+.optionCardWithImage {
+  padding: 0;
+  overflow: hidden;
+  gap: 0;
+}
+
+.optionImage {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+}
+
+.optionCardWithImage .optionEmoji,
+.optionCardWithImage .optionLabel {
+  padding: 4px 8px;
+}
+
+.optionCardWithImage .optionLabel {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.optionEmoji {
+  font-size: 22px;
+}
+
+.optionLabel {
+  font-weight: 500;
+}
+
+.multiSelectHint {
+  font-size: 12px;
+  color: #555;
+  text-align: center;
+  margin: 0;
+}
+
+/* ── voice step ──────────────────────────────────── */
+.voiceList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.voiceCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 16px;
+  background-color: #141414;
+  border: 1.5px solid #222;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.voiceCard:hover {
+  border-color: #444;
+}
+
+.voiceSelected {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-15);
+}
+
+.voiceLabel {
+  font-size: 16px;
+  font-weight: 500;
+  color: #ccc;
+}
+
+.voiceSelected .voiceLabel {
+  color: #fff;
+}
+
+.voicePlayButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-primary-50);
+  background: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.voicePlayButton:hover {
+  background-color: var(--color-primary-15);
+  border-color: var(--color-primary);
+}
+
+/* ── review step ─────────────────────────────────── */
+.nameInputWrapper {
+  margin-bottom: 8px;
+}
+
+.nameInput {
+  width: 100%;
+  padding: 14px 16px;
+  background-color: #141414;
+  border: 1.5px solid #222;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.nameInput::placeholder {
+  color: #555;
+}
+
+.nameInput:focus {
+  border-color: var(--color-primary);
+}
+
+.reviewCard {
+  background-color: #141414;
+  border: 1px solid #1a1a1a;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.reviewRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+}
+
+.reviewRow + .reviewRow {
+  border-top: 1px solid #1a1a1a;
+}
+
+.reviewLabel {
+  font-size: 13px;
+  color: #888;
+}
+
+.reviewValue {
+  font-size: 13px;
+  color: #fff;
+  text-transform: capitalize;
+  text-align: right;
+  max-width: 60%;
+}
+
+.createButton {
+  width: 100%;
+  padding: 16px;
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.createButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.createButton:not(:disabled):hover {
+  opacity: 0.9;
+}
+
+/* ── image approval step ─────────────────────────── */
+.imagePreviewWrapper {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0;
+}
+
+.imagePreview {
+  width: 100%;
+  max-width: 320px;
+  border-radius: 12px;
+  object-fit: cover;
+  aspect-ratio: 2 / 3;
+  border: 1.5px solid #222;
+}
+
+.approvalButtons {
+  display: flex;
+  gap: 12px;
+}
+
+.regenerateButton {
+  flex: 1;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1.5px solid #222;
+  background-color: #141414;
+  color: #ccc;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.regenerateButton:hover {
+  border-color: #444;
+  background-color: #1a1a1a;
+}
+
+.regenerateButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.approveButton {
+  flex: 1;
+  padding: 16px;
+  border-radius: 12px;
+  border: none;
+  background-color: var(--color-primary);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.approveButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.approveButton:not(:disabled):hover {
+  opacity: 0.9;
+}
+
+.imageSpinnerWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem 0;
+}
+
+.imageSpinnerWrapper .spinner {
+  width: 64px;
+  height: 64px;
+}
+
+/* ── footer nav ──────────────────────────────────── */
+.footer {
+  padding: 16px;
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+  background-color: #0a0a0a;
+  border-top: 1px solid #141414;
+}
+
+.nextButton {
+  width: 100%;
+  padding: 16px;
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.nextButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.nextButton:not(:disabled):hover {
+  opacity: 0.9;
+}
+
+/* ── generating screen ───────────────────────────── */
+.generatingScreen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  max-width: 500px;
+  margin: 0 auto;
+  background-color: #0a0a0a;
+  padding: 24px;
+  gap: 20px;
+}
+
+.spinnerWrapper {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 8px;
+}
+
+.spinner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid #1a1a1a;
+  border-top-color: var(--color-primary);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.generatingName {
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.generatingMessage {
+  font-size: 14px;
+  color: #888;
+  margin: 0;
+  animation: fadeInOut 3s ease-in-out infinite;
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* ── description field (personality step) ────────── */
+.descriptionField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.descriptionLabel {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.optional {
+  font-size: 12px;
+  font-weight: 400;
+  color: #555;
+}
+
+.descriptionTextarea {
+  width: 100%;
+  background-color: #141414;
+  border: 1.5px solid #222;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 12px 14px;
+  resize: none;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+
+.descriptionTextarea:focus {
+  border-color: var(--color-primary);
+}
+
+.descriptionTextarea::placeholder {
+  color: #555;
+}
+
+.charCount {
+  font-size: 12px;
+  color: #555;
+  text-align: right;
+}

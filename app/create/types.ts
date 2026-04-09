@@ -37,17 +37,18 @@ export interface VoiceOption {
 }
 
 export interface CustomGirlfriendConfig {
-  gender: Gender | null;
-  ethnicity: Ethnicity | null;
-  ageRange: AgeRange | null;
-  personality: Personality | null;
-  physicalTrait: PhysicalTrait | null;
-  breastSize: BreastSize | null;
-  hairColor: HairColor | null;
-  hairStyle: HairStyle | null;
-  outfit: Outfit | null;
-  voiceId: string | null;
-  name: string;
+  gender:        string | null;
+  ethnicity:     string | null;
+  ageRange:      string | null;
+  personality:   string | null;
+  description:   string;           // ← new
+  physicalTrait: string | null;
+  breastSize:    string | null;
+  hairColor:     string | null;
+  hairStyle:     string | null;
+  outfit:        string | null;
+  voiceId:       string | null;
+  name:          string;
 }
 
 export const STEP_LABELS = [
@@ -67,15 +68,16 @@ export const STEP_LABELS = [
 export type StepIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 
 export const INITIAL_CONFIG: CustomGirlfriendConfig = {
-  gender: null,
-  ethnicity: null,
-  ageRange: null,
-  personality: null,
+  gender:        null,
+  ethnicity:     null,
+  ageRange:      null,
+  personality:   null,
+  description:   '',              // ← new
   physicalTrait: null,
-  breastSize: null,
-  hairColor: null,
-  hairStyle: null,
-  outfit: null,
-  voiceId: null,
-  name: '',
+  breastSize:    null,
+  hairColor:     null,
+  hairStyle:     null,
+  outfit:        null,
+  voiceId:       null,
+  name:          '',
 };
