@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
         hostname: 'awmewvzgyaylxmxsptcz.supabase.co',
         pathname: '/storage/v1/object/public/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'cdn.polola.ai',
+        pathname: '/**',
+      },
     ],
   },
 };
