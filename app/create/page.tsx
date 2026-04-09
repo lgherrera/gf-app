@@ -255,7 +255,7 @@ export default function CreatePage() {
             <div className={styles.stepContainer}>
               <div className={styles.descriptionField}>
                 <label className={styles.descriptionLabel}>
-                  Descripción <span className={styles.optional}>(opcional)</span>
+                  Descripción <span className={styles.optional}>(opcional pero recomendado)</span>
                 </label>
                 <textarea
                   className={styles.descriptionTextarea}
@@ -265,7 +265,7 @@ export default function CreatePage() {
                   maxLength={500}
                   rows={4}
                 />
-                <span className={styles.charCount}>{config.description.length}/500</span>
+                <span className={styles.charCount}>{config.description.length}/300</span>
               </div>
               <StepSelector
                 title="Personalidad"
