@@ -23,14 +23,14 @@ import styles from './create.module.css';
 /* ── option data ─────────────────────────────────── */
 
 const GENDER_OPTIONS = [
-  { value: 'female', label: 'Femenino', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/female.jpg' },
-  { value: 'anime',  label: 'Anime',    image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/anime.jpg' },
+  { value: 'female', label: 'Femenino', image: 'https://cdn.polola.ai/wizard/female.jpg' },
+  { value: 'anime',  label: 'Anime',    image: 'https://cdn.polola.ai/wizard/anime.jpg' },
 ];
 
 const ETHNICITY_OPTIONS = [
-  { value: 'latin',    label: 'Latinas',   image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/raza/eth-latin.jpg' },
-  { value: 'european', label: 'Europeas',  image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/raza/eth-european.jpg' },
-  { value: 'asian',    label: 'Asiáticas', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/raza/eth-asian.jpg' },
+  { value: 'latin',    label: 'Latinas',   image: 'https://cdn.polola.ai/wizard/latin.jpg' },
+  { value: 'european', label: 'Europeas',  image: 'https://cdn.polola.ai/wizard/european.jpg' },
+  { value: 'asian',    label: 'Asiáticas', image: 'https://cdn.polola.ai/wizard/asian.jpg' },
 ];
 
 const AGE_OPTIONS = [
@@ -53,9 +53,9 @@ const PERSONALITY_OPTIONS = [
 ];
 
 const PHYSICAL_TRAIT_OPTIONS = [
-  { value: 'athletic', label: 'Atlética', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/body-type/athletic.jpg' },
-  { value: 'curvy',    label: 'Curvy',    image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/body-type/voluptuous.jpg' },
-  { value: 'slim',     label: 'Delgada',  image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/body-type/slim.jpg' },
+  { value: 'athletic', label: 'Atlética', image: 'https://cdn.polola.ai/wizard/athletic.jpg' },
+  { value: 'curvy',    label: 'Curvy',    image: 'https://cdn.polola.ai/wizard/voluptuous.jpg' },
+  { value: 'slim',     label: 'Delgada',  image: 'https://cdn.polola.ai/wizard/slim.jpg' },
 ];
 
 const BREAST_SIZE_OPTIONS = [
@@ -66,17 +66,17 @@ const BREAST_SIZE_OPTIONS = [
 ];
 
 const HAIR_COLOR_OPTIONS = [
-  { value: 'redhead',  label: 'Pelirroja', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-color/redhead.jpg' },
-  { value: 'blonde',   label: 'Rubia',     image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-color/blond.jpg' },
-  { value: 'brunette', label: 'Morena',    image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-color/brunette.jpg' },
-  { value: 'pink',     label: 'Rosado',    image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-style/pelo-liso.jpg' },
+  { value: 'redhead',  label: 'Pelirroja', image: 'https://cdn.polola.ai/wizard/redhead.jpg' },
+  { value: 'blonde',   label: 'Rubia',     image: 'https://cdn.polola.ai/wizard/blonde.jpg' },
+  { value: 'brunette', label: 'Morena',    image: 'https://cdn.polola.ai/wizard/brunette.jpg' },
+  { value: 'pink',     label: 'Rosado',    image: 'https://cdn.polola.ai/wizard/pink.jpg' },
 ];
 
 const HAIR_STYLE_OPTIONS = [
-  { value: 'straight', label: 'Liso',     image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-style/pelo-liso.jpg' },
-  { value: 'short',    label: 'Corto',    image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-style/pelo-corto.jpg' },
-  { value: 'curly',    label: 'Crespo',   image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-style/pelo-crespo.jpg' },
-  { value: 'wavy',     label: 'Ondulado', image: 'https://awmewvzgyaylxmxsptcz.supabase.co/storage/v1/object/public/create-gf/hair-style/pelo-ondulado.jpg' },
+  { value: 'straight', label: 'Liso',     image: 'https://cdn.polola.ai/wizard/pelo-liso.jpg' },
+  { value: 'short',    label: 'Corto',    image: 'https://cdn.polola.ai/wizard/pelo-corto.jpg' },
+  { value: 'curly',    label: 'Crespo',   image: 'https://cdn.polola.ai/wizard/pelo-crespo.jpg' },
+  { value: 'wavy',     label: 'Ondulado', image: 'https://cdn.polola.ai/wizard/pelo-ondulado.jpg' },
 ];
 
 const OUTFIT_OPTIONS_SFW = [
