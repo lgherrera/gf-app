@@ -66,7 +66,8 @@ function buildImagePrompt(config: any, contentMode: 'sfw' | 'nsfw' = 'sfw'): str
     wavy:     'wavy hair',
   };
 
-  const outfitMapSfw: Record<string, string> = {
+  const outfitMap: Record<string, string> = {
+    // sfw
     'strapless-dress':     'wearing a tight strapless dress',
     'bikini':              'wearing a bikini',
     'yoga-outfit':         'wearing a tight yoga outfit',
@@ -74,14 +75,11 @@ function buildImagePrompt(config: any, contentMode: 'sfw' | 'nsfw' = 'sfw'): str
     'lingerie':            'wearing tight, trendy lingerie',
     'trendy':              'wearing a tight trendy dress',
     'casual':              'wearing casual clothing, t-shirt and jeans',
+    // nsfw
+    ...(contentMode === 'nsfw' && {
+      'nurse': 'wearing a very tight short nurse outfit',
+    }),
   };
-
-  const outfitMapNsfw: Record<string, string> = {
-    ...outfitMapSfw,
-    'nurse': 'wearing a very tight short nurse outfit',
-  };
-
-  const outfitMap = contentMode === 'nsfw' ? outfitMapNsfw : outfitMapSfw;
 
   const parts = [
     ethnicityMap[config.ethnicity],

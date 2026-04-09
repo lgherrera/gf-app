@@ -79,23 +79,19 @@ const HAIR_STYLE_OPTIONS = [
   { value: 'wavy',     label: 'Ondulado', image: 'https://cdn.polola.ai/wizard/pelo-ondulado.jpg' },
 ];
 
-const OUTFIT_OPTIONS_SFW = [
-  { value: 'strapless-dress',     label: 'Vestido Strapless' },
-  { value: 'bikini',              label: 'Bikini' },
-  { value: 'yoga-outfit',         label: 'Yoga Outfit' },
-  { value: 'deep-cleavage-dress', label: 'Vestido Escotado' },
-  { value: 'lingerie',            label: 'Lingerie' },
-  { value: 'trendy',              label: 'Elegante' },
-  { value: 'casual',              label: 'Casual' },
-];
-
-const OUTFIT_OPTIONS_NSFW = [
-  ...OUTFIT_OPTIONS_SFW,
-  { value: 'nurse', label: 'Enfermera' },
+const OUTFIT_OPTIONS_ALL = [
+  { value: 'strapless-dress',     label: 'Vestido Strapless', mode: 'sfw' },
+  { value: 'bikini',              label: 'Bikini',            mode: 'sfw' },
+  { value: 'yoga-outfit',         label: 'Yoga Outfit',       mode: 'sfw' },
+  { value: 'deep-cleavage-dress', label: 'Vestido Escotado',  mode: 'sfw' },
+  { value: 'lingerie',            label: 'Lingerie',          mode: 'sfw' },
+  { value: 'trendy',              label: 'Elegante',          mode: 'sfw' },
+  { value: 'casual',              label: 'Casual',            mode: 'sfw' },
+  { value: 'nurse',               label: 'Enfermera',         mode: 'nsfw' },
 ];
 
 const contentMode = process.env.NEXT_PUBLIC_APP_SOURCE === 'nsfw' ? 'nsfw' : 'sfw';
-const OUTFIT_OPTIONS = contentMode === 'nsfw' ? OUTFIT_OPTIONS_NSFW : OUTFIT_OPTIONS_SFW;
+const OUTFIT_OPTIONS = OUTFIT_OPTIONS_ALL.filter((o) => o.mode === contentMode);
 
 /* ── component ───────────────────────────────────── */
 
