@@ -109,7 +109,7 @@ export async function POST(request: Request) {
       backstory: '',
       occupation: 'companion',
       nationality: null,
-      description: config.description || null,
+      description: config.description || 'Una amiga inteligente, cariñosa y siempre dispuesta a escuchar.',
       content_rating: process.env.NEXT_PUBLIC_APP_SOURCE || 'sfw',
       personality: config.personality,
       personality_traits: null,
