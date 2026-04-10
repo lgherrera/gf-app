@@ -111,7 +111,7 @@
   gap: 10px;
   width: 100%;
   padding: 6px 14px;
-  background: var(--color-primary);
+  background: linear-gradient(to right, var(--color-primary), var(--color-primary-50));
   color: #fff;
   border: none;
   border-radius: 8px;
