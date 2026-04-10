@@ -65,27 +65,17 @@ export default function GalleryClient({ girlfriend, items }: GalleryClientProps)
                 onClick={() => setActiveItem(item)}
               >
                 <div className={styles.mediaWrapper}>
-                  {item.media_type === 'video' ? (
-                    <>
-                      <video
-                        src={item.image_url}
-                        className={styles.media}
-                        muted
-                        playsInline
-                        preload="metadata"
-                      />
-                      <div className={styles.playBadge}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
-                      </div>
-                    </>
-                  ) : (
-                    <img
-                      src={item.thumbnail_url || item.image_url}
-                      alt={item.title || 'Image'}
-                      className={styles.media}
-                    />
+                  <img
+                    src={item.thumbnail_url || item.image_url}
+                    alt={item.title || 'Media'}
+                    className={styles.media}
+                  />
+                  {item.media_type === 'video' && (
+                    <div className={styles.playBadge}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
                   )}
                 </div>
                 {item.title && <h3 className={styles.itemTitle}>{item.title}</h3>}
@@ -107,7 +97,7 @@ export default function GalleryClient({ girlfriend, items }: GalleryClientProps)
             {activeItem.media_type === 'video' ? (
               <video
                 src={activeItem.image_url}
-                className={styles.lightboxMedia}
+                className={styles.lightboxVideo}
                 controls
                 autoPlay
                 playsInline

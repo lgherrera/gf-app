@@ -41,7 +41,8 @@ async function getGalleryItems(girlfriendId: string) {
       .from('gf_gallery')
       .select('id, title, image_url, thumbnail_url, display_order, media_type')
       .eq('girlfriend_id', girlfriendId)
-  ).order('display_order', { ascending: true, nullsFirst: false });
+      .order('display_order', { ascending: true, nullsFirst: false })
+  );
 
   if (error) {
     console.error('Error fetching gallery:', error.message);
