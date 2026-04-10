@@ -50,42 +50,68 @@ export async function POST(req: NextRequest) {
     const isV5      = model === "seedream5";
     const isWan     = model === "wan25";
     const isHunyuan = model === "hunyuan3";
-    const endpoint  = MODEL_ENDPOINTS[model ?? "seedream"] ?? MODEL_ENDPOINTS.seedream;
+    const isSeedream = model === "seedream" || !model;
+
     const imageSize = isV5
       ? (RATIO_TO_SIZE_V5[aspectRatio] ?? "portrait_16_9")
       : (RATIO_TO_SIZE_V4[aspectRatio] ?? "portrait_16_9");
     const resolvedSeed = seed ?? Math.floor(Math.random() * 2147483647);
 
-    // Reference images only supported by Seedream 4.5
-    let referenceImageUrls: string[] = [];
-    if (!isFlux && !isV5 && !isWan && !isHunyuan && referenceImages?.length) {
-      referenceImageUrls = await Promise.all(
-        referenceImages.map(async (b64) => {
-          const blob = base64ToBlob(b64, "image/jpeg");
-          const url  = await fal.storage.upload(blob);
-          return url;
-        })
-      );
+    // Check if we have reference images for Seedream 4.5
+    const hasRefs = isSeedream && referenceImages && referenceImages.length > 0;
+
+    // Build data URIs from raw base64 strings for the edit endpoint
+    const imageUrls: string[] = [];
+    if (hasRefs) {
+      for (const b64 of referenceImages) {
+        imageUrls.push(`data:image/jpeg;base64,${b64}`);
+      }
     }
 
-    const input: Record<string, unknown> = {
-      prompt,
-      image_size:            imageSize,
-      seed:                  resolvedSeed,
-      enable_safety_checker: false,
-      ...(isFluxMax  && { safety_tolerance: "5" }),
-      ...(isFluxDev  && { guidance_scale: 3.5 }),
-      ...(isHunyuan  && { guidance_scale: 7.5, enable_prompt_expansion: false }),
-    };
+    // Switch to /edit endpoint when reference images are provided
+    let endpoint: string;
+    let finalPrompt = prompt;
 
-    if (!isFlux && !isV5 && !isWan && !isHunyuan && referenceImageUrls.length > 0) {
-      input.reference_images = referenceImageUrls.map((url) => ({ url }));
+    if (hasRefs) {
+      endpoint = "fal-ai/bytedance/seedream/v4.5/edit";
+      // The edit endpoint requires images to be referenced as "Figure N" in the prompt
+      const figureLabels = imageUrls
+        .map((_, idx) => `Figure ${idx + 1} is a reference image.`)
+        .join(" ");
+      finalPrompt = `${figureLabels} Using the style, appearance and features from the reference image(s): ${prompt}`;
+    } else {
+      endpoint = MODEL_ENDPOINTS[model ?? "seedream"] ?? MODEL_ENDPOINTS.seedream;
+    }
+
+    // Build input based on endpoint
+    let input: Record<string, unknown>;
+
+    if (hasRefs) {
+      // Edit endpoint input
+      input = {
+        prompt:                finalPrompt,
+        image_urls:            imageUrls,
+        image_size:            imageSize,
+        num_images:            1,
+        enable_safety_checker: false,
+      };
+    } else {
+      // Text-to-image input for all models
+      input = {
+        prompt:                finalPrompt,
+        image_size:            imageSize,
+        seed:                  resolvedSeed,
+        enable_safety_checker: false,
+        ...(isFluxMax  && { safety_tolerance: "5" }),
+        ...(isFluxDev  && { guidance_scale: 3.5 }),
+        ...(isHunyuan  && { guidance_scale: 7.5, enable_prompt_expansion: false }),
+      };
     }
 
     const result = await fal.subscribe(endpoint, { input });
 
-    const data     = result.data as { images?: { url: string }[] };
-    const imageUrl = data?.images?.[0]?.url;
+    const images   = (result.data as { images?: { url: string }[] })?.images;
+    const imageUrl = images?.[0]?.url;
 
     if (!imageUrl) {
       return NextResponse.json(
@@ -94,20 +120,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return NextResponse.json({ url: imageUrl, seed: resolvedSeed });
+    const resultSeed = (result.data as { seed?: number })?.seed ?? resolvedSeed;
+    return NextResponse.json({ url: imageUrl, seed: resultSeed });
 
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Error desconocido";
     console.error("Generate image error:", msg);
     return NextResponse.json({ error: msg }, { status: 500 });
   }
-}
-
-function base64ToBlob(b64: string, mimeType: string): Blob {
-  const binary = atob(b64);
-  const bytes  = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return new Blob([bytes], { type: mimeType });
 }

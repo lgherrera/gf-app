@@ -76,11 +76,39 @@ export default function ImageGenerationPage() {
       reader.readAsDataURL(file);
     });
 
+  /** Compress image to max 1024px and JPEG 0.82 quality */
+  const compressImage = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const MAX = 1024;
+        let w = img.width, h = img.height;
+        if (w > MAX || h > MAX) {
+          const scale = MAX / Math.max(w, h);
+          w = Math.round(w * scale);
+          h = Math.round(h * scale);
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, 0, 0, w, h);
+        // Return raw base64 (no data URI prefix)
+        const dataUri = canvas.toDataURL("image/jpeg", 0.82);
+        resolve(dataUri.split(",")[1]);
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+
   const handleGenerate = async () => {
     if (!prompt.trim()) { setError("Ingresa un prompt antes de generar."); return; }
     setLoading(true); setError(null); setResult(null);
     try {
-      const base64Images   = await Promise.all(referenceImages.map(toBase64));
+      // Compress reference images before sending
+      const base64Images   = await Promise.all(referenceImages.map(compressImage));
       const parsedSeed     = seed.trim() !== "" ? parseInt(seed, 10) : undefined;
       const randomEyeColor = EYE_COLORS[Math.floor(Math.random() * EYE_COLORS.length)];
       const enrichedPrompt = prompt.replace(/\b(cyan|blue|brown|green|amber|violet)\s+eyes\b/gi, `${randomEyeColor} eyes`)
