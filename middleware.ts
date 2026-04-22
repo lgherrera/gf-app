@@ -86,13 +86,13 @@ async function handleGroobyteCallback(request: NextRequest) {
   }
 
   // Upsert into user_profiles
-  const carrier_user_id = payload.userId ?? null;
-  if (carrier_user_id) {
+  const msisdn = payload.userId ?? null;
+  if (msisdn) {
     const { error: profileError } = await supabaseAdmin
       .from('user_profiles')
       .upsert(
-        { carrier_user_id },
-        { onConflict: 'carrier_user_id' }
+        { msisdn },
+        { onConflict: 'msisdn' }
       );
 
     if (profileError) {
