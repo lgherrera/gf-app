@@ -84,6 +84,21 @@ async function handleGroobyteCallback(request: NextRequest) {
   if (error) {
     console.error('Failed to insert groobyte_callback:', error);
   }
+
+  // Upsert into user_profiles
+  const carrier_user_id = payload.userId ?? null;
+  if (carrier_user_id) {
+    const { error: profileError } = await supabaseAdmin
+      .from('user_profiles')
+      .upsert(
+        { carrier_user_id },
+        { onConflict: 'carrier_user_id' }
+      );
+
+    if (profileError) {
+      console.error('user_profiles upsert error:', profileError);
+    }
+  }
 }
 
 export const config = {
