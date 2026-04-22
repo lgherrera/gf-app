@@ -75,10 +75,12 @@ async function handleGroobyteCallback(request: NextRequest) {
     console.error('Failed to insert groobyte_callback:', error);
   }
 
-  // 2. Upsert user_profiles + create Supabase Auth user
-  const msisdn = payload.userId ?? null;
+  // 2. Normalize phone number to E.164 format
+  const rawMsisdn = payload.userId ?? null;
+  const msisdn = rawMsisdn && !rawMsisdn.startsWith('+') ? `+${rawMsisdn}` : rawMsisdn;
+
   if (msisdn) {
-    // Try to create a pre-verified auth user
+    // 3. Create or find pre-verified auth user
     let supabaseAuthId: string | null = null;
 
     const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
@@ -89,7 +91,6 @@ async function handleGroobyteCallback(request: NextRequest) {
     if (newUser?.user) {
       supabaseAuthId = newUser.user.id;
     } else if (createError?.message?.includes('already been registered')) {
-      // User already exists, fetch their ID
       const { data: users } = await supabaseAdmin.auth.admin.listUsers();
       const existing = users?.users?.find(u => u.phone === msisdn);
       supabaseAuthId = existing?.id ?? null;
@@ -97,7 +98,7 @@ async function handleGroobyteCallback(request: NextRequest) {
       console.error('Auth user creation error:', createError);
     }
 
-    // Upsert into user_profiles with the auth ID
+    // 4. Upsert user_profiles with auth ID
     const { error: profileError } = await supabaseAdmin
       .from('user_profiles')
       .upsert(
