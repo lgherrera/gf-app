@@ -8,16 +8,13 @@ export async function middleware(request: NextRequest) {
   const { searchParams, pathname } = request.nextUrl;
   const jwt = searchParams.get('jwt');
 
-  // Only intercept if we're at the root AND there's a jwt param
   if (pathname === '/' && jwt) {
     await handleGroobyteCallback(request);
     
-    // Redirect to clean root URL (no query params)
     const cleanUrl = new URL('/', request.url);
     return NextResponse.redirect(cleanUrl);
   }
 
-  // No JWT or different path — let the request continue normally
   return NextResponse.next();
 }
 
@@ -26,8 +23,6 @@ async function handleGroobyteCallback(request: NextRequest) {
   const rawJwt = searchParams.get('jwt');
   if (!rawJwt) return;
 
-  // Decode JWT payload WITHOUT verifying signature (learning phase only)
-  // TODO(before production): Add JWT signature verification using Groobyte's public key
   let payload: {
     tid?: string;
     userId?: string;
@@ -54,11 +49,10 @@ async function handleGroobyteCallback(request: NextRequest) {
     }
   );
 
+  // 1. Log the raw callback
   const { error } = await supabaseAdmin.from('groobyte_callbacks').insert({
     raw_url: request.nextUrl.toString(),
     raw_jwt: rawJwt,
-
-    // Query string parameters
     track: searchParams.get('track'),
     pubid: searchParams.get('pubid'),
     clickid: searchParams.get('clickid'),
@@ -67,16 +61,12 @@ async function handleGroobyteCallback(request: NextRequest) {
     utm_campaign: searchParams.get('utm_campaign'),
     utm_content: searchParams.get('utm_content'),
     tid: searchParams.get('tid'),
-
-    // Decoded JWT claims
     carrier_user_id: payload.userId ?? null,
     product_id: payload.productId ?? null,
     plan_type: payload.planType ?? null,
     reason: payload.reason ?? null,
     jwt_iat: payload.iat ?? null,
     jwt_exp: payload.exp ?? null,
-
-    // Processing metadata
     jwt_verified: false,
     notes: 'learning_phase_no_verification',
   });
@@ -85,13 +75,33 @@ async function handleGroobyteCallback(request: NextRequest) {
     console.error('Failed to insert groobyte_callback:', error);
   }
 
-  // Upsert into user_profiles
+  // 2. Upsert user_profiles + create Supabase Auth user
   const msisdn = payload.userId ?? null;
   if (msisdn) {
+    // Try to create a pre-verified auth user
+    let supabaseAuthId: string | null = null;
+
+    const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+      phone: msisdn,
+      phone_confirm: true,
+    });
+
+    if (newUser?.user) {
+      supabaseAuthId = newUser.user.id;
+    } else if (createError?.message?.includes('already been registered')) {
+      // User already exists, fetch their ID
+      const { data: users } = await supabaseAdmin.auth.admin.listUsers();
+      const existing = users?.users?.find(u => u.phone === msisdn);
+      supabaseAuthId = existing?.id ?? null;
+    } else if (createError) {
+      console.error('Auth user creation error:', createError);
+    }
+
+    // Upsert into user_profiles with the auth ID
     const { error: profileError } = await supabaseAdmin
       .from('user_profiles')
       .upsert(
-        { msisdn },
+        { msisdn, supabase_auth_id: supabaseAuthId },
         { onConflict: 'msisdn' }
       );
 
