@@ -138,14 +138,14 @@ export async function POST(req: Request) {
           girlfriend_id: girlfriendId,
           role: 'user',
           content: userMessage.content,
-          source: 'chat',
+          source: CONTENT_MODE,
         },
         {
           user_id: userId,
           girlfriend_id: girlfriendId,
           role: 'assistant',
           content: assistantMessage,
-          source: 'chat',
+          source: CONTENT_MODE,
         }
       ]);
 
