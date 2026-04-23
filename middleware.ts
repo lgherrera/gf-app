@@ -9,19 +9,32 @@ export async function middleware(request: NextRequest) {
   const jwt = searchParams.get('jwt');
 
   if (pathname === '/' && jwt) {
-    await handleGroobyteCallback(request);
+    const authUid = await handleGroobyteCallback(request);
     
     const cleanUrl = new URL('/', request.url);
-    return NextResponse.redirect(cleanUrl);
+    const response = NextResponse.redirect(cleanUrl);
+
+    // Set auth cookie if we have a user
+    if (authUid) {
+      response.cookies.set('carrier_auth_uid', authUid, {
+        httpOnly: false,
+        secure: true,
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 30,
+      });
+    }
+
+    return response;
   }
 
   return NextResponse.next();
 }
 
-async function handleGroobyteCallback(request: NextRequest) {
+async function handleGroobyteCallback(request: NextRequest): Promise<string | null> {
   const { searchParams } = request.nextUrl;
   const rawJwt = searchParams.get('jwt');
-  if (!rawJwt) return;
+  if (!rawJwt) return null;
 
   let payload: {
     tid?: string;
@@ -75,41 +88,43 @@ async function handleGroobyteCallback(request: NextRequest) {
     console.error('Failed to insert groobyte_callback:', error);
   }
 
-  // 2. Normalize phone number to E.164 format
+  // 2. Normalize phone number
   const rawMsisdn = payload.userId ?? null;
   const msisdn = rawMsisdn && !rawMsisdn.startsWith('+') ? `+${rawMsisdn}` : rawMsisdn;
 
-  if (msisdn) {
-    // 3. Create or find pre-verified auth user
-    let supabaseAuthId: string | null = null;
+  if (!msisdn) return null;
 
-    const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
-      phone: msisdn,
-      phone_confirm: true,
-    });
+  // 3. Create or find pre-verified auth user
+  let supabaseAuthId: string | null = null;
 
-    if (newUser?.user) {
-      supabaseAuthId = newUser.user.id;
-    } else if (createError?.message?.includes('already been registered')) {
-      const { data: users } = await supabaseAdmin.auth.admin.listUsers();
-      const existing = users?.users?.find(u => u.phone === msisdn);
-      supabaseAuthId = existing?.id ?? null;
-    } else if (createError) {
-      console.error('Auth user creation error:', createError);
-    }
+  const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+    phone: msisdn,
+    phone_confirm: true,
+  });
 
-    // 4. Upsert user_profiles with auth ID
-    const { error: profileError } = await supabaseAdmin
-      .from('user_profiles')
-      .upsert(
-        { msisdn, supabase_auth_id: supabaseAuthId },
-        { onConflict: 'msisdn' }
-      );
-
-    if (profileError) {
-      console.error('user_profiles upsert error:', profileError);
-    }
+  if (newUser?.user) {
+    supabaseAuthId = newUser.user.id;
+  } else if (createError?.message?.includes('already been registered')) {
+    const { data: users } = await supabaseAdmin.auth.admin.listUsers();
+    const existing = users?.users?.find(u => u.phone === msisdn);
+    supabaseAuthId = existing?.id ?? null;
+  } else if (createError) {
+    console.error('Auth user creation error:', createError);
   }
+
+  // 4. Upsert user_profiles
+  const { error: profileError } = await supabaseAdmin
+    .from('user_profiles')
+    .upsert(
+      { msisdn, supabase_auth_id: supabaseAuthId },
+      { onConflict: 'msisdn' }
+    );
+
+  if (profileError) {
+    console.error('user_profiles upsert error:', profileError);
+  }
+
+  return supabaseAuthId;
 }
 
 export const config = {

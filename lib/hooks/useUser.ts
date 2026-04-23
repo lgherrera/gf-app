@@ -1,5 +1,3 @@
-// lib/hooks/useUser.ts
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -14,17 +12,28 @@ function generateUUID(): string {
   });
 }
 
+function getCookie(name: string): string | null {
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  return match ? match[2] : null;
+}
+
 export function useUser() {
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    let id = localStorage.getItem('gf_user_id');
+    // Check for carrier auth cookie first
+    const authUid = getCookie('carrier_auth_uid');
+    if (authUid) {
+      setUserId(authUid);
+      return;
+    }
 
+    // Fall back to localStorage UUID
+    let id = localStorage.getItem('gf_user_id');
     if (!id) {
       id = generateUUID();
       localStorage.setItem('gf_user_id', id);
     }
-
     setUserId(id);
   }, []);
 
