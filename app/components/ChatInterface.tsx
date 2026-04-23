@@ -7,7 +7,6 @@ import IntroVideoMessage from './IntroVideoMessage';
 import GFSidebar from './GFSidebar';
 import styles from './ChatInterface.module.css';
 import { useUser } from '@/lib/hooks/useUser';
-import { saveChatMessage } from '@/lib/saveChatMessage';
 import { updateProgress } from '@/lib/progress';
 
 const contentRating = process.env.NEXT_PUBLIC_APP_SOURCE || 'sfw';
@@ -380,8 +379,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     setInputValue('');
     setIsLoading(true);
 
-    saveChatMessage({ userId, girlfriendId: girlfriend.id, role: 'user', content: trimmedInput });
-
     // Update progress
     updateProgress(userId, girlfriend.id, isFirstMessageInScene)
       .then(result => {
@@ -431,8 +428,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-
-      saveChatMessage({ userId, girlfriendId: girlfriend.id, role: 'assistant', content: chatData.message });
 
       if (girlfriend.voice_id) {
         fetch('/api/elevenlabs', {
