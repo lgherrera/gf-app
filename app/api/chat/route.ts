@@ -47,14 +47,6 @@ export async function POST(req: Request) {
     // Build system prompt with stage
     const systemPrompt = buildSystemPrompt(girlfriend, undefined, stage);
 
-    // Debug logs — remove after confirming it works
-    console.log('=== CHAT DEBUG ===');
-    console.log('userId:', userId);
-    console.log('girlfriendId:', girlfriendId);
-    console.log('Stage:', stage);
-    console.log('System prompt tail:', systemPrompt.slice(-600));
-    console.log('==================');
-
     const apiMessages = [
       { role: 'system', content: systemPrompt },
       ...messages
@@ -134,6 +126,34 @@ export async function POST(req: Request) {
     }
 
     const assistantMessage = data.choices?.[0]?.message?.content || 'Sorry, I could not generate a response.';
+
+    // Save user message + assistant reply to chat_messages
+    const userMessage = messages[messages.length - 1];
+
+    const { error: msgError } = await supabase
+      .from('chat_messages')
+      .insert([
+        {
+          user_id: userId,
+          girlfriend_id: girlfriendId,
+          role: 'user',
+          content: userMessage.content,
+          source: 'chat',
+        },
+        {
+          user_id: userId,
+          girlfriend_id: girlfriendId,
+          role: 'assistant',
+          content: assistantMessage,
+          source: 'chat',
+        }
+      ]);
+
+    if (msgError) {
+      console.error('❌ Failed to store chat messages:', msgError);
+    } else {
+      console.log('✅ Chat messages stored successfully');
+    }
 
     return NextResponse.json({
       message: assistantMessage,
