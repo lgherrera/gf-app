@@ -14,7 +14,6 @@ export async function middleware(request: NextRequest) {
     const cleanUrl = new URL('/', request.url);
     const response = NextResponse.redirect(cleanUrl);
 
-    // Set auth cookie if we have a user
     if (authUid) {
       response.cookies.set('carrier_auth_uid', authUid, {
         httpOnly: false,
@@ -91,6 +90,7 @@ async function handleGroobyteCallback(request: NextRequest): Promise<string | nu
   // 2. Normalize phone number
   const rawMsisdn = payload.userId ?? null;
   const msisdn = rawMsisdn && !rawMsisdn.startsWith('+') ? `+${rawMsisdn}` : rawMsisdn;
+  console.log('📱 MSISDN normalized:', { rawMsisdn, msisdn });
 
   if (!msisdn) return null;
 
@@ -102,12 +102,15 @@ async function handleGroobyteCallback(request: NextRequest): Promise<string | nu
     phone_confirm: true,
   });
 
+  console.log('👤 createUser result:', { newUser: newUser?.user?.id, createError: createError?.message });
+
   if (newUser?.user) {
     supabaseAuthId = newUser.user.id;
   } else if (createError?.message?.includes('already been registered')) {
     const { data: users } = await supabaseAdmin.auth.admin.listUsers();
     const existing = users?.users?.find(u => u.phone === msisdn);
     supabaseAuthId = existing?.id ?? null;
+    console.log('👤 Found existing user:', supabaseAuthId);
   } else if (createError) {
     console.error('Auth user creation error:', createError);
   }
