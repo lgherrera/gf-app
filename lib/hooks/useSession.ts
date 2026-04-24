@@ -1,5 +1,4 @@
 // lib/hooks/useSession.ts
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -19,22 +18,10 @@ export function useSession() {
 
   useEffect(() => {
     let id = localStorage.getItem('session_id');
-
     if (!id) {
       id = generateUUID();
       localStorage.setItem('session_id', id);
-
-      // Register new session in database
-      fetch('/api/sessions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sessionId: id,
-          source: process.env.NEXT_PUBLIC_APP_SOURCE || 'unknown',
-        }),
-      }).catch(err => console.error('Failed to register session:', err));
     }
-
     setSessionId(id);
   }, []);
 

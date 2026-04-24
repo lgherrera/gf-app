@@ -7,6 +7,7 @@ import IntroVideoMessage from './IntroVideoMessage';
 import GFSidebar from './GFSidebar';
 import styles from './ChatInterface.module.css';
 import { useUser } from '@/lib/hooks/useUser';
+import { useSession } from '@/lib/hooks/useSession';
 import { updateProgress } from '@/lib/progress';
 
 const contentRating = process.env.NEXT_PUBLIC_APP_SOURCE || 'sfw';
@@ -58,6 +59,7 @@ interface ChatInterfaceProps {
 
 export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   const userId = useUser();
+  const sessionId = useSession();
   
   const [showIntroVideo, setShowIntroVideo] = useState(!!girlfriend.hello_url);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -66,6 +68,9 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   const [error, setError] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
+  // Session DB id (chat_sessions.id uuid)
+  const [dbSessionId, setDbSessionId] = useState<string | null>(null);
+
   // Scene state
   const [scenes, setScenes] = useState<Scene[]>([]);
   const [currentScene, setCurrentScene] = useState<Scene | null>(null);
@@ -91,6 +96,29 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   const generateMessageId = () => {
     return `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   };
+
+  // Register chat session and store the DB id
+  useEffect(() => {
+    if (!sessionId || !userId) return;
+
+    fetch('/api/sessions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId,
+        userId,
+        girlfriendId: girlfriend.id,
+        source: process.env.NEXT_PUBLIC_APP_SOURCE || 'unknown',
+      }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.id) {
+          setDbSessionId(data.id);
+        }
+      })
+      .catch(err => console.error('Failed to register session:', err));
+  }, [sessionId, userId, girlfriend.id]);
 
   // Fetch scenes on mount and when stage changes
   useEffect(() => {
@@ -405,6 +433,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
           userId: userId,
           messages: conversationHistory,
           scenarioDescription: currentScene?.description,
+          sessionId: dbSessionId,
         }),
       });
 

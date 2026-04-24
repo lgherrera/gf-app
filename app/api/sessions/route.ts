@@ -19,23 +19,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Try to insert the session
     const { data, error } = await supabase
       .from('chat_sessions')
-      .insert({
-        session_id: sessionId,
-        user_id: userId,
-        girlfriend_id: girlfriendId,
-        source: source || 'unknown',
-      })
+      .upsert(
+        {
+          session_id: sessionId,
+          user_id: userId,
+          girlfriend_id: girlfriendId,
+          source: source || 'unknown',
+        },
+        { onConflict: 'session_id,girlfriend_id' }
+      )
       .select()
       .single();
 
-    // 23505 = unique violation (session already exists, which is fine)
-    if (error && error.code !== '23505') {
-      throw error;
+    if (error) {
+      // If upsert fails (e.g. no unique constraint yet), fall back to lookup
+      const { data: existing, error: lookupError } = await supabase
+        .from('chat_sessions')
+        .select('id')
+        .eq('session_id', sessionId)
+        .eq('girlfriend_id', girlfriendId)
+        .single();
+
+      if (lookupError || !existing) {
+        throw error;
+      }
+
+      return NextResponse.json({ success: true, id: existing.id });
     }
 
-    return NextResponse.json({ success: true, id: data?.id });
+    return NextResponse.json({ success: true, id: data.id });
   } catch (error) {
     console.error('Error registering session:', error);
     return NextResponse.json(

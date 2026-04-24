@@ -11,7 +11,7 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
-    const { messages, girlfriendId, userId } = await req.json();
+    const { messages, girlfriendId, userId, sessionId } = await req.json();
 
     if (!messages || !girlfriendId || !userId) {
       return NextResponse.json(
@@ -139,6 +139,7 @@ export async function POST(req: Request) {
           role: 'user',
           content: userMessage.content,
           source: CONTENT_MODE,
+          session_id: sessionId || null,
         },
         {
           user_id: userId,
@@ -146,6 +147,7 @@ export async function POST(req: Request) {
           role: 'assistant',
           content: assistantMessage,
           source: CONTENT_MODE,
+          session_id: sessionId || null,
         }
       ]);
 
@@ -153,6 +155,14 @@ export async function POST(req: Request) {
       console.error('❌ Failed to store chat messages:', msgError);
     } else {
       console.log('✅ Chat messages stored successfully');
+    }
+
+    // Update session last_active_at
+    if (sessionId) {
+      await supabase
+        .from('chat_sessions')
+        .update({ last_active_at: new Date().toISOString() })
+        .eq('id', sessionId);
     }
 
     return NextResponse.json({
