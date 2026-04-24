@@ -30,6 +30,32 @@ export async function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
+/**
+ * Normalize phone number to E.164 format.
+ * Strips spaces, dashes, parens, and ensures '+' prefix.
+ * Returns null if the result doesn't look like a valid phone number.
+ */
+function normalizePhone(raw: string): string | null {
+  // Remove everything except digits and leading +
+  let cleaned = raw.replace(/[^\d+]/g, '');
+
+  // Ensure + prefix
+  if (!cleaned.startsWith('+')) {
+    cleaned = '+' + cleaned;
+  }
+
+  // Remove any + signs that aren't the first character
+  cleaned = '+' + cleaned.slice(1).replace(/\+/g, '');
+
+  // Basic validation: + followed by 7-15 digits (E.164 spec)
+  if (!/^\+\d{7,15}$/.test(cleaned)) {
+    console.error('📱 Invalid phone number after normalization:', { raw, cleaned });
+    return null;
+  }
+
+  return cleaned;
+}
+
 async function handleGroobyteCallback(request: NextRequest): Promise<string | null> {
   const { searchParams } = request.nextUrl;
   const rawJwt = searchParams.get('jwt');
@@ -87,9 +113,11 @@ async function handleGroobyteCallback(request: NextRequest): Promise<string | nu
     console.error('Failed to insert groobyte_callback:', error);
   }
 
-  // 2. Normalize phone number
+  // 2. Normalize phone number to E.164
   const rawMsisdn = payload.userId ?? null;
-  const msisdn = rawMsisdn && !rawMsisdn.startsWith('+') ? `+${rawMsisdn}` : rawMsisdn;
+  if (!rawMsisdn) return null;
+
+  const msisdn = normalizePhone(rawMsisdn);
   console.log('📱 MSISDN normalized:', { rawMsisdn, msisdn });
 
   if (!msisdn) return null;
