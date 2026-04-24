@@ -10,30 +10,37 @@ const supabase = createClient(
 
 export async function POST(request: NextRequest) {
   try {
-    const { sessionId, source } = await request.json();
+    const { sessionId, source, userId, girlfriendId } = await request.json();
 
-    if (!sessionId) {
-      return NextResponse.json({ error: 'Session ID required' }, { status: 400 });
+    if (!sessionId || !userId || !girlfriendId) {
+      return NextResponse.json(
+        { error: 'sessionId, userId, and girlfriendId are required' },
+        { status: 400 }
+      );
     }
 
-    // Insert new session (ignore if already exists due to UNIQUE constraint)
-    const { error } = await supabase
-      .from('sessions')
+    const { data, error } = await supabase
+      .from('chat_sessions')
       .insert({
         session_id: sessionId,
+        user_id: userId,
+        girlfriend_id: girlfriendId,
         source: source || 'unknown',
       })
       .select()
       .single();
 
-    // Error code 23505 = unique violation (session already exists, which is fine)
+    // 23505 = unique violation (session already exists, which is fine)
     if (error && error.code !== '23505') {
       throw error;
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, id: data?.id });
   } catch (error) {
     console.error('Error registering session:', error);
-    return NextResponse.json({ error: 'Failed to register session' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to register session' },
+      { status: 500 }
+    );
   }
 }
