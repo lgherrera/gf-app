@@ -3,14 +3,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 export async function middleware(request: NextRequest) {
-  console.log('🔥 MIDDLEWARE RAN', request.nextUrl.toString());
-
   const { searchParams, pathname } = request.nextUrl;
   const jwt = searchParams.get('jwt');
 
   if (pathname === '/' && jwt) {
     const authUid = await handleGroobyteCallback(request);
-    
+
     const cleanUrl = new URL('/', request.url);
     const response = NextResponse.redirect(cleanUrl);
 
@@ -36,18 +34,14 @@ export async function middleware(request: NextRequest) {
  * Returns null if the result doesn't look like a valid phone number.
  */
 function normalizePhone(raw: string): string | null {
-  // Remove everything except digits and leading +
   let cleaned = raw.replace(/[^\d+]/g, '');
 
-  // Ensure + prefix
   if (!cleaned.startsWith('+')) {
     cleaned = '+' + cleaned;
   }
 
-  // Remove any + signs that aren't the first character
   cleaned = '+' + cleaned.slice(1).replace(/\+/g, '');
 
-  // Basic validation: + followed by 7-15 digits (E.164 spec)
   if (!/^\+\d{7,15}$/.test(cleaned)) {
     return null;
   }
@@ -86,11 +80,7 @@ async function handleGroobyteCallback(request: NextRequest): Promise<string | nu
     }
   );
 
-  // 2. Normalize phone number to E.164
-  const rawMsisdn = payload.userId ?? null;
-  const msisdn = rawMsisdn ? normalizePhone(rawMsisdn) : null;
-
-  // 1. Log the raw callback (with debug normalization info in notes)
+  // 1. Log the raw callback
   const { error } = await supabaseAdmin.from('groobyte_callbacks').insert({
     raw_url: request.nextUrl.toString(),
     raw_jwt: rawJwt,
@@ -109,13 +99,18 @@ async function handleGroobyteCallback(request: NextRequest): Promise<string | nu
     jwt_iat: payload.iat ?? null,
     jwt_exp: payload.exp ?? null,
     jwt_verified: false,
-    notes: `normalized:${msisdn}|raw:${rawMsisdn}`,
+    notes: 'learning_phase_no_verification',
   });
 
   if (error) {
     console.error('Failed to insert groobyte_callback:', error);
   }
 
+  // 2. Normalize phone number to E.164
+  const rawMsisdn = payload.userId ?? null;
+  if (!rawMsisdn) return null;
+
+  const msisdn = normalizePhone(rawMsisdn);
   if (!msisdn) return null;
 
   // 3. Create or find pre-verified auth user
