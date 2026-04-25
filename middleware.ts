@@ -125,12 +125,19 @@ async function handleGroobyteCallback(request: NextRequest): Promise<string | nu
   // 3. Create or find pre-verified auth user
   let supabaseAuthId: string | null = null;
 
+  console.log('🔍 BEFORE createUser, phone:', JSON.stringify(msisdn));
+
   const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
     phone: msisdn,
     phone_confirm: true,
   });
 
-  console.log('👤 createUser result:', { newUser: newUser?.user?.id, createError: createError?.message });
+  console.log('🔍 AFTER createUser:', {
+    sentPhone: msisdn,
+    returnedPhone: newUser?.user?.phone,
+    userId: newUser?.user?.id,
+    error: createError?.message,
+  });
 
   if (newUser?.user) {
     supabaseAuthId = newUser.user.id;
