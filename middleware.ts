@@ -49,7 +49,6 @@ function normalizePhone(raw: string): string | null {
 
   // Basic validation: + followed by 7-15 digits (E.164 spec)
   if (!/^\+\d{7,15}$/.test(cleaned)) {
-    console.error('📱 Invalid phone number after normalization:', { raw, cleaned });
     return null;
   }
 
@@ -87,7 +86,11 @@ async function handleGroobyteCallback(request: NextRequest): Promise<string | nu
     }
   );
 
-  // 1. Log the raw callback
+  // 2. Normalize phone number to E.164
+  const rawMsisdn = payload.userId ?? null;
+  const msisdn = rawMsisdn ? normalizePhone(rawMsisdn) : null;
+
+  // 1. Log the raw callback (with debug normalization info in notes)
   const { error } = await supabaseAdmin.from('groobyte_callbacks').insert({
     raw_url: request.nextUrl.toString(),
     raw_jwt: rawJwt,
@@ -106,37 +109,21 @@ async function handleGroobyteCallback(request: NextRequest): Promise<string | nu
     jwt_iat: payload.iat ?? null,
     jwt_exp: payload.exp ?? null,
     jwt_verified: false,
-    notes: 'learning_phase_no_verification',
+    notes: `normalized:${msisdn}|raw:${rawMsisdn}`,
   });
 
   if (error) {
     console.error('Failed to insert groobyte_callback:', error);
   }
 
-  // 2. Normalize phone number to E.164
-  const rawMsisdn = payload.userId ?? null;
-  if (!rawMsisdn) return null;
-
-  const msisdn = normalizePhone(rawMsisdn);
-  console.log('📱 MSISDN normalized:', { rawMsisdn, msisdn });
-
   if (!msisdn) return null;
 
   // 3. Create or find pre-verified auth user
   let supabaseAuthId: string | null = null;
 
-  console.log('🔍 BEFORE createUser, phone:', JSON.stringify(msisdn));
-
   const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
     phone: msisdn,
     phone_confirm: true,
-  });
-
-  console.log('🔍 AFTER createUser:', {
-    sentPhone: msisdn,
-    returnedPhone: newUser?.user?.phone,
-    userId: newUser?.user?.id,
-    error: createError?.message,
   });
 
   if (newUser?.user) {
@@ -145,7 +132,6 @@ async function handleGroobyteCallback(request: NextRequest): Promise<string | nu
     const { data: users } = await supabaseAdmin.auth.admin.listUsers();
     const existing = users?.users?.find(u => u.phone === msisdn);
     supabaseAuthId = existing?.id ?? null;
-    console.log('👤 Found existing user:', supabaseAuthId);
   } else if (createError) {
     console.error('Auth user creation error:', createError);
   }
