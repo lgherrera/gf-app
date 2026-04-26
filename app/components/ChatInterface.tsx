@@ -31,16 +31,12 @@ interface Girlfriend {
   nationality?: string;
 }
 
-interface Scene {
+interface OpeningScene {
   id: string;
   scene_name: string;
-  description: string;
-  video_slug: string | null;
-  image_slug: string | null;
-  audio_slug: string | null;
+  opening_line: string;
   mood: string | null;
-  opener: string;
-  relationship_stage: number;
+  audio_slug: string | null;
   content_rating: string;
 }
 
@@ -71,13 +67,11 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   // Session DB id (chat_sessions.id uuid)
   const [dbSessionId, setDbSessionId] = useState<string | null>(null);
 
-  // Scene state
-  const [scenes, setScenes] = useState<Scene[]>([]);
-  const [currentScene, setCurrentScene] = useState<Scene | null>(null);
+  // Opening scene state
+  const [scenes, setScenes] = useState<OpeningScene[]>([]);
+  const [currentScene, setCurrentScene] = useState<OpeningScene | null>(null);
   const [isLoadingScenes, setIsLoadingScenes] = useState(true);
   const [hasInitialized, setHasInitialized] = useState(false);
-  const [imageGenerated, setImageGenerated] = useState(false);
-  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
   // Progress state
   const [currentStage, setCurrentStage] = useState(1);
@@ -90,7 +84,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const messageAudioRefs = useRef<Map<string, HTMLAudioElement>>(new Map());
 
   const generateMessageId = () => {
@@ -120,11 +113,11 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
       .catch(err => console.error('Failed to register session:', err));
   }, [sessionId, userId, girlfriend.id]);
 
-  // Fetch scenes on mount and when stage changes
+  // Fetch opening scenes on mount
   useEffect(() => {
     const fetchScenes = async () => {
       try {
-        const response = await fetch(`/api/scenes?stage=${currentStage}&contentRating=${contentRating}`);
+        const response = await fetch(`/api/opening-scenes?contentRating=${contentRating}`);
         const data = await response.json();
         
         if (data.scenes && data.scenes.length > 0) {
@@ -133,50 +126,33 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
           setCurrentScene(data.scenes[randomIndex]);
         }
       } catch (err) {
-        console.error('Error fetching scenes:', err);
+        console.error('Error fetching opening scenes:', err);
       } finally {
         setIsLoadingScenes(false);
       }
     };
 
     fetchScenes();
-  }, [currentStage]);
+  }, []);
 
   // Cleanup audio on unmount
   useEffect(() => {
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
       messageAudioRefs.current.forEach(audio => audio.pause());
       messageAudioRefs.current.clear();
     };
   }, []);
 
-  // Build opening messages from scene description + opener only
+  // Build opening message from scene opening_line
   const buildOpeningMessages = (): Message[] => {
-    const messages: Message[] = [];
+    if (!currentScene?.opening_line) return [];
     
-    if (currentScene?.description) {
-      messages.push({
-        id: 'description_' + generateMessageId(),
-        role: 'assistant',
-        content: currentScene.description,
-        timestamp: new Date()
-      });
-    }
-    
-    if (currentScene?.opener) {
-      messages.push({
-        id: 'opener_' + generateMessageId(),
-        role: 'assistant',
-        content: currentScene.opener,
-        timestamp: new Date()
-      });
-    }
-    
-    return messages;
+    return [{
+      id: 'scene_' + generateMessageId(),
+      role: 'assistant',
+      content: currentScene.opening_line,
+      timestamp: new Date()
+    }];
   };
 
   // Show opening message on mount if no video and scene is loaded
@@ -231,81 +207,26 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   const handleRandomScene = () => {
     if (scenes.length <= 1) return;
     
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-      setIsPlayingAudio(false);
-    }
-    
+    // Stop any playing audio
     messageAudioRefs.current.forEach(audio => audio.pause());
     messageAudioRefs.current.clear();
     setPlayingMessageId(null);
     
-    let newScene: Scene;
+    let newScene: OpeningScene;
     do {
       const randomIndex = Math.floor(Math.random() * scenes.length);
       newScene = scenes[randomIndex];
     } while (newScene.id === currentScene?.id && scenes.length > 1);
     
     setCurrentScene(newScene);
-    setImageGenerated(false);
     setIsFirstMessageInScene(true);
     
-    const newMessages: Message[] = [];
-    
-    if (newScene.description) {
-      newMessages.push({
-        id: 'description_' + generateMessageId(),
-        role: 'assistant',
-        content: newScene.description,
-        timestamp: new Date()
-      });
-    }
-    
-    if (newScene.opener) {
-      newMessages.push({
-        id: 'opener_' + generateMessageId(),
-        role: 'assistant',
-        content: newScene.opener,
-        timestamp: new Date()
-      });
-    }
-    
-    setMessages(newMessages);
-  };
-
-  const handlePlayAudio = () => {
-    if (!currentScene?.audio_slug) {
-      console.error('No audio_slug available for current scene');
-      return;
-    }
-    
-    if (isPlayingAudio && audioRef.current) {
-      audioRef.current.pause();
-      setIsPlayingAudio(false);
-      return;
-    }
-    
-    if (!audioRef.current) {
-      audioRef.current = new Audio(currentScene.audio_slug);
-      
-      audioRef.current.addEventListener('ended', () => {
-        setIsPlayingAudio(false);
-      });
-      
-      audioRef.current.addEventListener('error', (e) => {
-        console.error('Error playing audio:', e);
-        setIsPlayingAudio(false);
-        setError('Error al reproducir el audio');
-      });
-    }
-    
-    audioRef.current.play()
-      .then(() => setIsPlayingAudio(true))
-      .catch((error) => {
-        console.error('Error playing audio:', error);
-        setError('Error al reproducir el audio');
-      });
+    setMessages([{
+      id: 'scene_' + generateMessageId(),
+      role: 'assistant',
+      content: newScene.opening_line,
+      timestamp: new Date()
+    }]);
   };
 
   const handlePlayMessageAudio = async (messageId: string, audioUrl?: string, messageContent?: string) => {
@@ -375,21 +296,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     }
   };
 
-  const handleGenerateImage = () => {
-    if (!currentScene?.image_slug) return;
-
-    const imageMessage: Message = {
-      id: 'image_' + generateMessageId(),
-      role: 'assistant',
-      content: '',
-      timestamp: new Date(),
-      imageUrl: currentScene.image_slug
-    };
-
-    setMessages(prev => [...prev, imageMessage]);
-    setImageGenerated(true);
-  };
-
   const handleSendMessage = async () => {
     const trimmedInput = inputValue.trim();
     if (!trimmedInput || isLoading || !userId) return;
@@ -432,7 +338,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
           girlfriendId: girlfriend.id,
           userId: userId,
           messages: conversationHistory,
-          scenarioDescription: currentScene?.description,
+          scenarioDescription: currentScene?.opening_line,
           sessionId: dbSessionId,
         }),
       });
@@ -568,13 +474,13 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
           />
         )}
         
-        {messages.map((message, index) => (
+        {messages.map((message) => (
           <React.Fragment key={message.id}>
             {message.imageUrl ? (
               <div className={styles.imageMessage}>
                 <img 
                   src={message.imageUrl} 
-                  alt="Generated scenario" 
+                  alt="Generated image" 
                   className={styles.scenarioImage}
                 />
               </div>
@@ -582,39 +488,51 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
               <div className={styles.messageBubbleRight}>
                 {formatMessageContent(message.content)}
               </div>
-            ) : message.id.startsWith('description_') ? (
-              <div className={styles.messageBubbleScenario}>
-                {scenes.length > 1 && (
-                  <button 
-                    className={styles.shuffleButton}
-                    onClick={handleRandomScene}
-                    title="Cambiar escena"
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-                    </svg>
-                  </button>
-                )}
+            ) : message.id.startsWith('scene_') ? (
+              <div className={styles.sceneWithButton}>
+                <div className={styles.messageBubbleScenario}>
+                  {scenes.length > 1 && (
+                    <button 
+                      className={styles.shuffleButton}
+                      onClick={handleRandomScene}
+                      title="Cambiar escena"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                      </svg>
+                    </button>
+                  )}
+                  
+                  {currentScene?.scene_name && (
+                    <div className={styles.sceneLabel}>{currentScene.scene_name}</div>
+                  )}
+                  
+                  {formatMessageContent(message.content)}
+                </div>
                 
-                {currentScene?.audio_slug && (
+                {girlfriend.voice_id && (
                   <button 
-                    className={`${styles.playButton} ${isPlayingAudio ? styles.playing : ''}`}
-                    onClick={handlePlayAudio}
-                    title={isPlayingAudio ? "Pausar audio" : "Reproducir audio"}
+                    className={`${styles.messagePlayButton} ${playingMessageId === message.id ? styles.playing : ''}`}
+                    onClick={() => handlePlayMessageAudio(message.id, message.audioUrl, message.content)}
+                    disabled={audioLoadingMessageId === message.id}
+                    title={playingMessageId === message.id ? "Pausar" : "Reproducir"}
                   >
-                    {isPlayingAudio ? (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    {audioLoadingMessageId === message.id ? (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className={styles.spinner}>
+                        <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="4" opacity="0.25"/>
+                        <path d="M12 2a10 10 0 0 1 10 10" fill="none" stroke="currentColor" strokeWidth="4"/>
+                      </svg>
+                    ) : playingMessageId === message.id ? (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M6 4h4v16H6zM14 4h4v16h-4z"/>
                       </svg>
                     ) : (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M8 5v14l11-7z"/>
                       </svg>
                     )}
                   </button>
                 )}
-                
-                {formatMessageContent(message.content)}
               </div>
             ) : (
               <div className={styles.messageWithButton}>
@@ -646,20 +564,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
                   </button>
                 )}
               </div>
-            )}
-            
-            {message.id.startsWith('description_') && !imageGenerated && currentScene?.image_slug && (
-              <button 
-                className={styles.imageGeneratorButton}
-                onClick={handleGenerateImage}
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                  <circle cx="8.5" cy="8.5" r="1.5"/>
-                  <polyline points="21 15 16 10 5 21"/>
-                </svg>
-                <span>Generate Image</span>
-              </button>
             )}
           </React.Fragment>
         ))}
