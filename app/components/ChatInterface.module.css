@@ -121,7 +121,7 @@
 .messageBubbleScenario {
   background-color: var(--color-primary);
   color: #e0e0e0;
-  padding: 44px 16px 16px 16px;
+  padding: 16px 20px 20px 20px;
   border-radius: 12px;
   width: 100%;
   font-size: 0.95rem;
@@ -132,12 +132,11 @@
 }
 
 .sceneLabel {
-  font-size: 0.7rem;
-  font-weight: 600;
-  opacity: 0.6;
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: 1.0rem;
+  font-weight: 400;
+  opacity: 0.5;
+  margin-bottom: 0.6rem;
+  letter-spacing: 0.00em;
 }
 
 /* Shuffle button - top right corner */
