@@ -57,7 +57,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   const userId = useUser();
   const sessionId = useSession();
   
-  const [showIntroVideo, setShowIntroVideo] = useState(!!girlfriend.hello_url);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -155,9 +154,9 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     }];
   };
 
-  // Show opening message on mount if no video and scene is loaded
+  // Show opening message once scene is loaded
   useEffect(() => {
-    if (!girlfriend.hello_url && currentScene && !isLoadingScenes && !hasInitialized) {
+    if (currentScene && !isLoadingScenes && !hasInitialized) {
       const openingMessages = buildOpeningMessages();
       if (openingMessages.length > 0) {
         setMessages(openingMessages);
@@ -172,37 +171,10 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Focus input after video ends or on mount if no video
+  // Focus input on mount
   useEffect(() => {
-    if (!showIntroVideo) {
-      inputRef.current?.focus();
-    }
-  }, [showIntroVideo]);
-
-  const handleVideoEnd = () => {
-    setShowIntroVideo(false);
-    if (!hasInitialized) {
-      const openingMessages = buildOpeningMessages();
-      if (openingMessages.length > 0) {
-        setMessages(openingMessages);
-        setHasInitialized(true);
-        setIsFirstMessageInScene(true);
-      }
-    }
-  };
-
-  const handleVideoError = () => {
-    console.error('Video failed to load:', girlfriend.hello_url);
-    setShowIntroVideo(false);
-    if (!hasInitialized) {
-      const openingMessages = buildOpeningMessages();
-      if (openingMessages.length > 0) {
-        setMessages(openingMessages);
-        setHasInitialized(true);
-        setIsFirstMessageInScene(true);
-      }
-    }
-  };
+    inputRef.current?.focus();
+  }, []);
 
   const handleRandomScene = () => {
     if (scenes.length <= 1) return;
@@ -465,12 +437,13 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
 
       {/* Chat Area */}
       <div className={styles.chatArea}>
-        {showIntroVideo && girlfriend.hello_url && (
+        {/* Intro video rendered inline in the chat flow */}
+        {girlfriend.hello_url && (
           <IntroVideoMessage
             videoUrl={girlfriend.hello_url}
             posterUrl={girlfriend.hello_poster_url || girlfriend.image_url}
-            onVideoEnd={handleVideoEnd}
-            onVideoError={handleVideoError}
+            onVideoEnd={() => {}}
+            onVideoError={() => console.error('Video failed to load:', girlfriend.hello_url)}
           />
         )}
         
@@ -603,14 +576,14 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyPress={handleKeyPress}
-          disabled={isLoading || showIntroVideo}
+          disabled={isLoading}
         />
         <button 
           className={styles.sendButton}
           onClick={handleSendMessage}
-          disabled={isLoading || !inputValue.trim() || showIntroVideo}
+          disabled={isLoading || !inputValue.trim()}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={contentRating === 'nsfw' ? '#e60049' : '#348cd4'} strokeWidth="2">
             <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
           </svg>
         </button>
