@@ -62,6 +62,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   
   // Session DB id (chat_sessions.id uuid)
   const [dbSessionId, setDbSessionId] = useState<string | null>(null);
@@ -84,9 +85,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const messageAudioRefs = useRef<Map<string, HTMLAudioElement>>(new Map());
-
-  // Helper to inject girlfriend name into opening lines
-  const personalizeLine = (line: string) => line.replace('[name]', girlfriend.name);
 
   const generateMessageId = () => {
     return `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -152,7 +150,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     return [{
       id: 'scene_' + generateMessageId(),
       role: 'assistant',
-      content: personalizeLine(currentScene.opening_line),
+      content: currentScene.opening_line,
       timestamp: new Date()
     }];
   };
@@ -199,7 +197,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     setMessages([{
       id: 'scene_' + generateMessageId(),
       role: 'assistant',
-      content: personalizeLine(newScene.opening_line),
+      content: newScene.opening_line,
       timestamp: new Date()
     }]);
   };
@@ -313,7 +311,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
           girlfriendId: girlfriend.id,
           userId: userId,
           messages: conversationHistory,
-          scenarioDescription: currentScene?.opening_line ? personalizeLine(currentScene.opening_line) : undefined,
+          scenarioDescription: currentScene?.opening_line,
           sessionId: dbSessionId,
         }),
       });
@@ -408,16 +406,42 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
           <h1 className={styles.headerTitle}>{girlfriend.name}</h1>
         </div>
 
-        <button 
-          className={styles.iconButton}
-          onClick={() => setIsSidebarOpen(true)}
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="3" y1="12" x2="21" y2="12"/>
-            <line x1="3" y1="6" x2="21" y2="6"/>
-            <line x1="3" y1="18" x2="21" y2="18"/>
-          </svg>
-        </button>
+        <div className={styles.headerRight}>
+          <div className={styles.menuWrapper}>
+            <button 
+              className={styles.iconButton}
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill={contentRating === 'nsfw' ? '#e60049' : '#348cd4'}>
+                <path fillRule="evenodd" d="M10.5 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm0 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm0 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z" clipRule="evenodd" />
+              </svg>
+            </button>
+            {isMenuOpen && (
+              <>
+                <div className={styles.menuBackdrop} onClick={() => setIsMenuOpen(false)} />
+                <div className={styles.dropdownMenu}>
+                  <button className={styles.menuItem} onClick={() => setIsMenuOpen(false)}>
+                    Agregar a Favoritos
+                  </button>
+                  <button className={styles.menuItem} onClick={() => setIsMenuOpen(false)}>
+                    Eliminar Chat
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+
+          <button 
+            className={styles.iconButton}
+            onClick={() => setIsSidebarOpen(true)}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="3" y1="12" x2="21" y2="12"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+        </div>
       </header>
 
       {/* Sidebar */}
@@ -467,7 +491,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
             ) : message.id.startsWith('scene_') ? (
               <div className={styles.sceneWithButton}>
                 <div className={styles.messageBubbleScenario}>
-                  {scenes.length > 1 && (
+                  {scenes.length > 1 && messages.filter(m => m.role === 'user').length === 0 && (
                     <button 
                       className={styles.shuffleButton}
                       onClick={handleRandomScene}
