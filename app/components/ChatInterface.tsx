@@ -85,6 +85,9 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const messageAudioRefs = useRef<Map<string, HTMLAudioElement>>(new Map());
 
+  // Helper to inject girlfriend name into opening lines
+  const personalizeLine = (line: string) => line.replace('[name]', girlfriend.name);
+
   const generateMessageId = () => {
     return `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   };
@@ -149,7 +152,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     return [{
       id: 'scene_' + generateMessageId(),
       role: 'assistant',
-      content: currentScene.opening_line,
+      content: personalizeLine(currentScene.opening_line),
       timestamp: new Date()
     }];
   };
@@ -196,7 +199,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     setMessages([{
       id: 'scene_' + generateMessageId(),
       role: 'assistant',
-      content: newScene.opening_line,
+      content: personalizeLine(newScene.opening_line),
       timestamp: new Date()
     }]);
   };
@@ -310,7 +313,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
           girlfriendId: girlfriend.id,
           userId: userId,
           messages: conversationHistory,
-          scenarioDescription: currentScene?.opening_line,
+          scenarioDescription: currentScene?.opening_line ? personalizeLine(currentScene.opening_line) : undefined,
           sessionId: dbSessionId,
         }),
       });
