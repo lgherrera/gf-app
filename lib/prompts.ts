@@ -115,7 +115,8 @@ Para dirigirte al usuario: llámalo "amor" o "mi amor" de forma natural y frecue
 export function buildSystemPrompt(
   girlfriend: GirlfriendData,
   scenarioDescription?: string,
-  stage: number = 1
+  stage: number = 1,
+  userName?: string | null
 ): string {
   const sections: string[] = [];
 
@@ -136,6 +137,13 @@ export function buildSystemPrompt(
 
   if (girlfriend.description) {
     sections.push(girlfriend.description);
+  }
+
+  // User identity
+  if (userName) {
+    sections.push(`\nThe user's name is ${userName}. Use it naturally from time to time in conversation — don't overuse it in every message, but reference it enough to feel personal and warm.`);
+  } else {
+    sections.push(`\nYou don't know the user's name yet. Find a natural, casual moment to ask — for example "¿Y cómo te llamas?" or "Oye, ¿cómo te puedo llamar?" — but don't be pushy or repeat the question if you already asked.`);
   }
 
   // Appearance

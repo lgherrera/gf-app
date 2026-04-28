@@ -9,6 +9,50 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+// Lightweight LLM call to extract the user's name from a message
+async function extractUserName(userMessage: string): Promise<string | null> {
+  try {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'x-ai/grok-3-mini-fast',
+        messages: [
+          {
+            role: 'system',
+            content: 'You extract names from messages. The user is chatting with an AI girlfriend and may reveal their name. If the message contains the user introducing themselves or stating their name (e.g. "me llamo Juan", "soy Pedro", "mi nombre es Diego", "I\'m Carlos", "llámame Mateo"), respond with ONLY the first name, nothing else. If the message does NOT contain a name introduction, respond with exactly "NO". Do not guess — only extract explicitly stated names.'
+          },
+          {
+            role: 'user',
+            content: userMessage
+          }
+        ],
+        temperature: 0,
+        max_tokens: 20,
+      })
+    });
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    const result = data.choices?.[0]?.message?.content?.trim();
+
+    if (!result || result.toUpperCase() === 'NO') return null;
+
+    // Sanitize: take only the first word, capitalize it, max 30 chars
+    const name = result.split(/\s+/)[0].replace(/[^a-záéíóúüñA-ZÁÉÍÓÚÜÑ]/gi, '');
+    if (name.length < 2 || name.length > 30) return null;
+
+    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+  } catch (err) {
+    console.error('Name extraction error:', err);
+    return null;
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const { messages, girlfriendId, userId, sessionId } = await req.json();
@@ -22,8 +66,8 @@ export async function POST(req: Request) {
 
     const CONTENT_MODE = process.env.NEXT_PUBLIC_CONTENT_MODE as string;
 
-    // Fetch girlfriend and user progress in parallel
-    const [{ data: girlfriend, error: girlfriendError }, { data: progress }] = await Promise.all([
+    // Fetch girlfriend, user progress, and user profile in parallel
+    const [{ data: girlfriend, error: girlfriendError }, { data: progress }, { data: userProfile }] = await Promise.all([
       supabase
         .from('girlfriends')
         .select('*')
@@ -35,6 +79,11 @@ export async function POST(req: Request) {
         .select('stage')
         .match({ user_id: userId, girlfriend_id: girlfriendId })
         .single(),
+      supabase
+        .from('user_profiles')
+        .select('name')
+        .eq('supabase_auth_id', userId)
+        .single(),
     ]);
 
     if (girlfriendError || !girlfriend) {
@@ -43,9 +92,10 @@ export async function POST(req: Request) {
     }
 
     const stage = progress?.stage ?? 1;
+    const userName = userProfile?.name ?? null;
 
-    // Build system prompt with stage
-    const systemPrompt = buildSystemPrompt(girlfriend, undefined, stage);
+    // Build system prompt with stage and user name
+    const systemPrompt = buildSystemPrompt(girlfriend, undefined, stage, userName);
 
     const apiMessages = [
       { role: 'system', content: systemPrompt },
@@ -60,6 +110,7 @@ export async function POST(req: Request) {
       girlfriendId,
       userId,
       stage,
+      userName: userName || '(unknown)',
     });
 
     const startTime = Date.now();
@@ -163,6 +214,23 @@ export async function POST(req: Request) {
         .from('chat_sessions')
         .update({ last_active_at: new Date().toISOString() })
         .eq('id', sessionId);
+    }
+
+    // ─── Name extraction (only if name is unknown) ─────────────────
+    if (!userName) {
+      const extractedName = await extractUserName(userMessage.content);
+      if (extractedName) {
+        const { error: nameError } = await supabase
+          .from('user_profiles')
+          .update({ name: extractedName, updated_at: new Date().toISOString() })
+          .eq('supabase_auth_id', userId);
+
+        if (nameError) {
+          console.error('❌ Failed to store user name:', nameError);
+        } else {
+          console.log(`✅ User name extracted and stored: ${extractedName}`);
+        }
+      }
     }
 
     return NextResponse.json({
