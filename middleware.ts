@@ -30,8 +30,6 @@ export async function middleware(request: NextRequest) {
 
 /**
  * Normalize phone number to E.164 format.
- * Strips spaces, dashes, parens, and ensures '+' prefix.
- * Returns null if the result doesn't look like a valid phone number.
  */
 function normalizePhone(raw: string): string | null {
   let cleaned = raw.replace(/[^\d+]/g, '');
@@ -113,29 +111,38 @@ async function handleGroobyteCallback(request: NextRequest): Promise<string | nu
   const msisdn = normalizePhone(rawMsisdn);
   if (!msisdn) return null;
 
-  // 3. Create or find pre-verified auth user
+  // 3. Look up existing auth user by phone first
   let supabaseAuthId: string | null = null;
 
-  const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
-    phone: msisdn,
-    phone_confirm: true,
-  });
+  const { data: existingId } = await supabaseAdmin
+    .rpc('get_auth_user_id_by_phone', { phone_input: msisdn });
 
-  if (newUser?.user) {
-    supabaseAuthId = newUser.user.id;
-  } else if (createError?.message?.includes('already been registered')) {
-    const { data: users } = await supabaseAdmin.auth.admin.listUsers();
-    const existing = users?.users?.find(u => u.phone === msisdn);
-    supabaseAuthId = existing?.id ?? null;
-  } else if (createError) {
-    console.error('Auth user creation error:', createError);
+  if (existingId) {
+    // User already exists in auth.users
+    supabaseAuthId = existingId;
+  } else {
+    // Create new pre-verified auth user
+    const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+      phone: msisdn,
+      phone_confirm: true,
+    });
+
+    if (newUser?.user) {
+      supabaseAuthId = newUser.user.id;
+    } else if (createError) {
+      console.error('Auth user creation error:', createError);
+    }
   }
 
-  // 4. Upsert user_profiles
+  // 4. Upsert user_profiles (only if we have an auth ID)
   const { error: profileError } = await supabaseAdmin
     .from('user_profiles')
     .upsert(
-      { msisdn, supabase_auth_id: supabaseAuthId },
+      {
+        msisdn,
+        supabase_auth_id: supabaseAuthId,
+        updated_at: new Date().toISOString(),
+      },
       { onConflict: 'msisdn' }
     );
 
