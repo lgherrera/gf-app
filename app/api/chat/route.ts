@@ -9,48 +9,38 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Lightweight LLM call to extract the user's name from a message
-async function extractUserName(userMessage: string): Promise<string | null> {
-  try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'x-ai/grok-3-mini-fast',
-        messages: [
-          {
-            role: 'system',
-            content: 'You extract names from messages. The user is chatting with an AI girlfriend and may reveal their name. If the message contains the user introducing themselves or stating their name (e.g. "me llamo Juan", "soy Pedro", "mi nombre es Diego", "I\'m Carlos", "llámame Mateo"), respond with ONLY the first name, nothing else. If the message does NOT contain a name introduction, respond with exactly "NO". Do not guess — only extract explicitly stated names.'
-          },
-          {
-            role: 'user',
-            content: userMessage
-          }
-        ],
-        temperature: 0,
-        max_tokens: 20,
-      })
-    });
+// Regex-based name extraction — zero cost, zero latency
+function extractUserName(message: string): string | null {
+  const normalized = message.trim();
 
-    if (!response.ok) return null;
+  // Spanish and English patterns for name introduction
+  const patterns = [
+    /(?:me llamo|mi nombre es|soy|llámame|llamame|dime|puedes llamarme|puedes decirme|my name is|i'?m|call me|they call me)\s+([a-záéíóúüñA-ZÁÉÍÓÚÜÑ]{2,30})/i,
+  ];
 
-    const data = await response.json();
-    const result = data.choices?.[0]?.message?.content?.trim();
+  for (const pattern of patterns) {
+    const match = normalized.match(pattern);
+    if (match && match[1]) {
+      const name = match[1];
 
-    if (!result || result.toUpperCase() === 'NO') return null;
+      // Filter out common false positives (Spanish words that follow "soy")
+      const falsePositives = [
+        'de', 'del', 'el', 'la', 'un', 'una', 'muy', 'bien', 'mal',
+        'tu', 'su', 'mi', 'nuevo', 'nueva', 'bueno', 'buena',
+        'feliz', 'triste', 'fan', 'hombre', 'mujer', 'chico', 'chica',
+        'tímido', 'timido', 'soltero', 'soltera', 'chileno', 'chilena',
+        'argentino', 'argentina', 'mexicano', 'mexicana', 'colombiano', 'colombiana',
+        'alto', 'alta', 'bajo', 'baja', 'joven', 'viejo', 'vieja',
+        'your', 'the', 'a', 'an', 'so', 'not', 'very', 'just', 'really',
+      ];
 
-    // Sanitize: take only the first word, capitalize it, max 30 chars
-    const name = result.split(/\s+/)[0].replace(/[^a-záéíóúüñA-ZÁÉÍÓÚÜÑ]/gi, '');
-    if (name.length < 2 || name.length > 30) return null;
+      if (falsePositives.includes(name.toLowerCase())) return null;
 
-    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
-  } catch (err) {
-    console.error('Name extraction error:', err);
-    return null;
+      return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+    }
   }
+
+  return null;
 }
 
 export async function POST(req: Request) {
@@ -218,7 +208,7 @@ export async function POST(req: Request) {
 
     // ─── Name extraction (only if name is unknown) ─────────────────
     if (!userName) {
-      const extractedName = await extractUserName(userMessage.content);
+      const extractedName = extractUserName(userMessage.content);
       if (extractedName) {
         const { error: nameError } = await supabase
           .from('user_profiles')
@@ -230,6 +220,8 @@ export async function POST(req: Request) {
         } else {
           console.log(`✅ User name extracted and stored: ${extractedName}`);
         }
+      } else {
+        console.log('ℹ️ No name detected in user message');
       }
     }
 
