@@ -74,10 +74,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   const [isLoadingScenes, setIsLoadingScenes] = useState(true);
   const [hasInitialized, setHasInitialized] = useState(false);
 
-  // History loading state
-  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
-  const [hasHistory, setHasHistory] = useState(false);
-
   // Progress state
   const [currentStage, setCurrentStage] = useState(1);
   const [currentScore, setCurrentScore] = useState(0);
@@ -121,36 +117,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
       .catch(err => console.error('Failed to register session:', err));
   }, [sessionId, userId, girlfriend.id]);
 
-  // Load chat history on mount
-  useEffect(() => {
-    if (!userId) return;
-
-    const loadHistory = async () => {
-      try {
-        const res = await fetch(`/api/chat-history?userId=${userId}&girlfriendId=${girlfriend.id}&limit=30`);
-        const data = await res.json();
-
-        if (data.messages && data.messages.length > 0) {
-          const historyMessages: Message[] = data.messages.map((msg: { id: string; role: 'user' | 'assistant'; content: string; created_at: string }) => ({
-            id: msg.id,
-            role: msg.role,
-            content: msg.content,
-            timestamp: new Date(msg.created_at),
-          }));
-          setMessages(historyMessages);
-          setHasHistory(true);
-          setHasInitialized(true); // Skip opening scene if we have history
-        }
-      } catch (err) {
-        console.error('Error loading chat history:', err);
-      } finally {
-        setIsLoadingHistory(false);
-      }
-    };
-
-    loadHistory();
-  }, [userId, girlfriend.id]);
-
   // Fetch opening scenes on mount
   useEffect(() => {
     const fetchScenes = async () => {
@@ -193,9 +159,9 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     }];
   };
 
-  // Show opening message once scene is loaded — only if NO history was loaded
+  // Show opening message once scene is loaded
   useEffect(() => {
-    if (currentScene && !isLoadingScenes && !isLoadingHistory && !hasInitialized) {
+    if (currentScene && !isLoadingScenes && !hasInitialized) {
       const openingMessages = buildOpeningMessages();
       if (openingMessages.length > 0) {
         setMessages(openingMessages);
@@ -203,7 +169,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
         setIsFirstMessageInScene(true);
       }
     }
-  }, [currentScene, isLoadingScenes, isLoadingHistory, hasInitialized]);
+  }, [currentScene, isLoadingScenes, hasInitialized]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -238,9 +204,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
       content: personalizeLine(newScene.opening_line),
       timestamp: new Date()
     }]);
-
-    // Mark that we're back to a fresh scene (no history)
-    setHasHistory(false);
   };
 
   const handlePlayMessageAudio = async (messageId: string, audioUrl?: string, messageContent?: string) => {
@@ -340,10 +303,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     if (isFirstMessageInScene) setIsFirstMessageInScene(false);
 
     try {
-      // Build conversation history for the LLM
-      // Send only the last 20 messages as context to keep token costs manageable
-      const recentMessages = [...messages, userMessage].slice(-20);
-      const conversationHistory = recentMessages.map(msg => ({
+      const conversationHistory = [...messages, userMessage].map(msg => ({
         role: msg.role,
         content: msg.content,
       }));
@@ -465,9 +425,15 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
                 <div className={styles.menuBackdrop} onClick={() => setIsMenuOpen(false)} />
                 <div className={styles.dropdownMenu}>
                   <button className={styles.menuItem} onClick={() => setIsMenuOpen(false)}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                      <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clipRule="evenodd" />
+                    </svg>
                     Agregar a Favoritos
                   </button>
                   <button className={styles.menuItem} onClick={() => setIsMenuOpen(false)}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z" clipRule="evenodd" />
+                    </svg>
                     Eliminar Chat
                   </button>
                 </div>
@@ -516,13 +482,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
             onVideoEnd={() => {}}
             onVideoError={() => console.error('Video failed to load:', girlfriend.hello_url)}
           />
-        )}
-
-        {/* History divider — shown when loaded messages come from DB */}
-        {hasHistory && messages.length > 0 && (
-          <div className={styles.historyDivider}>
-            <span>Mensajes anteriores</span>
-          </div>
         )}
         
         {messages.map((message) => (
