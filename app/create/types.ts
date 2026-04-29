@@ -40,7 +40,7 @@ export type Outfit =
   | 'sexy and revealing secretary outfit and glasses'
   | 'sexy and revealing sheer dress'
   | 'sheer silk babydoll'
-  | 'black, tight, latex outfit'
+  | 'revealing, glossy black latex catsuit'
   | 'two tiny triangles for a micro bikini barely covering her nipples, tiny strings';
 
 export interface VoiceOption {
