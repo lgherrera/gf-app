@@ -39,7 +39,7 @@ export type Outfit =
   | 'sexy and revealing nurse uniform'
   | 'sexy and revealing secretary outfit and glasses'
   | 'sexy and revealing sheer dress'
-  | 'sheer silk babydoll'
+  | 'sheer, see-through, tight, silk babydoll'
   | 'revealing, glossy black latex catsuit'
   | 'two tiny triangles for a micro bikini barely covering her nipples, tiny strings';
 
