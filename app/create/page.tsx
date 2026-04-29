@@ -89,8 +89,12 @@ const OUTFIT_OPTIONS_ALL = [
   { value: 'lingerie',            label: 'Lingerie',          mode: 'sfw' },
   { value: 'trendy',              label: 'Elegante',          mode: 'sfw' },
   { value: 'casual outfit',       label: 'Casual',            mode: 'sfw' },
-  { value: 'sexy and revealing nurse uniform', label: 'Enfermera', mode: 'nsfw' },
-  { value: 'sexy and revealing secretary outfit and glasses', label: 'Secretaria', mode: 'nsfw' },
+  { value: 'sexy and revealing nurse uniform',                label: 'Enfermera',  mode: 'nsfw' },
+  { value: 'sexy and revealing secretary outfit and glasses',  label: 'Secretaria', mode: 'nsfw' },
+  { value: 'sexy and revealing sheer dress',                   label: 'Vestido Atrevido',    mode: 'nsfw' },
+  { value: 'sheer silk babydoll',                              label: 'Babydoll',   mode: 'nsfw' },
+  { value: 'black, tight, latex outfit',                       label: 'Latex',      mode: 'nsfw' },
+  { value: 'micro bikini, tiny strings',                       label: 'Bikini',     mode: 'nsfw' },
 ];
 
 const contentMode = process.env.NEXT_PUBLIC_APP_SOURCE === 'nsfw' ? 'nsfw' : 'sfw';
