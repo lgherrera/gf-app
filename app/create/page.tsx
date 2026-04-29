@@ -86,8 +86,8 @@ const OUTFIT_OPTIONS_ALL = [
   { value: 'deep-cleavage-dress', label: 'Vestido Escotado',  mode: 'sfw' },
   { value: 'lingerie',            label: 'Lingerie',          mode: 'sfw' },
   { value: 'trendy',              label: 'Elegante',          mode: 'sfw' },
-  { value: 'sexy casual red outfit',              label: 'Casual',            mode: 'sfw' },
-  { value: 'sexy blue nurse uniform',               label: 'Enfermera',         mode: 'nsfw' },
+  { value: 'casual outfit',              label: 'Casual',            mode: 'sfw' },
+  { value: 'nurse uniform',               label: 'Enfermera',         mode: 'nsfw' },
 ];
 
 const contentMode = process.env.NEXT_PUBLIC_APP_SOURCE === 'nsfw' ? 'nsfw' : 'sfw';
