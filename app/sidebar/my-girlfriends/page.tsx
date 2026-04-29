@@ -1,4 +1,4 @@
-// app/gf/my-girlfriends/page.tsx
+// app/sidebar/my-girlfriends/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -67,7 +67,7 @@ export default function CustomGirlfriendsPage() {
       <GFHeader />
 
       <main className={styles.main}>
-        <h1 className={styles.title}>Mis Novias</h1>
+        <h1 className={styles.title}>Mis Pololas</h1>
 
         {loading ? (
           <p className={styles.message}>Cargando...</p>

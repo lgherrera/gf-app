@@ -1,4 +1,4 @@
-// app/gf/gallery/page.tsx
+// app/sidebar/gallery/page.tsx
 import { supabase } from '@/lib/supabase';
 import GalleryGrid from '@/app/components/GalleryGrid';
 import GFHeader from '@/app/components/GFHeader';

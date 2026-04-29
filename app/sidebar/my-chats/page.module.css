@@ -1,4 +1,4 @@
-/* app/gf/my-girlfriends/page.module.css */
+/* app/sidebar/my-chats/page.module.css */
 .page {
     min-height: 100vh;
     display: flex;
@@ -100,7 +100,7 @@
     gap: 0.2rem;
   }
   
-  .age {
+  .messageCount {
     font-size: 0.8rem;
     color: #ccc;
   }
@@ -110,7 +110,7 @@
     color: #666;
   }
   
-  .trashButton {
+  .chatButton {
     flex-shrink: 0;
     background: none;
     border: none;
@@ -123,10 +123,10 @@
     justify-content: center;
   }
   
-  .trashButton:hover {
-    background-color: rgba(255, 50, 50, 0.15);
+  .chatButton:hover {
+    background-color: rgba(255, 255, 255, 0.1);
   }
   
-  .trashButton:hover svg {
-    stroke: #ff4444;
+  .chatButton:hover svg {
+    stroke: #ffffff;
   }
