@@ -87,7 +87,7 @@ const OUTFIT_OPTIONS_ALL = [
   { value: 'lingerie',            label: 'Lingerie',          mode: 'sfw' },
   { value: 'trendy',              label: 'Elegante',          mode: 'sfw' },
   { value: 'casual',              label: 'Casual',            mode: 'sfw' },
-  { value: 'nurse',               label: 'Enfermera',         mode: 'nsfw' },
+  { value: 'sexy nurse uniform',               label: 'Enfermera',         mode: 'nsfw' },
 ];
 
 const contentMode = process.env.NEXT_PUBLIC_APP_SOURCE === 'nsfw' ? 'nsfw' : 'sfw';
