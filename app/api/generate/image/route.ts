@@ -26,12 +26,22 @@ const MODEL_ENDPOINTS: Record<string, string> = {
   hunyuan3:  "fal-ai/hunyuan-image/v3/text-to-image",
 };
 
+/** Fetch a remote image and return it as a base64 data URI */
+async function urlToDataUri(url: string): Promise<string> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to fetch image: ${url}`);
+  const buffer = Buffer.from(await res.arrayBuffer());
+  const contentType = res.headers.get("content-type") || "image/jpeg";
+  return `data:${contentType};base64,${buffer.toString("base64")}`;
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const { prompt, aspectRatio, referenceImages, seed, model } = await req.json() as {
+    const { prompt, aspectRatio, referenceImages, referenceImageUrls, seed, model } = await req.json() as {
       prompt: string;
       aspectRatio: string;
       referenceImages?: string[];
+      referenceImageUrls?: string[];
       seed?: number;
       model?: string;
     };
@@ -57,16 +67,23 @@ export async function POST(req: NextRequest) {
       : (RATIO_TO_SIZE_V4[aspectRatio] ?? "portrait_16_9");
     const resolvedSeed = seed ?? Math.floor(Math.random() * 2147483647);
 
-    // Check if we have reference images for Seedream 4.5
-    const hasRefs = isSeedream && referenceImages && referenceImages.length > 0;
-
-    // Build data URIs from raw base64 strings for the edit endpoint
+    // Build image data URIs from base64 strings (client-side upload)
     const imageUrls: string[] = [];
-    if (hasRefs) {
+    if (isSeedream && referenceImages && referenceImages.length > 0) {
       for (const b64 of referenceImages) {
         imageUrls.push(`data:image/jpeg;base64,${b64}`);
       }
     }
+
+    // Fetch and convert URL-based references (server-side fetch)
+    if (isSeedream && referenceImageUrls && referenceImageUrls.length > 0) {
+      for (const url of referenceImageUrls) {
+        const dataUri = await urlToDataUri(url);
+        imageUrls.push(dataUri);
+      }
+    }
+
+    const hasRefs = isSeedream && imageUrls.length > 0;
 
     // Switch to /edit endpoint when reference images are provided
     let endpoint: string;
@@ -74,7 +91,6 @@ export async function POST(req: NextRequest) {
 
     if (hasRefs) {
       endpoint = "fal-ai/bytedance/seedream/v4.5/edit";
-      // The edit endpoint requires images to be referenced as "Figure N" in the prompt
       const figureLabels = imageUrls
         .map((_, idx) => `Figure ${idx + 1} is a reference image.`)
         .join(" ");
@@ -87,7 +103,6 @@ export async function POST(req: NextRequest) {
     let input: Record<string, unknown>;
 
     if (hasRefs) {
-      // Edit endpoint input
       input = {
         prompt:                finalPrompt,
         image_urls:            imageUrls,
@@ -96,7 +111,6 @@ export async function POST(req: NextRequest) {
         enable_safety_checker: false,
       };
     } else {
-      // Text-to-image input for all models
       input = {
         prompt:                finalPrompt,
         image_size:            imageSize,

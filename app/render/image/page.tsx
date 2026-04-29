@@ -41,8 +41,6 @@ function RenderImageContent() {
   const [loading, setLoading]       = useState(false);
   const [error, setError]           = useState<string | null>(null);
   const [result, setResult]         = useState<GeneratedImage | null>(null);
-  const [refBase64, setRefBase64]   = useState<string | null>(null);
-  const [refLoading, setRefLoading] = useState(false);
 
   // Fetch girlfriend data by slug
   useEffect(() => {
@@ -65,53 +63,13 @@ function RenderImageContent() {
       .finally(() => setGfLoading(false));
   }, [slug]);
 
-  // Fetch and convert the reference image to base64 once girlfriend data is loaded
-  useEffect(() => {
-    if (!girlfriend?.image_url) return;
-    setRefLoading(true);
-
-    fetch(girlfriend.image_url)
-      .then((res) => res.blob())
-      .then((blob) => {
-        return new Promise<string>((resolve, reject) => {
-          const img = new Image();
-          const url = URL.createObjectURL(blob);
-          img.onload = () => {
-            URL.revokeObjectURL(url);
-            const MAX = 1024;
-            let w = img.width, h = img.height;
-            if (w > MAX || h > MAX) {
-              const scale = MAX / Math.max(w, h);
-              w = Math.round(w * scale);
-              h = Math.round(h * scale);
-            }
-            const canvas = document.createElement("canvas");
-            canvas.width = w;
-            canvas.height = h;
-            const ctx = canvas.getContext("2d")!;
-            ctx.drawImage(img, 0, 0, w, h);
-            const dataUri = canvas.toDataURL("image/jpeg", 0.82);
-            resolve(dataUri.split(",")[1]);
-          };
-          img.onerror = reject;
-          img.src = url;
-        });
-      })
-      .then((b64) => setRefBase64(b64))
-      .catch((err) => {
-        console.error("Error loading reference image:", err);
-        setError("Could not load reference image.");
-      })
-      .finally(() => setRefLoading(false));
-  }, [girlfriend?.image_url]);
-
   const handleGenerate = async () => {
     if (!prompt.trim()) {
       setError("Ingresa un prompt antes de generar.");
       return;
     }
-    if (!refBase64) {
-      setError("La imagen de referencia aún no está lista.");
+    if (!girlfriend?.image_url) {
+      setError("No reference image available.");
       return;
     }
 
@@ -126,7 +84,7 @@ function RenderImageContent() {
         body: JSON.stringify({
           prompt,
           aspectRatio: ratio,
-          referenceImages: [refBase64],
+          referenceImageUrls: [girlfriend.image_url],
           model: "seedream",
         }),
       });
@@ -207,9 +165,7 @@ function RenderImageContent() {
       {girlfriend?.image_url && (
         <div className={styles.refPreview}>
           <img src={girlfriend.image_url} alt="Reference" className={styles.refImage} />
-          <div className={styles.refBadge}>
-            {refLoading ? "Loading..." : "Reference"}
-          </div>
+          <div className={styles.refBadge}>Reference</div>
         </div>
       )}
 
@@ -248,9 +204,9 @@ function RenderImageContent() {
         <button
           className={styles.generateBtn}
           onClick={handleGenerate}
-          disabled={loading || refLoading || !refBase64}
+          disabled={loading || !girlfriend?.image_url}
         >
-          {loading ? "Generating…" : refLoading ? "Loading reference…" : "Generate Image"}
+          {loading ? "Generating…" : "Generate Image"}
         </button>
       </div>
 
