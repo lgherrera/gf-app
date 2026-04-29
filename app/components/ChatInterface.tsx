@@ -7,7 +7,7 @@ import IntroVideoMessage from './IntroVideoMessage';
 import GFSidebar from './GFSidebar';
 import styles from './ChatInterface.module.css';
 import { useUser } from '@/lib/hooks/useUser';
-import { saveChatMessage } from '@/lib/saveChatMessage';
+import { useSession } from '@/lib/hooks/useSession';
 import { updateProgress } from '@/lib/progress';
 
 const contentRating = process.env.NEXT_PUBLIC_APP_SOURCE || 'sfw';
@@ -31,16 +31,12 @@ interface Girlfriend {
   nationality?: string;
 }
 
-interface Scene {
+interface OpeningScene {
   id: string;
   scene_name: string;
-  description: string;
-  video_slug: string | null;
-  image_slug: string | null;
-  audio_slug: string | null;
+  opening_line: string;
   mood: string | null;
-  opener: string;
-  relationship_stage: number;
+  audio_slug: string | null;
   content_rating: string;
 }
 
@@ -59,21 +55,24 @@ interface ChatInterfaceProps {
 
 export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   const userId = useUser();
+  const sessionId = useSession();
   
-  const [showIntroVideo, setShowIntroVideo] = useState(!!girlfriend.hello_url);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isImageMenuOpen, setIsImageMenuOpen] = useState(false);
   
-  // Scene state
-  const [scenes, setScenes] = useState<Scene[]>([]);
-  const [currentScene, setCurrentScene] = useState<Scene | null>(null);
+  // Session DB id (chat_sessions.id uuid)
+  const [dbSessionId, setDbSessionId] = useState<string | null>(null);
+
+  // Opening scene state
+  const [scenes, setScenes] = useState<OpeningScene[]>([]);
+  const [currentScene, setCurrentScene] = useState<OpeningScene | null>(null);
   const [isLoadingScenes, setIsLoadingScenes] = useState(true);
   const [hasInitialized, setHasInitialized] = useState(false);
-  const [imageGenerated, setImageGenerated] = useState(false);
-  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
   // Progress state
   const [currentStage, setCurrentStage] = useState(1);
@@ -86,18 +85,43 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const messageAudioRefs = useRef<Map<string, HTMLAudioElement>>(new Map());
+
+  // Helper to inject girlfriend name into opening lines
+  const personalizeLine = (line: string) => line.replace('[name]', girlfriend.name);
 
   const generateMessageId = () => {
     return `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   };
 
-  // Fetch scenes on mount and when stage changes
+  // Register chat session and store the DB id
+  useEffect(() => {
+    if (!sessionId || !userId) return;
+
+    fetch('/api/sessions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId,
+        userId,
+        girlfriendId: girlfriend.id,
+        source: process.env.NEXT_PUBLIC_APP_SOURCE || 'unknown',
+      }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.id) {
+          setDbSessionId(data.id);
+        }
+      })
+      .catch(err => console.error('Failed to register session:', err));
+  }, [sessionId, userId, girlfriend.id]);
+
+  // Fetch opening scenes on mount
   useEffect(() => {
     const fetchScenes = async () => {
       try {
-        const response = await fetch(`/api/scenes?stage=${currentStage}&contentRating=${contentRating}`);
+        const response = await fetch(`/api/opening-scenes?contentRating=${contentRating}`);
         const data = await response.json();
         
         if (data.scenes && data.scenes.length > 0) {
@@ -106,55 +130,38 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
           setCurrentScene(data.scenes[randomIndex]);
         }
       } catch (err) {
-        console.error('Error fetching scenes:', err);
+        console.error('Error fetching opening scenes:', err);
       } finally {
         setIsLoadingScenes(false);
       }
     };
 
     fetchScenes();
-  }, [currentStage]);
+  }, []);
 
   // Cleanup audio on unmount
   useEffect(() => {
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
       messageAudioRefs.current.forEach(audio => audio.pause());
       messageAudioRefs.current.clear();
     };
   }, []);
 
-  // Build opening messages from scene description + opener only
+  // Build opening message from scene opening_line
   const buildOpeningMessages = (): Message[] => {
-    const messages: Message[] = [];
+    if (!currentScene?.opening_line) return [];
     
-    if (currentScene?.description) {
-      messages.push({
-        id: 'description_' + generateMessageId(),
-        role: 'assistant',
-        content: currentScene.description,
-        timestamp: new Date()
-      });
-    }
-    
-    if (currentScene?.opener) {
-      messages.push({
-        id: 'opener_' + generateMessageId(),
-        role: 'assistant',
-        content: currentScene.opener,
-        timestamp: new Date()
-      });
-    }
-    
-    return messages;
+    return [{
+      id: 'scene_' + generateMessageId(),
+      role: 'assistant',
+      content: personalizeLine(currentScene.opening_line),
+      timestamp: new Date()
+    }];
   };
 
-  // Show opening message on mount if no video and scene is loaded
+  // Show opening message once scene is loaded
   useEffect(() => {
-    if (!girlfriend.hello_url && currentScene && !isLoadingScenes && !hasInitialized) {
+    if (currentScene && !isLoadingScenes && !hasInitialized) {
       const openingMessages = buildOpeningMessages();
       if (openingMessages.length > 0) {
         setMessages(openingMessages);
@@ -169,116 +176,34 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Focus input after video ends or on mount if no video
+  // Focus input on mount
   useEffect(() => {
-    if (!showIntroVideo) {
-      inputRef.current?.focus();
-    }
-  }, [showIntroVideo]);
-
-  const handleVideoEnd = () => {
-    setShowIntroVideo(false);
-    if (!hasInitialized) {
-      const openingMessages = buildOpeningMessages();
-      if (openingMessages.length > 0) {
-        setMessages(openingMessages);
-        setHasInitialized(true);
-        setIsFirstMessageInScene(true);
-      }
-    }
-  };
-
-  const handleVideoError = () => {
-    console.error('Video failed to load:', girlfriend.hello_url);
-    setShowIntroVideo(false);
-    if (!hasInitialized) {
-      const openingMessages = buildOpeningMessages();
-      if (openingMessages.length > 0) {
-        setMessages(openingMessages);
-        setHasInitialized(true);
-        setIsFirstMessageInScene(true);
-      }
-    }
-  };
+    inputRef.current?.focus();
+  }, []);
 
   const handleRandomScene = () => {
     if (scenes.length <= 1) return;
     
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-      setIsPlayingAudio(false);
-    }
-    
+    // Stop any playing audio
     messageAudioRefs.current.forEach(audio => audio.pause());
     messageAudioRefs.current.clear();
     setPlayingMessageId(null);
     
-    let newScene: Scene;
+    let newScene: OpeningScene;
     do {
       const randomIndex = Math.floor(Math.random() * scenes.length);
       newScene = scenes[randomIndex];
     } while (newScene.id === currentScene?.id && scenes.length > 1);
     
     setCurrentScene(newScene);
-    setImageGenerated(false);
     setIsFirstMessageInScene(true);
     
-    const newMessages: Message[] = [];
-    
-    if (newScene.description) {
-      newMessages.push({
-        id: 'description_' + generateMessageId(),
-        role: 'assistant',
-        content: newScene.description,
-        timestamp: new Date()
-      });
-    }
-    
-    if (newScene.opener) {
-      newMessages.push({
-        id: 'opener_' + generateMessageId(),
-        role: 'assistant',
-        content: newScene.opener,
-        timestamp: new Date()
-      });
-    }
-    
-    setMessages(newMessages);
-  };
-
-  const handlePlayAudio = () => {
-    if (!currentScene?.audio_slug) {
-      console.error('No audio_slug available for current scene');
-      return;
-    }
-    
-    if (isPlayingAudio && audioRef.current) {
-      audioRef.current.pause();
-      setIsPlayingAudio(false);
-      return;
-    }
-    
-    if (!audioRef.current) {
-      audioRef.current = new Audio(currentScene.audio_slug);
-      
-      audioRef.current.addEventListener('ended', () => {
-        setIsPlayingAudio(false);
-      });
-      
-      audioRef.current.addEventListener('error', (e) => {
-        console.error('Error playing audio:', e);
-        setIsPlayingAudio(false);
-        setError('Error al reproducir el audio');
-      });
-    }
-    
-    audioRef.current.play()
-      .then(() => setIsPlayingAudio(true))
-      .catch((error) => {
-        console.error('Error playing audio:', error);
-        setError('Error al reproducir el audio');
-      });
+    setMessages([{
+      id: 'scene_' + generateMessageId(),
+      role: 'assistant',
+      content: personalizeLine(newScene.opening_line),
+      timestamp: new Date()
+    }]);
   };
 
   const handlePlayMessageAudio = async (messageId: string, audioUrl?: string, messageContent?: string) => {
@@ -348,21 +273,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     }
   };
 
-  const handleGenerateImage = () => {
-    if (!currentScene?.image_slug) return;
-
-    const imageMessage: Message = {
-      id: 'image_' + generateMessageId(),
-      role: 'assistant',
-      content: '',
-      timestamp: new Date(),
-      imageUrl: currentScene.image_slug
-    };
-
-    setMessages(prev => [...prev, imageMessage]);
-    setImageGenerated(true);
-  };
-
   const handleSendMessage = async () => {
     const trimmedInput = inputValue.trim();
     if (!trimmedInput || isLoading || !userId) return;
@@ -379,8 +289,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
     setIsLoading(true);
-
-    saveChatMessage({ userId, girlfriendId: girlfriend.id, role: 'user', content: trimmedInput });
 
     // Update progress
     updateProgress(userId, girlfriend.id, isFirstMessageInScene)
@@ -407,7 +315,8 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
           girlfriendId: girlfriend.id,
           userId: userId,
           messages: conversationHistory,
-          scenarioDescription: currentScene?.description,
+          scenarioDescription: currentScene?.opening_line ? personalizeLine(currentScene.opening_line) : undefined,
+          sessionId: dbSessionId,
         }),
       });
 
@@ -431,8 +340,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-
-      saveChatMessage({ userId, girlfriendId: girlfriend.id, role: 'assistant', content: chatData.message });
 
       if (girlfriend.voice_id) {
         fetch('/api/elevenlabs', {
@@ -503,16 +410,54 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
           <h1 className={styles.headerTitle}>{girlfriend.name}</h1>
         </div>
 
-        <button 
-          className={styles.iconButton}
-          onClick={() => setIsSidebarOpen(true)}
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="3" y1="12" x2="21" y2="12"/>
-            <line x1="3" y1="6" x2="21" y2="6"/>
-            <line x1="3" y1="18" x2="21" y2="18"/>
-          </svg>
-        </button>
+        <div className={styles.headerRight}>
+          <div className={styles.menuWrapper}>
+            <button 
+              className={styles.iconButton}
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill={contentRating === 'nsfw' ? '#e60049' : '#348cd4'}>
+                <path fillRule="evenodd" d="M10.5 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm0 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm0 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z" clipRule="evenodd" />
+              </svg>
+            </button>
+            {isMenuOpen && (
+              <>
+                <div className={styles.menuBackdrop} onClick={() => setIsMenuOpen(false)} />
+                <div className={styles.dropdownMenu}>
+                  <button className={styles.menuItem} onClick={() => setIsMenuOpen(false)}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+                    </svg>
+                    Favorita
+                  </button>
+                  <button className={styles.menuItem} onClick={() => setIsMenuOpen(false)}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                      <path fillRule="evenodd" d="M12 5.25c1.213 0 2.415.046 3.605.135a3.256 3.256 0 0 1 3.01 3.01c.044.583.077 1.17.1 1.759L17.03 8.47a.75.75 0 1 0-1.06 1.06l3 3a.75.75 0 0 0 1.06 0l3-3a.75.75 0 0 0-1.06-1.06l-1.752 1.751c-.023-.65-.06-1.296-.108-1.939a4.756 4.756 0 0 0-4.392-4.392 49.422 49.422 0 0 0-7.436 0A4.756 4.756 0 0 0 3.89 8.282c-.017.224-.033.447-.046.672a.75.75 0 1 0 1.497.092c.013-.217.028-.434.044-.651a3.256 3.256 0 0 1 3.01-3.01c1.19-.09 2.392-.135 3.605-.135Zm-6.97 6.22a.75.75 0 0 0-1.06 0l-3 3a.75.75 0 1 0 1.06 1.06l1.752-1.751c.023.65.06 1.296.108 1.939a4.756 4.756 0 0 0 4.392 4.392 49.413 49.413 0 0 0 7.436 0 4.756 4.756 0 0 0 4.392-4.392c.017-.223.032-.447.046-.672a.75.75 0 0 0-1.497-.092c-.013.217-.028.434-.044.651a3.256 3.256 0 0 1-3.01 3.01 47.953 47.953 0 0 1-7.21 0 3.256 3.256 0 0 1-3.01-3.01 47.759 47.759 0 0 1-.1-1.759L6.97 15.53a.75.75 0 0 0 1.06-1.06l-3-3Z" clipRule="evenodd" />
+                    </svg>
+                    Reiniciar Chat
+                  </button>
+                  <button className={styles.menuItem} onClick={() => setIsMenuOpen(false)}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z" clipRule="evenodd" />
+                    </svg>
+                    Eliminar Chat
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+
+          <button 
+            className={styles.iconButton}
+            onClick={() => setIsSidebarOpen(true)}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="3" y1="12" x2="21" y2="12"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+        </div>
       </header>
 
       {/* Sidebar */}
@@ -536,22 +481,23 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
 
       {/* Chat Area */}
       <div className={styles.chatArea}>
-        {showIntroVideo && girlfriend.hello_url && (
+        {/* Intro video rendered inline in the chat flow */}
+        {girlfriend.hello_url && (
           <IntroVideoMessage
             videoUrl={girlfriend.hello_url}
             posterUrl={girlfriend.hello_poster_url || girlfriend.image_url}
-            onVideoEnd={handleVideoEnd}
-            onVideoError={handleVideoError}
+            onVideoEnd={() => {}}
+            onVideoError={() => console.error('Video failed to load:', girlfriend.hello_url)}
           />
         )}
         
-        {messages.map((message, index) => (
+        {messages.map((message) => (
           <React.Fragment key={message.id}>
             {message.imageUrl ? (
               <div className={styles.imageMessage}>
                 <img 
                   src={message.imageUrl} 
-                  alt="Generated scenario" 
+                  alt="Generated image" 
                   className={styles.scenarioImage}
                 />
               </div>
@@ -559,39 +505,51 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
               <div className={styles.messageBubbleRight}>
                 {formatMessageContent(message.content)}
               </div>
-            ) : message.id.startsWith('description_') ? (
-              <div className={styles.messageBubbleScenario}>
-                {scenes.length > 1 && (
-                  <button 
-                    className={styles.shuffleButton}
-                    onClick={handleRandomScene}
-                    title="Cambiar escena"
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-                    </svg>
-                  </button>
-                )}
+            ) : message.id.startsWith('scene_') ? (
+              <div className={styles.sceneWithButton}>
+                <div className={styles.messageBubbleScenario}>
+                  {scenes.length > 1 && messages.filter(m => m.role === 'user').length === 0 && (
+                    <button 
+                      className={styles.shuffleButton}
+                      onClick={handleRandomScene}
+                      title="Cambiar escena"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                      </svg>
+                    </button>
+                  )}
+                  
+                  {currentScene?.scene_name && (
+                    <div className={styles.sceneLabel}>{currentScene.scene_name}</div>
+                  )}
+                  
+                  {formatMessageContent(message.content)}
+                </div>
                 
-                {currentScene?.audio_slug && (
+                {girlfriend.voice_id && (
                   <button 
-                    className={`${styles.playButton} ${isPlayingAudio ? styles.playing : ''}`}
-                    onClick={handlePlayAudio}
-                    title={isPlayingAudio ? "Pausar audio" : "Reproducir audio"}
+                    className={`${styles.messagePlayButton} ${playingMessageId === message.id ? styles.playing : ''}`}
+                    onClick={() => handlePlayMessageAudio(message.id, message.audioUrl, message.content)}
+                    disabled={audioLoadingMessageId === message.id}
+                    title={playingMessageId === message.id ? "Pausar" : "Reproducir"}
                   >
-                    {isPlayingAudio ? (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    {audioLoadingMessageId === message.id ? (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className={styles.spinner}>
+                        <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="4" opacity="0.25"/>
+                        <path d="M12 2a10 10 0 0 1 10 10" fill="none" stroke="currentColor" strokeWidth="4"/>
+                      </svg>
+                    ) : playingMessageId === message.id ? (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M6 4h4v16H6zM14 4h4v16h-4z"/>
                       </svg>
                     ) : (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M8 5v14l11-7z"/>
                       </svg>
                     )}
                   </button>
                 )}
-                
-                {formatMessageContent(message.content)}
               </div>
             ) : (
               <div className={styles.messageWithButton}>
@@ -624,20 +582,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
                 )}
               </div>
             )}
-            
-            {message.id.startsWith('description_') && !imageGenerated && currentScene?.image_slug && (
-              <button 
-                className={styles.imageGeneratorButton}
-                onClick={handleGenerateImage}
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                  <circle cx="8.5" cy="8.5" r="1.5"/>
-                  <polyline points="21 15 16 10 5 21"/>
-                </svg>
-                <span>Generate Image</span>
-              </button>
-            )}
           </React.Fragment>
         ))}
 
@@ -668,22 +612,48 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
 
       {/* Input Footer */}
       <div className={styles.inputContainer}>
-        <input
-          ref={inputRef}
-          type="text"
-          placeholder="Message"
-          className={styles.inputField}
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyPress={handleKeyPress}
-          disabled={isLoading || showIntroVideo}
-        />
+        <div className={styles.inputWrapper}>
+          <input
+            ref={inputRef}
+            type="text"
+            placeholder="Message"
+            className={styles.inputField}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyPress={handleKeyPress}
+            disabled={isLoading}
+          />
+          <div className={styles.imageMenuWrapper}>
+            <button
+              className={styles.imageMenuButton}
+              onClick={() => setIsImageMenuOpen(!isImageMenuOpen)}
+            >
+              <svg width="30" height="30" viewBox="0 0 24 24" fill={contentRating === 'nsfw' ? '#e60049' : '#348cd4'}>
+                <path fillRule="evenodd" d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6ZM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061Zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Z" clipRule="evenodd" />
+              </svg>
+            </button>
+            {isImageMenuOpen && (
+              <>
+                <div className={styles.imageMenuBackdrop} onClick={() => setIsImageMenuOpen(false)} />
+                <div className={styles.imageDropdownMenu}>
+                  <Link 
+                    href={`/render/image?gf=${girlfriend.slug}`}
+                    className={styles.menuItem}
+                    onClick={() => setIsImageMenuOpen(false)}
+                  >
+                    Generar Imagen
+                  </Link>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
         <button 
           className={styles.sendButton}
           onClick={handleSendMessage}
-          disabled={isLoading || !inputValue.trim() || showIntroVideo}
+          disabled={isLoading || !inputValue.trim()}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={contentRating === 'nsfw' ? '#e60049' : '#348cd4'} strokeWidth="2">
             <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
           </svg>
         </button>
