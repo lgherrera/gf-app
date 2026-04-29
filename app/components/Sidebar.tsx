@@ -129,7 +129,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               width={24}
               height={24}
             />
-            <h2>AI Friends</h2>
+            <h2>Polola IA</h2>
           </div>
           <button
             onClick={onClose}
