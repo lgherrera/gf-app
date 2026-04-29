@@ -20,6 +20,7 @@ interface SidebarProps {
     name: string;
     description?: string;
     image_url?: string;
+    avatar?: string;
     occupation?: string;
     gender?: string;
     style?: string;
@@ -69,12 +70,31 @@ export default function GFSidebar({ isOpen, onClose, girlfriend, stage = 1, scor
             </p>
           </div>
 
+          {/* Generate Image Button */}
+          {girlfriend.image_url && (
+            <div className={styles.generateImageSection}>
+              <Link
+                href={`/render/image?gf=${encodeURIComponent(girlfriend.slug)}`}
+                className={styles.generateImageButton}
+                onClick={onClose}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+                Generate Image
+              </Link>
+            </div>
+          )}
+
           {/* My Private Content Button */}
           <div className={styles.privateContentSection}>
-          <Link
-            href={`/${girlfriend.slug}/gallery`}
-            className={styles.privateContentButton}
-          >
+            <Link
+              href={`/${girlfriend.slug}/gallery`}
+              className={styles.privateContentButton}
+              onClick={onClose}
+            >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                 <path d="M18 1.5c2.9 0 5.25 2.35 5.25 5.25v3.75a.75.75 0 0 1-1.5 0V6.75a3.75 3.75 0 1 0-7.5 0v3a3 3 0 0 1 3 3v6.75a3 3 0 0 1-3 3H3.75a3 3 0 0 1-3-3v-6.75a3 3 0 0 1 3-3h9v-3c0-2.9 2.35-5.25 5.25-5.25Z" fill="currentColor"/>
               </svg>
