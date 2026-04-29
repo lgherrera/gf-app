@@ -92,7 +92,7 @@ const OUTFIT_OPTIONS_ALL = [
   { value: 'sexy and revealing nurse uniform',                label: 'Enfermera',  mode: 'nsfw' },
   { value: 'sexy and revealing secretary outfit and glasses',  label: 'Secretaria', mode: 'nsfw' },
   { value: 'sexy and revealing sheer dress',                   label: 'Vestido Atrevido',    mode: 'nsfw' },
-  { value: 'sheer, see-through, tight, silk babydoll',                              label: 'Babydoll',   mode: 'nsfw' },
+  { value: 'sheer, see-through, tight, silk babydoll lingerie',                              label: 'Babydoll',   mode: 'nsfw' },
   { value: 'revealing, glossy black latex catsuit',                       label: 'Latex Catsuit',      mode: 'nsfw' },
   { value: 'two tiny triangles for a micro bikini barely covering her nipples, tiny strings.',                       label: 'Micro Bikini',     mode: 'nsfw' },
 ];
