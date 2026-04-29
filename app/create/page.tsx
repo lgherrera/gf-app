@@ -79,6 +79,8 @@ const HAIR_STYLE_OPTIONS = [
   { value: 'wavy',     label: 'Ondulado', image: 'https://cdn.polola.ai/wizard/pelo-ondulado.jpg' },
 ];
 
+// app/create/page.tsx (OUTFIT_OPTIONS_ALL only)
+
 const OUTFIT_OPTIONS_ALL = [
   { value: 'strapless-dress',     label: 'Vestido Strapless', mode: 'sfw' },
   { value: 'bikini',              label: 'Bikini',            mode: 'sfw' },
@@ -86,8 +88,9 @@ const OUTFIT_OPTIONS_ALL = [
   { value: 'deep-cleavage-dress', label: 'Vestido Escotado',  mode: 'sfw' },
   { value: 'lingerie',            label: 'Lingerie',          mode: 'sfw' },
   { value: 'trendy',              label: 'Elegante',          mode: 'sfw' },
-  { value: 'casual outfit',              label: 'Casual',            mode: 'sfw' },
-  { value: 'nurse uniform',               label: 'Enfermera',         mode: 'nsfw' },
+  { value: 'casual outfit',       label: 'Casual',            mode: 'sfw' },
+  { value: 'sexy and revealing nurse uniform', label: 'Enfermera', mode: 'nsfw' },
+  { value: 'sexy and revealing secretary outfit and glasses', label: 'Secretaria', mode: 'nsfw' },
 ];
 
 const contentMode = process.env.NEXT_PUBLIC_APP_SOURCE === 'nsfw' ? 'nsfw' : 'sfw';

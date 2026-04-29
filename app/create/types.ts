@@ -27,7 +27,17 @@ export type HairColor = 'redhead' | 'blonde' | 'brunette' | 'pink';
 
 export type HairStyle = 'straight' | 'short' | 'curly' | 'wavy';
 
-export type Outfit = 'strapless-dress' | 'bikini' | 'yoga-outfit' | 'deep-cleavage-dress' | 'underwear';
+export type Outfit =
+  | 'strapless-dress'
+  | 'bikini'
+  | 'yoga-outfit'
+  | 'deep-cleavage-dress'
+  | 'underwear'
+  | 'lingerie'
+  | 'trendy'
+  | 'casual outfit'
+  | 'sexy and revealing nurse uniform'
+  | 'sexy and revealing secretary outfit and glasses';
 
 export interface VoiceOption {
   id: number;
@@ -41,7 +51,7 @@ export interface CustomGirlfriendConfig {
   ethnicity:     string | null;
   ageRange:      string | null;
   personality:   string | null;
-  description:   string;           // ← new
+  description:   string;
   physicalTrait: string | null;
   breastSize:    string | null;
   hairColor:     string | null;
@@ -72,7 +82,7 @@ export const INITIAL_CONFIG: CustomGirlfriendConfig = {
   ethnicity:     null,
   ageRange:      null,
   personality:   null,
-  description:   '',              // ← new
+  description:   '',
   physicalTrait: null,
   breastSize:    null,
   hairColor:     null,
