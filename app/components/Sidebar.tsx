@@ -13,6 +13,8 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
+  const iconColor = appSource === 'sfw' ? '#348cd4' : '#e60049';
+
   const plusIcon = (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
       <path fillRule="evenodd" d="M12 3.75a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75H4.5a.75.75 0 0 1 0-1.5h6.75V4.5a.75.75 0 0 1 .75-.75Z" clipRule="evenodd" />
@@ -147,7 +149,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   onClick={onClose}
                   className={styles['sidebar-link']}
                 >
-                  {item.icon}
+                  <span style={{ color: iconColor, display: 'flex', alignItems: 'center' }}>
+                    {item.icon}
+                  </span>
                   {item.name}
                 </Link>
               </li>
