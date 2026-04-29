@@ -44,7 +44,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       dividerAfter: false,
     },
     {
-      name: 'Mis Amigas IA',
+      name: 'Mis Pololas IA',
       href: '/sidebar/my-girlfriends',
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
