@@ -184,6 +184,8 @@ export async function POST(req: NextRequest) {
     // Upload to S3 and save to DB if userId is provided
     let finalImageUrl = falImageUrl;
 
+    console.log("DEBUG generate-image — userId:", userId, "girlfriendId:", girlfriendId, "falImageUrl:", falImageUrl?.slice(0, 80));
+
     if (userId) {
       try {
         // Fetch the fal.ai image and upload to S3
