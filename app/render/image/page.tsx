@@ -5,6 +5,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import styles from "./render.module.css";
+import { useUser } from "@/lib/hooks/useUser";
 
 const ASPECT_RATIOS = [
   { label: "16:9", value: "16:9" },
@@ -33,6 +34,7 @@ interface GeneratedImage {
 function RenderImageContent() {
   const searchParams = useSearchParams();
   const slug = searchParams.get("gf") || "";
+  const userId = useUser();
 
   const [girlfriend, setGirlfriend] = useState<GirlfriendData | null>(null);
   const [gfLoading, setGfLoading]   = useState(true);
@@ -86,6 +88,8 @@ function RenderImageContent() {
           aspectRatio: ratio,
           referenceImageUrls: [girlfriend.image_url],
           model: "seedream",
+          userId,
+          girlfriendId: girlfriend.id,
         }),
       });
 

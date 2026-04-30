@@ -1,9 +1,13 @@
 // app/api/generate/image/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { fal } from "@fal-ai/client";
+import { supabase } from "@/lib/supabase";
+import { uploadToS3 } from "@/lib/s3";
 
 export const runtime     = "nodejs";
 export const maxDuration = 120;
+
+const MONTHLY_LIMIT = 50;
 
 const RATIO_TO_SIZE_V4: Record<string, { width: number; height: number } | string> = {
   "16:9": "landscape_16_9",
@@ -35,15 +39,46 @@ async function urlToDataUri(url: string): Promise<string> {
   return `data:${contentType};base64,${buffer.toString("base64")}`;
 }
 
+/** Check how many images a user has generated this month */
+async function getMonthlyCount(userId: string): Promise<number> {
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+
+  const { count, error } = await supabase
+    .from("generated_images")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .gte("created_at", startOfMonth.toISOString());
+
+  if (error) {
+    console.error("Error checking monthly count:", error);
+    return 0;
+  }
+
+  return count ?? 0;
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const { prompt, aspectRatio, referenceImages, referenceImageUrls, seed, model } = await req.json() as {
+    const {
+      prompt,
+      aspectRatio,
+      referenceImages,
+      referenceImageUrls,
+      seed,
+      model,
+      userId,
+      girlfriendId,
+    } = await req.json() as {
       prompt: string;
       aspectRatio: string;
       referenceImages?: string[];
       referenceImageUrls?: string[];
       seed?: number;
       model?: string;
+      userId?: string;
+      girlfriendId?: string;
     };
 
     if (!prompt) {
@@ -54,12 +89,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "FAL_KEY no configurada" }, { status: 500 });
     }
 
-    const isFlux    = model === "flux2dev" || model === "flux2max";
-    const isFluxMax = model === "flux2max";
-    const isFluxDev = model === "flux2dev";
-    const isV5      = model === "seedream5";
-    const isWan     = model === "wan25";
-    const isHunyuan = model === "hunyuan3";
+    // Rate limiting: check monthly count if userId is provided
+    if (userId) {
+      const monthlyCount = await getMonthlyCount(userId);
+      if (monthlyCount >= MONTHLY_LIMIT) {
+        return NextResponse.json(
+          { error: `Has alcanzado el límite de ${MONTHLY_LIMIT} imágenes por mes. Vuelve el próximo mes.` },
+          { status: 429 }
+        );
+      }
+    }
+
+    const isFluxMax  = model === "flux2max";
+    const isFluxDev  = model === "flux2dev";
+    const isV5       = model === "seedream5";
+    const isHunyuan  = model === "hunyuan3";
     const isSeedream = model === "seedream" || !model;
 
     const imageSize = isV5
@@ -124,18 +168,50 @@ export async function POST(req: NextRequest) {
 
     const result = await fal.subscribe(endpoint, { input });
 
-    const images   = (result.data as { images?: { url: string }[] })?.images;
-    const imageUrl = images?.[0]?.url;
+    const images      = (result.data as { images?: { url: string }[] })?.images;
+    const falImageUrl = images?.[0]?.url;
 
-    if (!imageUrl) {
+    if (!falImageUrl) {
       return NextResponse.json(
         { error: `Respuesta inesperada: ${JSON.stringify(result.data).slice(0, 300)}` },
         { status: 502 }
       );
     }
 
-    const resultSeed = (result.data as { seed?: number })?.seed ?? resolvedSeed;
-    return NextResponse.json({ url: imageUrl, seed: resultSeed });
+    const resultSeed    = (result.data as { seed?: number })?.seed ?? resolvedSeed;
+    const contentRating = process.env.NEXT_PUBLIC_APP_SOURCE || "sfw";
+
+    // Upload to S3 and save to DB if userId is provided
+    let finalImageUrl = falImageUrl;
+
+    if (userId) {
+      try {
+        // Fetch the fal.ai image and upload to S3
+        const imageResponse = await fetch(falImageUrl);
+        const buffer = Buffer.from(await imageResponse.arrayBuffer());
+        const contentType = imageResponse.headers.get("content-type") || "image/jpeg";
+        const timestamp = Date.now();
+        const s3Key = `generated-images/${userId}/${timestamp}.jpg`;
+        finalImageUrl = await uploadToS3(buffer, s3Key, contentType);
+
+        // Save to database
+        await supabase.from("generated_images").insert({
+          user_id: userId,
+          girlfriend_id: girlfriendId || null,
+          prompt,
+          image_url: finalImageUrl,
+          aspect_ratio: aspectRatio,
+          model: model || "seedream",
+          seed: resultSeed,
+          content_rating: contentRating,
+        });
+      } catch (s3Err) {
+        // Log but don't fail — still return the fal.ai URL
+        console.error("S3 upload or DB save error:", s3Err);
+      }
+    }
+
+    return NextResponse.json({ url: finalImageUrl, seed: resultSeed });
 
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Error desconocido";
