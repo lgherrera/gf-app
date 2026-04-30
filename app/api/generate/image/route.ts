@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { fal } from "@fal-ai/client";
 import { supabase } from "@/lib/supabase";
 import { uploadToS3 } from "@/lib/s3";
+import sharp from "sharp";
 
 export const runtime     = "nodejs";
 export const maxDuration = 120;
@@ -184,22 +185,21 @@ export async function POST(req: NextRequest) {
     // Upload to S3 and save to DB if userId is provided
     let finalImageUrl = falImageUrl;
 
-    console.log("DEBUG generate-image — userId:", userId, "girlfriendId:", girlfriendId, "falImageUrl:", falImageUrl?.slice(0, 80));
-
     if (userId) {
       try {
-        // Fetch the fal.ai image and upload to S3
-        console.log("DEBUG S3 starting...");
         const imageResponse = await fetch(falImageUrl);
-        const buffer = Buffer.from(await imageResponse.arrayBuffer());
-        const contentType = imageResponse.headers.get("content-type") || "image/jpeg";
+        const rawBuffer = Buffer.from(await imageResponse.arrayBuffer());
+
+        // Compress: max 960px on long side, JPEG 80% quality
+        const buffer = await sharp(rawBuffer)
+          .resize(960, 960, { fit: "inside", withoutEnlargement: true })
+          .jpeg({ quality: 80 })
+          .toBuffer();
+
         const timestamp = Date.now();
         const s3Key = `generated-images/${userId}/${timestamp}.jpg`;
-        finalImageUrl = await uploadToS3(buffer, s3Key, contentType);
-        console.log("DEBUG S3 done:", finalImageUrl);
+        finalImageUrl = await uploadToS3(buffer, s3Key, "image/jpeg");
 
-        // Save to database
-        console.log("DEBUG DB inserting...");
         const { error: dbError } = await supabase.from("generated_images").insert({
           user_id: userId,
           girlfriend_id: girlfriendId || null,
@@ -211,12 +211,9 @@ export async function POST(req: NextRequest) {
           content_rating: contentRating,
         });
         if (dbError) {
-          console.error("DEBUG DB error:", JSON.stringify(dbError));
-        } else {
-          console.log("DEBUG DB success");
+          console.error("DB insert error:", dbError.message);
         }
       } catch (s3Err) {
-        // Log but don't fail — still return the fal.ai URL
         console.error("S3 upload or DB save error:", s3Err);
       }
     }
