@@ -148,34 +148,10 @@
     text-align: right;
   }
   
-  /* Aspect ratio selector */
-  .ratioGrid {
-    display: flex;
-    gap: 8px;
-  }
-  
-  .ratioBtn {
-    flex: 1;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  
-  .ratioBtn:hover {
-    border-color: rgba(255, 255, 255, 0.3);
-    color: white;
-  }
-  
-  .ratioActive {
-    border-color: var(--color-primary);
-    color: var(--color-primary);
-    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  /* Ratio info */
+  .ratioInfo {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.35);
   }
   
   /* Error */
@@ -290,6 +266,11 @@
     border-radius: 10px;
   }
   
+  .actionBtns {
+    display: flex;
+    gap: 6px;
+  }
+  
   .downloadLabel {
     font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.6);
@@ -316,6 +297,58 @@
     background: rgba(255, 255, 255, 0.2);
   }
   
+  .saveBtn {
+    padding: 8px 16px;
+    background: var(--color-primary);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  
+  .saveBtn:hover:not(:disabled) {
+    opacity: 0.85;
+  }
+  
+  .saveBtn:disabled {
+    cursor: default;
+  }
+  
+  .saveBtnDone {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
+  .trashBtn {
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  
+  .trashBtn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  .trashBtn:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+  
+  .trashBtnDone {
+    opacity: 0.3;
+  }
+  
   /* Full page loading state */
   .loadingPage {
     display: flex;
@@ -324,4 +357,49 @@
     height: 50vh;
     color: rgba(255, 255, 255, 0.4);
     font-size: 1rem;
+  }
+  
+  /* Saved modal */
+  .modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease;
+  }
+  
+  .modal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 2rem 2.5rem;
+    animation: scaleIn 0.25s ease;
+  }
+  
+  .modalText {
+    color: white;
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0;
+    text-align: center;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes scaleIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
   }

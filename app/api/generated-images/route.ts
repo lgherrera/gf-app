@@ -13,6 +13,7 @@ export async function GET(req: NextRequest) {
     .from("generated_images")
     .select("id, girlfriend_id, prompt, image_url, aspect_ratio, model, created_at")
     .eq("user_id", userId)
+    .eq("status", "saved")
     .order("created_at", { ascending: false });
 
   if (error) {

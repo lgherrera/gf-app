@@ -200,7 +200,7 @@ export async function POST(req: NextRequest) {
         const s3Key = `generated-images/${userId}/${timestamp}.jpg`;
         finalImageUrl = await uploadToS3(buffer, s3Key, "image/jpeg");
 
-        const { error: dbError } = await supabase.from("generated_images").insert({
+        const { data: dbData, error: dbError } = await supabase.from("generated_images").insert({
           user_id: userId,
           girlfriend_id: girlfriendId || null,
           prompt,
@@ -209,10 +209,17 @@ export async function POST(req: NextRequest) {
           model: model || "seedream",
           seed: resultSeed,
           content_rating: contentRating,
-        });
+          status: "trashed",
+        }).select("id").single();
         if (dbError) {
           console.error("DB insert error:", dbError.message);
         }
+
+        return NextResponse.json({
+          url: finalImageUrl,
+          seed: resultSeed,
+          imageId: dbData?.id || null,
+        });
       } catch (s3Err) {
         console.error("S3 upload or DB save error:", s3Err);
       }
