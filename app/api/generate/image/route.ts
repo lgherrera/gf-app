@@ -189,15 +189,18 @@ export async function POST(req: NextRequest) {
     if (userId) {
       try {
         // Fetch the fal.ai image and upload to S3
+        console.log("DEBUG S3 starting...");
         const imageResponse = await fetch(falImageUrl);
         const buffer = Buffer.from(await imageResponse.arrayBuffer());
         const contentType = imageResponse.headers.get("content-type") || "image/jpeg";
         const timestamp = Date.now();
         const s3Key = `generated-images/${userId}/${timestamp}.jpg`;
         finalImageUrl = await uploadToS3(buffer, s3Key, contentType);
+        console.log("DEBUG S3 done:", finalImageUrl);
 
         // Save to database
-        await supabase.from("generated_images").insert({
+        console.log("DEBUG DB inserting...");
+        const { error: dbError } = await supabase.from("generated_images").insert({
           user_id: userId,
           girlfriend_id: girlfriendId || null,
           prompt,
@@ -207,6 +210,11 @@ export async function POST(req: NextRequest) {
           seed: resultSeed,
           content_rating: contentRating,
         });
+        if (dbError) {
+          console.error("DEBUG DB error:", JSON.stringify(dbError));
+        } else {
+          console.log("DEBUG DB success");
+        }
       } catch (s3Err) {
         // Log but don't fail — still return the fal.ai URL
         console.error("S3 upload or DB save error:", s3Err);
