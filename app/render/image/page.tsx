@@ -198,7 +198,7 @@ function RenderImageContent() {
         </div>
 
         {/* Gallery button */}
-        <Link href="/sidebar/gallery" className={styles.iconButton}>
+        <Link href="/sidebar/my-gallery" className={styles.iconButton}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <rect x="2" y="5" width="16" height="14" rx="2"/>
             <path d="M2 14.5l4.5-4.5 3.5 3.5 2.5-2.5L18 16"/>
