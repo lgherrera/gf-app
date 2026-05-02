@@ -19,6 +19,17 @@ const ageMap: Record<string, number> = {
   '50+': 50,
 };
 
+const PERSONALITY_TRAIT_MAP: Record<string, string[]> = {
+  shy:          ['reservada', 'observadora', 'sensible'],
+  flirty:       ['coqueta', 'juguetona', 'seductora'],
+  intellectual: ['curiosa', 'culta', 'reflexiva'],
+  rebellious:   ['independiente', 'impulsiva', 'desafiante'],
+  romantic:     ['soñadora', 'cariñosa', 'apasionada'],
+  jealous:      ['posesiva', 'intensa', 'apasionada'],
+  dominant:     ['autoritaria', 'decidida', 'controladora'],
+  submissive:   ['complaciente', 'dócil', 'entregada'],
+};
+
 async function generateAvatar(imageUrl: string): Promise<Buffer> {
   const response = await fetch(imageUrl);
   const buffer = Buffer.from(await response.arrayBuffer());
@@ -74,6 +85,7 @@ export async function POST(request: Request) {
     const slug = `${baseSlug}-${Date.now()}`;
 
     const age = ageMap[config.ageRange] || 25;
+    const personalityTraits = config.personality ? PERSONALITY_TRAIT_MAP[config.personality] || null : null;
 
     // Generate and upload avatar to S3
     let avatarUrl: string | null = null;
@@ -88,25 +100,22 @@ export async function POST(request: Request) {
     const partialGirlfriend = {
       id: '',
       name: config.name,
-      age: ageMap[config.ageRange] || 25,
+      age,
       appearance: JSON.stringify(appearance),
       backstory: '',
       occupation: 'companion',
       nationality: null,
-      description: config.description || 'Una amiga inteligente, cariñosa y siempre dispuesta a escuchar.',
       content_rating: process.env.NEXT_PUBLIC_APP_SOURCE || 'sfw',
       personality: config.personality,
-      personality_traits: null,
+      personality_traits: personalityTraits,
       core_motivations: '',
       fears: null,
-      values: null,
       likes: null,
       dislikes: null,
       hobbies: null,
       boundaries: '',
       speech_style: '',
-      example_dialogue: null,
-      one_liners: null,
+      kinks: null,
       model_provider: 'Grok',
       model_name: 'x-ai/grok-4.1-fast',
       temperature: 0.7,
@@ -127,6 +136,7 @@ export async function POST(request: Request) {
       created_by: userId,
       content_rating: process.env.NEXT_PUBLIC_APP_SOURCE || 'sfw',
       personality: config.personality,
+      personality_traits: personalityTraits,
       is_active: true,
       model_provider: 'Grok',
       model_name: 'x-ai/grok-4.1-fast',
