@@ -3,6 +3,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { generateDescription } from '@/lib/gf-description';
 import styles from './GFSidebar.module.css';
 
 const STAGE_LABELS: Record<number, string> = {
@@ -18,13 +19,17 @@ interface SidebarProps {
   girlfriend: {
     slug: string;
     name: string;
-    description?: string;
+    age: number;
+    occupation: string;
+    nationality: string | null;
+    personality_traits: string[] | null;
+    hobbies: string[] | null;
+    likes: string[] | null;
+    fears: string[] | null;
     image_url?: string;
     avatar?: string;
-    occupation?: string;
     gender?: string;
     style?: string;
-    nationality?: string;
   };
   stage?: number;
   score?: number;
@@ -66,7 +71,7 @@ export default function GFSidebar({ isOpen, onClose, girlfriend, stage = 1, scor
               />
             )}
             <p className={styles.profileDescription}>
-              {girlfriend.description || 'No description available.'}
+              {generateDescription(girlfriend)}
             </p>
           </div>
 

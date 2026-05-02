@@ -16,8 +16,7 @@ interface Girlfriend {
   id: string;
   slug: string;
   name: string;
-  age?: number;
-  description?: string;
+  age: number;
   image_url?: string;
   avatar?: string;
   hello_url?: string;
@@ -29,6 +28,10 @@ interface Girlfriend {
   gender?: string;
   style?: string;
   nationality?: string;
+  personality_traits?: string[] | null;
+  hobbies?: string[] | null;
+  likes?: string[] | null;
+  fears?: string[] | null;
 }
 
 interface OpeningScene {
@@ -467,13 +470,17 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
         girlfriend={{
           slug: girlfriend.slug,
           name: girlfriend.name,
-          description: girlfriend.description,
+          age: girlfriend.age,
+          occupation: girlfriend.occupation || '',
+          nationality: girlfriend.nationality || null,
+          personality_traits: girlfriend.personality_traits || null,
+          hobbies: girlfriend.hobbies || null,
+          likes: girlfriend.likes || null,
+          fears: girlfriend.fears || null,
           image_url: girlfriend.image_url,
           avatar: girlfriend.avatar,
-          occupation: girlfriend.occupation,
           gender: girlfriend.gender,
           style: girlfriend.style,
-          nationality: girlfriend.nationality,
         }}
         stage={currentStage}
         score={currentScore}

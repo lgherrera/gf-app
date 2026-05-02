@@ -14,7 +14,7 @@ async function getGirlfriend(slug: string) {
   const { data, error } = await withContentFilter(
     supabase
       .from('girlfriends')
-      .select('id, name, slug, age, description, image_url, avatar, hello_url, hello_poster_url, voice_provider, voice_model, voice_id, occupation, gender, style, nationality')
+      .select('id, name, slug, age, image_url, avatar, hello_url, hello_poster_url, voice_provider, voice_model, voice_id, occupation, gender, style, nationality, personality_traits, hobbies, likes, fears')
       .eq('slug', slug)
   ).single();
 
@@ -57,7 +57,6 @@ export default async function ChatPage({ params }: ChatPageProps) {
         slug: girlfriend.slug,
         name: girlfriend.name,
         age: girlfriend.age,
-        description: girlfriend.description,
         image_url: girlfriend.image_url,
         avatar: girlfriend.avatar,
         hello_url: girlfriend.hello_url,
@@ -69,6 +68,10 @@ export default async function ChatPage({ params }: ChatPageProps) {
         gender: girlfriend.gender,
         style: girlfriend.style,
         nationality: girlfriend.nationality,
+        personality_traits: girlfriend.personality_traits,
+        hobbies: girlfriend.hobbies,
+        likes: girlfriend.likes,
+        fears: girlfriend.fears,
       }}
     />
   );

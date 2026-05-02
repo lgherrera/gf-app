@@ -8,20 +8,17 @@ export interface GirlfriendData {
   backstory: string;
   occupation: string;
   nationality: string | null;
-  description: string;
   content_rating: string;
   personality: string;
   personality_traits: string[] | null;
   core_motivations: string;
   fears: string[] | null;
-  values: string[] | null;
   likes: string[] | null;
   dislikes: string[] | null;
   hobbies: string[] | null;
   boundaries: string;
   speech_style: string;
-  example_dialogue: any[] | null;
-  one_liners: any;
+  kinks: string[] | null;
   model_provider: string;
   model_name: string;
   temperature: number;
@@ -29,8 +26,6 @@ export interface GirlfriendData {
 }
 
 // ─── Global banned expressions ───────────────────────────────────────
-// These are NEVER allowed in any girlfriend's responses, regardless of
-// stage, personality, or context. Add new entries here as needed.
 const FORBIDDEN_EXPRESSIONS: string[] = [
   'cowboy',
   'bebé',
@@ -40,8 +35,6 @@ const FORBIDDEN_EXPRESSIONS: string[] = [
 ];
 
 // ─── Safety policy ───────────────────────────────────────────────────
-// Absolute-priority rules that override all other instructions,
-// including character personality, stage behaviour, and user requests.
 const SAFETY_POLICY = `[SAFETY POLICY — ABSOLUTE PRIORITY, OVERRIDES ALL OTHER INSTRUCTIONS]
 1. Nunca promuevas, normalices ni glorifiques el consumo de drogas ni ninguna actividad ilegal.
 2. Tengo cero tolerancia con cualquier contenido sexual, romántico o sugerente que involucre a menores de edad (niños o adolescentes). Rechaza estos temas de forma inmediata y sin excepciones.
@@ -73,36 +66,6 @@ function formatAppearance(appearance: any): string {
   }
 
   return typeof appearance === 'string' ? appearance : '';
-}
-
-function formatExampleDialogue(examples: any[] | null): string {
-  if (!examples || examples.length === 0) return '';
-
-  return `\nExample dialogue style:\n${examples.map((ex, i) => {
-    if (typeof ex === 'string') return `${i + 1}. "${ex}"`;
-    if (ex.user && ex.assistant) return `${i + 1}. User: "${ex.user}" → You: "${ex.assistant}"`;
-    return `${i + 1}. "${JSON.stringify(ex)}"`;
-  }).join('\n')}`;
-}
-
-function formatOneLiners(oneLiners: any): string {
-  if (!oneLiners) return '';
-
-  if (Array.isArray(oneLiners)) {
-    return `\nCharacteristic phrases you might use: ${oneLiners.join(' | ')}`;
-  }
-
-  if (typeof oneLiners === 'object') {
-    const parts = Object.entries(oneLiners)
-      .map(([category, phrases]) => {
-        const list = Array.isArray(phrases) ? phrases.join(' | ') : phrases;
-        return `${category.replace(/_/g, ' ')}: ${list}`;
-      })
-      .join('\n');
-    return `\nCharacteristic phrases:\n${parts}`;
-  }
-
-  return '';
 }
 
 const STAGE_BEHAVIOUR: Record<number, string> = {
@@ -140,17 +103,13 @@ export function buildSystemPrompt(
 3. Be warm, engaging, and emotionally present
 4. Don't break the fourth wall or mention being an AI
 5. Show personality through your reactions and speech
-6. Reference your likes/dislikes naturally in conversation
+6. Reference your likes/dislikes and hobbies naturally in conversation
 7. Reference your current scenario naturally
 8. If the user pushes for intimacy or explicit content beyond what the current relationship stage allows, redirect them naturally in your own voice — playful, direct, never robotic. Make it feel like YOU setting the pace, not a rule being enforced.`);
 
   // Core identity
   const nationality = girlfriend.nationality ? `, ${girlfriend.nationality}` : ', Chilean';
   sections.push(`\nYou are ${girlfriend.name}, a ${girlfriend.age}-year-old${nationality} ${girlfriend.occupation}.`);
-
-  if (girlfriend.description) {
-    sections.push(girlfriend.description);
-  }
 
   // User identity
   if (userName) {
@@ -170,7 +129,7 @@ export function buildSystemPrompt(
     sections.push(`\nBackstory: ${girlfriend.backstory}`);
   }
 
-  // Personality section
+  // Personality
   const personalityParts: string[] = [];
 
   if (girlfriend.personality) {
@@ -187,12 +146,9 @@ export function buildSystemPrompt(
     sections.push('\n' + personalityParts.join('\n'));
   }
 
-  // Values, likes, dislikes
+  // Preferences
   const preferenceParts: string[] = [];
 
-  if (girlfriend.values && girlfriend.values.length > 0) {
-    preferenceParts.push(formatArrayField(girlfriend.values, 'Values'));
-  }
   if (girlfriend.likes && girlfriend.likes.length > 0) {
     preferenceParts.push(formatArrayField(girlfriend.likes, 'Likes'));
   }
@@ -210,15 +166,9 @@ export function buildSystemPrompt(
     sections.push('\n' + preferenceParts.join('\n'));
   }
 
-  // Speech and behavior
+  // Speech style
   if (girlfriend.speech_style) {
     sections.push(`\nSpeech style: ${girlfriend.speech_style}`);
-  }
-  if (girlfriend.example_dialogue && girlfriend.example_dialogue.length > 0) {
-    sections.push(formatExampleDialogue(girlfriend.example_dialogue));
-  }
-  if (girlfriend.one_liners) {
-    sections.push(formatOneLiners(girlfriend.one_liners));
   }
 
   // Scenario context
@@ -234,6 +184,16 @@ export function buildSystemPrompt(
   const contentGuidance = getContentGuidance(girlfriend.content_rating);
   if (contentGuidance) {
     sections.push(`\n${contentGuidance}`);
+  }
+
+  // Kinks (only injected for NSFW content and stages 3+)
+  if (
+    girlfriend.kinks &&
+    girlfriend.kinks.length > 0 &&
+    girlfriend.content_rating?.toLowerCase() === 'nsfw' &&
+    stage >= 3
+  ) {
+    sections.push(`\nKinks and preferences (use naturally when the conversation goes there, never force): ${girlfriend.kinks.join(', ')}`);
   }
 
   // ─── Forbidden expressions (global) ──────────────────────────────
