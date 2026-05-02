@@ -40,12 +40,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       dividerAfter: false,
     },
     {
-      name: 'Genera Imágenes IA',
-      href: '/generate/image',
-      icon: plusIcon,
-      dividerAfter: false,
-    },
-    {
       name: 'Mis Pololas IA',
       href: '/sidebar/my-girlfriends',
       icon: (
