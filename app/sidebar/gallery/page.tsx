@@ -6,6 +6,8 @@ import GFHeader from '@/app/components/GFHeader';
 import GFFooter from '@/app/components/GFFooter';
 import styles from './page.module.css';
 
+const contentRating = process.env.NEXT_PUBLIC_APP_SOURCE || 'sfw';
+
 interface GeneratedImage {
   id: string;
   girlfriend_id: string | null;
@@ -24,7 +26,7 @@ export default function CommunityGalleryPage() {
 
   // Fetch all saved images from all users
   useEffect(() => {
-    fetch('/api/generated-images/community')
+    fetch(`/api/generated-images/community?contentRating=${contentRating}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch images");
         return res.json();
