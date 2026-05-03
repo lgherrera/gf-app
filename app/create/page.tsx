@@ -94,7 +94,7 @@ const OUTFIT_OPTIONS_ALL = [
   { value: 'sexy and revealing sheer dress',                   label: 'Vestido Atrevido',    mode: 'nsfw' },
   { value: 'sheer, see-through, tight, silk babydoll lingerie',                              label: 'Babydoll',   mode: 'nsfw' },
   { value: 'revealing, glossy black latex catsuit',                       label: 'Latex Catsuit',      mode: 'nsfw' },
-  { value: 'micro bikini barely covering her nipples, tiny strings.',                       label: 'Micro Bikini',     mode: 'nsfw' },
+  { value: 'micro bikini, tiny strings.',                       label: 'Micro Bikini',     mode: 'nsfw' },
   { value: 'topless, visible nipples', label: 'Topless', mode: 'nsfw' },
 ];
 
