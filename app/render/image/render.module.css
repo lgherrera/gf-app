@@ -1,405 +1,460 @@
 /* app/render/image/render.module.css */
 
 .page {
-    min-height: 100vh;
-    min-height: 100dvh;
-    background-color: #050505;
-    color: white;
-    max-width: 500px;
-    margin: 0 auto;
-    padding: 0 1rem 2rem;
-    border-left: 1px solid #111;
-    border-right: 1px solid #111;
-  }
-  
-  /* Header - matches chat page style */
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem 0;
-    position: sticky;
-    top: 0;
-    background-color: #050505;
-    z-index: 10;
-  }
-  
-  .headerCenter {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-  }
-  
-  .avatar {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 6px;
-    margin-left: -26px;
-  }
-  
-  .headerTitle {
-    font-size: 1.25rem;
-    font-weight: 400;
-    letter-spacing: 0.5px;
-  }
-  
-  .iconButton {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    cursor: pointer;
-    color: white;
-    padding: 8px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
-    text-decoration: none;
-  }
-  
-  .iconButton:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
-  
-  .iconButton svg {
-    color: var(--color-primary);
-  }
-  
-  /* Reference image preview */
-  .refPreview {
-    position: relative;
-    width: 160px;
-    height: 230px;
-    margin-bottom: 1rem;
-    border-radius: 12px;
-    overflow: hidden;
-    border: 2px solid var(--color-primary);
-  }
-  
-  .refImage {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .refBadge {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(0, 0, 0, 0.7);
-    color: var(--color-primary);
-    font-size: 0.55rem;
-    text-align: center;
-    padding: 2px 4px;
-    font-weight: 500;
-  }
-  
-  /* Controls */
-  .controls {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-  
-  .label {
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.6);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  
-  .textarea {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    padding: 12px 14px;
-    color: white;
-    font-size: 0.95rem;
-    resize: vertical;
-    outline: none;
-    font-family: inherit;
-    transition: border-color 0.2s;
-  }
-  
-  .textarea:focus {
-    border-color: var(--color-primary);
-  }
-  
-  .textarea::placeholder {
-    color: rgba(255, 255, 255, 0.3);
-  }
-  
-  .charCount {
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.3);
-    text-align: right;
-  }
-  
-  /* Ratio info */
-  .ratioInfo {
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.35);
-  }
-  
-  /* Error */
-  .error {
-    background: rgba(127, 29, 29, 0.5);
-    color: #fecaca;
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-size: 0.875rem;
-  }
-  
-  /* Generate button */
-  .generateBtn {
-    width: 100%;
-    padding: 14px;
-    background: var(--color-primary);
-    border: none;
-    border-radius: 12px;
-    color: white;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  
-  .generateBtn:hover:not(:disabled) {
-    opacity: 0.9;
-    transform: translateY(-1px);
-  }
-  
-  .generateBtn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-  
-  /* Preview frame */
-  .previewFrame {
-    width: 100%;
-    max-height: 70vh;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-  }
-  
-  .resultImg {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
-  
-  .emptyState {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    color: rgba(255, 255, 255, 0.2);
-    font-size: 0.9rem;
-  }
-  
-  .emptyIcon {
-    font-size: 2rem;
-    opacity: 0.4;
-  }
-  
-  /* Loading */
-  .loadingOverlay {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-  }
-  
-  .loadingDots {
-    display: flex;
-    gap: 6px;
-  }
-  
-  .loadingDots span {
-    width: 10px;
-    height: 10px;
-    background: var(--color-primary);
-    border-radius: 50%;
-    animation: pulse 1.4s infinite ease-in-out both;
-  }
-  
-  .loadingDots span:nth-child(1) { animation-delay: -0.32s; }
-  .loadingDots span:nth-child(2) { animation-delay: -0.16s; }
-  
-  @keyframes pulse {
-    0%, 80%, 100% { transform: scale(0.4); opacity: 0.4; }
-    40% { transform: scale(1); opacity: 1; }
-  }
-  
-  .loadingText {
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 0.85rem;
-  }
-  
-  /* Download bar */
-  .downloadBar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 1rem;
-    padding: 12px 16px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-  }
-  
-  .actionBtns {
-    display: flex;
-    gap: 6px;
-  }
-  
-  .downloadLabel {
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.6);
-  }
-  
-  .downloadBtns {
-    display: flex;
-    gap: 8px;
-  }
-  
-  .dlBtn {
-    padding: 8px 16px;
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    border-radius: 6px;
-    color: white;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  
-  .dlBtn:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
-  
-  .saveBtn {
-    padding: 8px 16px;
-    background: var(--color-primary);
-    border: none;
-    border-radius: 6px;
-    color: white;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.2s;
-  }
-  
-  .saveBtn:hover:not(:disabled) {
-    opacity: 0.85;
-  }
-  
-  .saveBtn:disabled {
-    cursor: default;
-  }
-  
-  .saveBtnDone {
-    background: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.5);
-  }
-  
-  .trashBtn {
-    padding: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    border-radius: 6px;
-    color: rgba(255, 255, 255, 0.4);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-  }
-  
-  .trashBtn:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.7);
-  }
-  
-  .trashBtn:disabled {
-    opacity: 0.3;
-    cursor: default;
-  }
-  
-  .trashBtnDone {
-    opacity: 0.3;
-  }
-  
-  /* Full page loading state */
-  .loadingPage {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 50vh;
-    color: rgba(255, 255, 255, 0.4);
-    font-size: 1rem;
-  }
-  
-  /* Saved modal */
-  .modalOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    animation: fadeIn 0.2s ease;
-  }
-  
-  .modal {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    background: #1a1a1a;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 2rem 2.5rem;
-    animation: scaleIn 0.25s ease;
-  }
-  
-  .modalText {
-    color: white;
-    font-size: 1rem;
-    font-weight: 500;
-    margin: 0;
-    text-align: center;
-  }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  
-  @keyframes scaleIn {
-    from { transform: scale(0.9); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: #050505;
+  color: white;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 0 1rem 2rem;
+  border-left: 1px solid #111;
+  border-right: 1px solid #111;
+}
+
+/* Header - matches chat page style */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  background-color: #050505;
+  z-index: 10;
+}
+
+.headerCenter {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 6px;
+  margin-left: -26px;
+}
+
+.headerTitle {
+  font-size: 1.25rem;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+}
+
+.iconButton {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  cursor: pointer;
+  color: white;
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  text-decoration: none;
+}
+
+.iconButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.iconButton svg {
+  color: var(--color-primary);
+}
+
+/* Reference image preview */
+.refPreview {
+  position: relative;
+  width: 160px;
+  height: 230px;
+  margin-bottom: 1rem;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid var(--color-primary);
+}
+
+.refImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.refBadge {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  color: var(--color-primary);
+  font-size: 0.55rem;
+  text-align: center;
+  padding: 2px 4px;
+  font-weight: 500;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.textarea {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: white;
+  font-size: 0.95rem;
+  resize: vertical;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.textarea:focus {
+  border-color: var(--color-primary);
+}
+
+.textarea::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.charCount {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.3);
+  text-align: right;
+}
+
+/* Ratio info */
+.ratioInfo {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* Error */
+.error {
+  background: rgba(127, 29, 29, 0.5);
+  color: #fecaca;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+/* Generate button */
+.generateBtn {
+  width: 100%;
+  padding: 14px;
+  background: var(--color-primary);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.generateBtn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.generateBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Preview frame */
+.previewFrame {
+  width: 100%;
+  max-height: 70vh;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.resultImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 0.9rem;
+}
+
+.emptyIcon {
+  font-size: 2rem;
+  opacity: 0.4;
+}
+
+/* Loading */
+.loadingOverlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.loadingDots {
+  display: flex;
+  gap: 6px;
+}
+
+.loadingDots span {
+  width: 10px;
+  height: 10px;
+  background: var(--color-primary);
+  border-radius: 50%;
+  animation: pulse 1.4s infinite ease-in-out both;
+}
+
+.loadingDots span:nth-child(1) { animation-delay: -0.32s; }
+.loadingDots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes pulse {
+  0%, 80%, 100% { transform: scale(0.4); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+.loadingText {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.85rem;
+}
+
+/* Download bar */
+.downloadBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.actionBtns {
+  display: flex;
+  gap: 6px;
+}
+
+.downloadLabel {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.downloadBtns {
+  display: flex;
+  gap: 8px;
+}
+
+.dlBtn {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.dlBtn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.saveBtn {
+  padding: 8px 16px;
+  background: var(--color-primary);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.saveBtn:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.saveBtn:disabled {
+  cursor: default;
+}
+
+.saveBtnDone {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.trashBtn {
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.trashBtn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.trashBtn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.trashBtnDone {
+  opacity: 0.3;
+}
+
+/* Full page loading state */
+.loadingPage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 1rem;
+}
+
+/* Saved modal */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 2rem 2.5rem;
+  animation: scaleIn 0.25s ease;
+}
+
+.modalText {
+  color: white;
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0;
+  text-align: center;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Monthly usage counter */
+.usageBar {
+  margin-bottom: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #111;
+  border-radius: 10px;
+  border: 1px solid #1a1a1a;
+}
+
+.usageInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.usageLabel {
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.usageCount {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #ccc;
+}
+
+.usageTrack {
+  width: 100%;
+  height: 4px;
+  background: #222;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.usageFill {
+  height: 100%;
+  background: var(--color-primary, #348cd4);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+.usageFillFull {
+  background: #e63946;
+}
+
+.usageLimitMsg {
+  margin: 0.5rem 0 0;
+  font-size: 0.7rem;
+  color: #e63946;
+  text-align: center;
+}

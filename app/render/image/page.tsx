@@ -25,6 +25,12 @@ interface GeneratedImage {
   imageId: string | null;
 }
 
+interface UsageData {
+  used: number;
+  limit: number;
+  remaining: number;
+}
+
 function RenderImageContent() {
   const searchParams = useSearchParams();
   const slug = searchParams.get("gf") || "";
@@ -39,6 +45,7 @@ function RenderImageContent() {
   const [showSavedModal, setShowSavedModal] = useState(false);
   const [isSaved, setIsSaved]       = useState(false);
   const [isTrashed, setIsTrashed]   = useState(false);
+  const [usage, setUsage]           = useState<UsageData | null>(null);
 
   // Fetch girlfriend data by slug
   useEffect(() => {
@@ -61,6 +68,25 @@ function RenderImageContent() {
       .finally(() => setGfLoading(false));
   }, [slug]);
 
+  // Fetch monthly usage
+  useEffect(() => {
+    if (!userId) return;
+
+    fetch(`/api/rendered-images/usage?userId=${userId}`)
+      .then((res) => res.json())
+      .then((data: UsageData) => setUsage(data))
+      .catch((err) => console.error("Error fetching usage:", err));
+  }, [userId]);
+
+  // Refresh usage after generation
+  const refreshUsage = () => {
+    if (!userId) return;
+    fetch(`/api/rendered-images/usage?userId=${userId}`)
+      .then((res) => res.json())
+      .then((data: UsageData) => setUsage(data))
+      .catch((err) => console.error("Error refreshing usage:", err));
+  };
+
   const handleGenerate = async () => {
     if (!prompt.trim()) {
       setError("Ingresa un prompt antes de generar.");
@@ -68,6 +94,10 @@ function RenderImageContent() {
     }
     if (!girlfriend?.image_url) {
       setError("No reference image available.");
+      return;
+    }
+    if (usage && usage.remaining <= 0) {
+      setError("Has alcanzado el límite mensual de imágenes generadas.");
       return;
     }
 
@@ -109,6 +139,9 @@ function RenderImageContent() {
         seed: data.seed ?? null,
         imageId: data.imageId ?? null,
       });
+
+      // Refresh the usage counter after successful generation
+      refreshUsage();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Error desconocido");
     } finally {
@@ -180,6 +213,9 @@ function RenderImageContent() {
     );
   }
 
+  const usagePercent = usage ? Math.round((usage.used / usage.limit) * 100) : 0;
+  const isLimitReached = usage ? usage.remaining <= 0 : false;
+
   return (
     <div className={styles.page}>
       {/* Header */}
@@ -207,6 +243,29 @@ function RenderImageContent() {
           </svg>
         </Link>
       </header>
+
+      {/* Monthly usage counter */}
+      {usage && (
+        <div className={styles.usageBar}>
+          <div className={styles.usageInfo}>
+            <span className={styles.usageLabel}>Imágenes este mes</span>
+            <span className={styles.usageCount}>
+              {usage.used} / {usage.limit}
+            </span>
+          </div>
+          <div className={styles.usageTrack}>
+            <div
+              className={`${styles.usageFill} ${isLimitReached ? styles.usageFillFull : ''}`}
+              style={{ width: `${Math.min(usagePercent, 100)}%` }}
+            />
+          </div>
+          {isLimitReached && (
+            <p className={styles.usageLimitMsg}>
+              Has alcanzado tu límite mensual de generación de imágenes.
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Reference preview */}
       {girlfriend?.image_url && (
@@ -238,9 +297,9 @@ function RenderImageContent() {
         <button
           className={styles.generateBtn}
           onClick={handleGenerate}
-          disabled={loading || !girlfriend?.image_url}
+          disabled={loading || !girlfriend?.image_url || isLimitReached}
         >
-          {loading ? "Generating…" : "Generate Image"}
+          {loading ? "Generating…" : isLimitReached ? "Límite alcanzado" : "Generate Image"}
         </button>
       </div>
 
