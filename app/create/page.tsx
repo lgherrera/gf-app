@@ -34,8 +34,8 @@ const ETHNICITY_OPTIONS = [
 ];
 
 const AGE_OPTIONS = [
-  { value: '18-19', label: '18–19' },
-  { value: '20s',   label: '20s' },
+  { value: '21', label: '21' },
+  { value: '20s',   label: '22-29' },
   { value: '30s',   label: '30s' },
   { value: '40s',   label: '40s' },
   { value: '50+',   label: '50+' },
@@ -95,7 +95,7 @@ const OUTFIT_OPTIONS_ALL = [
   { value: 'sheer, see-through, tight, silk babydoll lingerie',                              label: 'Babydoll',   mode: 'nsfw' },
   { value: 'revealing, glossy black latex catsuit',                       label: 'Latex Catsuit',      mode: 'nsfw' },
   { value: 'micro bikini barely covering her nipples, tiny strings.',                       label: 'Micro Bikini',     mode: 'nsfw' },
-  { value: 'wearing only a thong, topless, visible nipples', label: 'Topless', mode: 'nsfw' },
+  { value: 'topless, visible nipples', label: 'Topless', mode: 'nsfw' },
 ];
 
 const contentMode = process.env.NEXT_PUBLIC_APP_SOURCE === 'nsfw' ? 'nsfw' : 'sfw';
