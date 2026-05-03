@@ -1,6 +1,7 @@
 // app/page.tsx
 import { supabase } from '@/lib/supabase';
 import { withContentFilter } from '@/lib/girlfriends';
+import { generateDescription } from '@/lib/gf-description';
 import GFHeader from '@/app/components/GFHeader';
 import GFCard from '@/app/components/GFCard';
 import GFFooter from '@/app/components/GFFooter';
@@ -12,7 +13,12 @@ interface Girlfriend {
   slug: string;
   name: string;
   age: number;
-  description: string;
+  occupation: string;
+  nationality: string | null;
+  personality_traits: string[] | null;
+  hobbies: string[] | null;
+  likes: string[] | null;
+  fears: string[] | null;
   image_url: string;
 }
 
@@ -20,7 +26,7 @@ export default async function GirlfriendPage() {
   const { data: girlfriends, error } = await withContentFilter(
     supabase
       .from('girlfriends')
-      .select('id, slug, name, age, description, image_url')
+      .select('id, slug, name, age, occupation, nationality, personality_traits, hobbies, likes, fears, image_url')
       .in('girlfriend_type', ['standard', 'premium'])
   ).order('created_at', { ascending: false }) as { data: Girlfriend[] | null; error: any };
 
@@ -41,7 +47,7 @@ export default async function GirlfriendPage() {
               slug={gf.slug}
               name={gf.name}
               age={gf.age}
-              description={gf.description}
+              description={generateDescription(gf)}
               image_url={gf.image_url}
             />
           ))}
