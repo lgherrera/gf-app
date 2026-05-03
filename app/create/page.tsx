@@ -95,7 +95,7 @@ const OUTFIT_OPTIONS_ALL = [
   { value: 'sheer, see-through, tight, silk babydoll lingerie',                              label: 'Babydoll',   mode: 'nsfw' },
   { value: 'revealing, glossy black latex catsuit',                       label: 'Latex Catsuit',      mode: 'nsfw' },
   { value: 'micro bikini barely covering her nipples, tiny strings.',                       label: 'Micro Bikini',     mode: 'nsfw' },
-  { value: 'wearing only a thong, topless, at the beach', label: 'Topless', mode: 'nsfw' },
+  { value: 'wearing only a thong, topless, visible nipples', label: 'Topless', mode: 'nsfw' },
 ];
 
 const contentMode = process.env.NEXT_PUBLIC_APP_SOURCE === 'nsfw' ? 'nsfw' : 'sfw';
