@@ -156,3 +156,86 @@
 .deleteButton:hover svg {
   fill: #ff4444;
 }
+
+/* Delete Confirmation Modal */
+.modalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 50;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 24px;
+  z-index: 51;
+  width: 90%;
+  max-width: 320px;
+  text-align: center;
+}
+
+.modalText {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #fff;
+  margin: 0 0 8px 0;
+}
+
+.modalSubtext {
+  font-size: 0.85rem;
+  color: #888;
+  margin: 0 0 24px 0;
+}
+
+.modalButtons {
+  display: flex;
+  gap: 12px;
+}
+
+.modalCancel {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: none;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.modalCancel:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.modalConfirm {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #dc2626;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.modalConfirm:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.modalCancel:disabled,
+.modalConfirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

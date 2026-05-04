@@ -22,6 +22,8 @@ interface ChatEntry {
 export default function MyChatsPage() {
   const [chats, setChats] = useState<ChatEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState<ChatEntry | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const userId = useUser();
   const router = useRouter();
 
@@ -99,6 +101,30 @@ export default function MyChatsPage() {
     router.push(`/${slug}/chat`);
   };
 
+  const handleDelete = async () => {
+    if (!deleteTarget || !userId || isDeleting) return;
+
+    setIsDeleting(true);
+    try {
+      const res = await fetch('/api/chat-history', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, girlfriendId: deleteTarget.girlfriend_id }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setChats(prev => prev.filter(c => c.girlfriend_id !== deleteTarget.girlfriend_id));
+      }
+    } catch (err) {
+      console.error('Error deleting chat:', err);
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
+    }
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-CL', {
       day: 'numeric',
@@ -160,7 +186,7 @@ export default function MyChatsPage() {
                     className={styles.deleteButton}
                     onClick={(e) => {
                       e.stopPropagation();
-                      // TODO: implement delete
+                      setDeleteTarget(chat);
                     }}
                     type="button"
                   >
@@ -176,6 +202,37 @@ export default function MyChatsPage() {
       </main>
 
       <GFFooter />
+
+      {/* Delete Confirmation Modal */}
+      {deleteTarget && (
+        <>
+          <div className={styles.modalBackdrop} onClick={() => setDeleteTarget(null)} />
+          <div className={styles.modal}>
+            <p className={styles.modalText}>
+              ¿Eliminar todos los mensajes con {deleteTarget.girlfriend_name}?
+            </p>
+            <p className={styles.modalSubtext}>
+              Tu nivel de relación se mantendrá.
+            </p>
+            <div className={styles.modalButtons}>
+              <button
+                className={styles.modalCancel}
+                onClick={() => setDeleteTarget(null)}
+                disabled={isDeleting}
+              >
+                Cancelar
+              </button>
+              <button
+                className={styles.modalConfirm}
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? 'Eliminando...' : 'Eliminar'}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
