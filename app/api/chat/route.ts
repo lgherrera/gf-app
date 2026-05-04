@@ -169,7 +169,10 @@ export async function POST(req: Request) {
     const assistantMessage = data.choices?.[0]?.message?.content || 'Sorry, I could not generate a response.';
 
     // Save user message + assistant reply to chat_messages
+    // Explicit timestamps ensure correct ordering when loaded later
     const userMessage = messages[messages.length - 1];
+    const now = new Date();
+    const assistantTime = new Date(now.getTime() + 1);
 
     const { error: msgError } = await supabase
       .from('chat_messages')
@@ -181,6 +184,7 @@ export async function POST(req: Request) {
           content: userMessage.content,
           source: CONTENT_MODE,
           session_id: sessionId || null,
+          created_at: now.toISOString(),
         },
         {
           user_id: userId,
@@ -189,6 +193,7 @@ export async function POST(req: Request) {
           content: assistantMessage,
           source: CONTENT_MODE,
           session_id: sessionId || null,
+          created_at: assistantTime.toISOString(),
         }
       ]);
 
