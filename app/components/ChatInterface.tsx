@@ -489,20 +489,12 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     <div className={styles.container}>
       {/* Header */}
       <header className={styles.header}>
-        <Link href="/" className={styles.iconButton}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
-          </svg>
-        </Link>
-
-        <div className={styles.headerCenter}>
-          {girlfriend.avatar && (
-            <img src={girlfriend.avatar} alt={girlfriend.name} className={styles.avatar} />
-          )}
-          <h1 className={styles.headerTitle}>{girlfriend.name}</h1>
-        </div>
-
-        <div className={styles.headerRight}>
+        <div className={styles.headerLeft}>
+          <Link href="/" className={styles.iconButton}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+          </Link>
           <button className={styles.iconButton} onClick={() => setIsFavorite(!isFavorite)}>
             {isFavorite ? (
               <svg width="22" height="22" viewBox="0 0 24 24" fill={contentRating === 'nsfw' ? '#e60049' : '#348cd4'}>
@@ -514,7 +506,16 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
               </svg>
             )}
           </button>
+        </div>
 
+        <div className={styles.headerCenter}>
+          {girlfriend.avatar && (
+            <img src={girlfriend.avatar} alt={girlfriend.name} className={styles.avatar} />
+          )}
+          <h1 className={styles.headerTitle}>{girlfriend.name}</h1>
+        </div>
+
+        <div className={styles.headerRight}>
           <div className={styles.menuWrapper}>
             <button 
               className={styles.iconButton}
