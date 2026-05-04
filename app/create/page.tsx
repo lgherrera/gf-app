@@ -5,7 +5,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from '@/lib/hooks/useSession';
 import WizHeader from '../components/WizHeader';
-import GFFooter from '../components/GFFooter';
 import StepSelector from './components/StepSelector';
 import ReviewStep from './components/ReviewStep';
 import VoiceStep from './components/VoiceStep';
@@ -79,8 +78,6 @@ const HAIR_STYLE_OPTIONS = [
   { value: 'wavy',     label: 'Ondulado', image: 'https://cdn.polola.ai/wizard/pelo-ondulado.jpg' },
 ];
 
-// app/create/page.tsx (OUTFIT_OPTIONS_ALL only)
-
 const OUTFIT_OPTIONS_ALL = [
   { value: 'strapless-dress',     label: 'Vestido Strapless', mode: 'sfw' },
   { value: 'bikini',              label: 'Bikini',            mode: 'sfw' },
@@ -135,7 +132,7 @@ export default function CreatePage() {
       case 0:  return config.gender !== null;
       case 1:  return config.ethnicity !== null;
       case 2:  return config.ageRange !== null;
-      case 3:  return config.personality !== null; // description is optional
+      case 3:  return config.personality !== null;
       case 4:  return config.physicalTrait !== null && config.breastSize !== null;
       case 5:  return config.hairColor !== null;
       case 6:  return config.hairStyle !== null;
@@ -258,32 +255,32 @@ export default function CreatePage() {
             onSelect={(v) => handleSingleSelect('ageRange', v)}
           />
         );
-        case 3:
-          return (
-            <div className={styles.stepContainer}>
-              <div className={styles.descriptionField}>
-                <label className={styles.descriptionLabel}>
-                  Descripción <span className={styles.optional}>(opcional pero recomendado)</span>
-                </label>
-                <textarea
-                  className={styles.descriptionTextarea}
-                  placeholder="Ej: Le encanta viajar, habla varios idiomas y besa increííble..."
-                  value={config.description}
-                  onChange={(e) => setConfig((prev) => ({ ...prev, description: e.target.value }))}
-                  maxLength={300}
-                  rows={4}
-                />
-                <span className={styles.charCount}>{config.description.length}/300</span>
-              </div>
-              <StepSelector
-                title="Personalidad"
-                subtitle="¿Qué onda te gusta?"
-                options={PERSONALITY_OPTIONS}
-                selected={config.personality}
-                onSelect={(v) => handleSingleSelect('personality', v)}
+      case 3:
+        return (
+          <div className={styles.stepContainer}>
+            <div className={styles.descriptionField}>
+              <label className={styles.descriptionLabel}>
+                Descripción <span className={styles.optional}>(opcional pero recomendado)</span>
+              </label>
+              <textarea
+                className={styles.descriptionTextarea}
+                placeholder="Ej: Le encanta viajar, habla varios idiomas y besa increííble..."
+                value={config.description}
+                onChange={(e) => setConfig((prev) => ({ ...prev, description: e.target.value }))}
+                maxLength={300}
+                rows={4}
               />
+              <span className={styles.charCount}>{config.description.length}/300</span>
             </div>
-          );
+            <StepSelector
+              title="Personalidad"
+              subtitle="¿Qué onda te gusta?"
+              options={PERSONALITY_OPTIONS}
+              selected={config.personality}
+              onSelect={(v) => handleSingleSelect('personality', v)}
+            />
+          </div>
+        );
       case 4:
         return (
           <div className={styles.stepContainer}>
@@ -407,8 +404,6 @@ export default function CreatePage() {
           </button>
         </div>
       )}
-
-      <GFFooter />
     </div>
   );
 }
