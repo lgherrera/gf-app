@@ -67,6 +67,8 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isImageMenuOpen, setIsImageMenuOpen] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   // Session DB id (chat_sessions.id uuid)
   const [dbSessionId, setDbSessionId] = useState<string | null>(null);
@@ -247,6 +249,49 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
 
     // Mark that we're back to a fresh scene (no history)
     setHasHistory(false);
+  };
+
+  const handleDeleteChat = async () => {
+    if (!userId || isDeleting) return;
+
+    setIsDeleting(true);
+    try {
+      const res = await fetch('/api/chat-history', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, girlfriendId: girlfriend.id }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        // Stop any playing audio
+        messageAudioRefs.current.forEach(audio => audio.pause());
+        messageAudioRefs.current.clear();
+        setPlayingMessageId(null);
+
+        // Reset to opening scene
+        setHasHistory(false);
+        setIsFirstMessageInScene(true);
+
+        if (currentScene) {
+          setMessages([{
+            id: 'scene_' + generateMessageId(),
+            role: 'assistant',
+            content: personalizeLine(currentScene.opening_line),
+            timestamp: new Date()
+          }]);
+        } else {
+          setMessages([]);
+        }
+      }
+    } catch (err) {
+      console.error('Error deleting chat:', err);
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
+      setIsMenuOpen(false);
+    }
   };
 
   const handlePlayMessageAudio = async (messageId: string, audioUrl?: string, messageContent?: string) => {
@@ -482,7 +527,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
                     </svg>
                     Reiniciar Chat
                   </button>
-                  <button className={styles.menuItem} onClick={() => setIsMenuOpen(false)}>
+                  <button className={styles.menuItem} onClick={() => { setShowDeleteConfirm(true); setIsMenuOpen(false); }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                       <path fillRule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z" clipRule="evenodd" />
                     </svg>
@@ -715,6 +760,37 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
           </svg>
         </button>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <>
+          <div className={styles.modalBackdrop} onClick={() => setShowDeleteConfirm(false)} />
+          <div className={styles.modal}>
+            <p className={styles.modalText}>
+              ¿Eliminar todos los mensajes con {girlfriend.name}?
+            </p>
+            <p className={styles.modalSubtext}>
+              Tu nivel de relación se mantendrá.
+            </p>
+            <div className={styles.modalButtons}>
+              <button
+                className={styles.modalCancel}
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isDeleting}
+              >
+                Cancelar
+              </button>
+              <button
+                className={styles.modalConfirm}
+                onClick={handleDeleteChat}
+                disabled={isDeleting}
+              >
+                {isDeleting ? 'Eliminando...' : 'Eliminar'}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

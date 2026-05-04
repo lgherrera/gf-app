@@ -117,9 +117,6 @@
   text-align: left;
   cursor: pointer;
   transition: background 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 10px;
 }
 
 .menuItem:hover {
@@ -133,6 +130,20 @@
   flex-direction: column;
   gap: 1rem;
   overflow-y: auto;
+}
+
+/* History divider — shown when loaded messages come from DB */
+.historyDivider {
+  text-align: center;
+  padding: 8px 0;
+  font-size: 12px;
+  color: #888;
+}
+
+.historyDivider span {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px 12px;
+  border-radius: 12px;
 }
 
 /* Wrapper for message + play button */
@@ -171,7 +182,7 @@
 }
 
 .messageBubbleScenario {
-  background-color: color-mix(in srgb, var(--color-primary) 60%, transparent);
+  background-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
   color: #e0e0e0;
   padding: 16px 20px 20px 20px;
   border-radius: 12px;
@@ -467,5 +478,88 @@
 
 .sendButton:disabled {
   opacity: 0.8;
+  cursor: not-allowed;
+}
+
+/* Delete Confirmation Modal */
+.modalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 50;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 24px;
+  z-index: 51;
+  width: 90%;
+  max-width: 320px;
+  text-align: center;
+}
+
+.modalText {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #fff;
+  margin: 0 0 8px 0;
+}
+
+.modalSubtext {
+  font-size: 0.85rem;
+  color: #888;
+  margin: 0 0 24px 0;
+}
+
+.modalButtons {
+  display: flex;
+  gap: 12px;
+}
+
+.modalCancel {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: none;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.modalCancel:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.modalConfirm {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #dc2626;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.modalConfirm:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.modalCancel:disabled,
+.modalConfirm:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
 }
