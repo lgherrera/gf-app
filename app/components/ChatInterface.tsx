@@ -77,6 +77,10 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   const [isLoadingScenes, setIsLoadingScenes] = useState(true);
   const [hasInitialized, setHasInitialized] = useState(false);
 
+  // History loading state
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
+  const [hasHistory, setHasHistory] = useState(false);
+
   // Progress state
   const [currentStage, setCurrentStage] = useState(1);
   const [currentScore, setCurrentScore] = useState(0);
@@ -120,6 +124,39 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
       .catch(err => console.error('Failed to register session:', err));
   }, [sessionId, userId, girlfriend.id]);
 
+  // Load chat history on mount
+  useEffect(() => {
+    if (!userId) {
+      setIsLoadingHistory(false);
+      return;
+    }
+
+    const loadHistory = async () => {
+      try {
+        const res = await fetch(`/api/chat-history?userId=${userId}&girlfriendId=${girlfriend.id}&limit=30`);
+        const data = await res.json();
+
+        if (data.messages && data.messages.length > 0) {
+          const historyMessages: Message[] = data.messages.map((msg: { id: string; role: 'user' | 'assistant'; content: string; created_at: string }) => ({
+            id: msg.id,
+            role: msg.role,
+            content: msg.content,
+            timestamp: new Date(msg.created_at),
+          }));
+          setMessages(historyMessages);
+          setHasHistory(true);
+          setHasInitialized(true); // Skip opening scene if we have history
+        }
+      } catch (err) {
+        console.error('Error loading chat history:', err);
+      } finally {
+        setIsLoadingHistory(false);
+      }
+    };
+
+    loadHistory();
+  }, [userId, girlfriend.id]);
+
   // Fetch opening scenes on mount
   useEffect(() => {
     const fetchScenes = async () => {
@@ -162,9 +199,9 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     }];
   };
 
-  // Show opening message once scene is loaded
+  // Show opening message once scene is loaded — only if NO history was loaded
   useEffect(() => {
-    if (currentScene && !isLoadingScenes && !hasInitialized) {
+    if (currentScene && !isLoadingScenes && !isLoadingHistory && !hasInitialized) {
       const openingMessages = buildOpeningMessages();
       if (openingMessages.length > 0) {
         setMessages(openingMessages);
@@ -172,7 +209,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
         setIsFirstMessageInScene(true);
       }
     }
-  }, [currentScene, isLoadingScenes, hasInitialized]);
+  }, [currentScene, isLoadingScenes, isLoadingHistory, hasInitialized]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -207,6 +244,9 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
       content: personalizeLine(newScene.opening_line),
       timestamp: new Date()
     }]);
+
+    // Mark that we're back to a fresh scene (no history)
+    setHasHistory(false);
   };
 
   const handlePlayMessageAudio = async (messageId: string, audioUrl?: string, messageContent?: string) => {
@@ -306,7 +346,10 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     if (isFirstMessageInScene) setIsFirstMessageInScene(false);
 
     try {
-      const conversationHistory = [...messages, userMessage].map(msg => ({
+      // Build conversation history for the LLM
+      // Send only the last 20 messages as context to keep token costs manageable
+      const recentMessages = [...messages, userMessage].slice(-20);
+      const conversationHistory = recentMessages.map(msg => ({
         role: msg.role,
         content: msg.content,
       }));
@@ -496,6 +539,13 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
             onVideoEnd={() => {}}
             onVideoError={() => console.error('Video failed to load:', girlfriend.hello_url)}
           />
+        )}
+
+        {/* History divider — shown when loaded messages come from DB */}
+        {hasHistory && messages.length > 0 && (
+          <div className={styles.historyDivider}>
+            <span>Mensajes anteriores</span>
+          </div>
         )}
         
         {messages.map((message) => (

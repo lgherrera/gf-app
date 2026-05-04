@@ -267,7 +267,7 @@ export default function CreatePage() {
                 </label>
                 <textarea
                   className={styles.descriptionTextarea}
-                  placeholder="Ej: Le encanta viajar, habla varios idiomas y tiene un humor increíble..."
+                  placeholder="Ej: Le encanta viajar, habla varios idiomas y besa increííble..."
                   value={config.description}
                   onChange={(e) => setConfig((prev) => ({ ...prev, description: e.target.value }))}
                   maxLength={300}
