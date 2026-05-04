@@ -4,89 +4,96 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import { useUser } from '@/lib/hooks/useUser';
 import GFHeader from '@/app/components/GFHeader';
 import GFFooter from '@/app/components/GFFooter';
 import styles from './page.module.css';
 
 interface ChatEntry {
-  id: string;
   girlfriend_id: string;
   girlfriend_name: string;
   girlfriend_slug: string;
   girlfriend_avatar: string;
   girlfriend_occupation: string;
-  last_active_at: string;
+  last_message_at: string;
   message_count: number;
 }
 
 export default function MyChatsPage() {
   const [chats, setChats] = useState<ChatEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const userId = useUser();
   const router = useRouter();
 
   useEffect(() => {
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
+
     const fetchChats = async () => {
-      const userId = localStorage.getItem('session_id');
-
-      if (!userId) {
-        setLoading(false);
-        return;
-      }
-
-      // Get all chat sessions for this user, joined with girlfriend data
-      const { data: sessions, error } = await supabase
-        .from('chat_sessions')
-        .select(`
-          id,
-          girlfriend_id,
-          last_active_at,
-          girlfriends (
-            name,
-            slug,
-            avatar,
-            occupation
-          )
-        `)
+      // Get all distinct girlfriends this user has chatted with
+      const { data: messages, error } = await supabase
+        .from('chat_messages')
+        .select('girlfriend_id, created_at')
         .eq('user_id', userId)
-        .order('last_active_at', { ascending: false });
+        .order('created_at', { ascending: false });
 
-      if (error) {
+      if (error || !messages || messages.length === 0) {
         console.error('Error fetching chats:', error);
         setLoading(false);
         return;
       }
 
-      // Get message counts per session
-      const chatEntries: ChatEntry[] = [];
-
-      for (const session of sessions || []) {
-        const gf = session.girlfriends as any;
-        if (!gf) continue;
-
-        // Count messages for this session
-        const { count } = await supabase
-          .from('chat_messages')
-          .select('id', { count: 'exact', head: true })
-          .eq('session_id', session.id);
-
-        chatEntries.push({
-          id: session.id,
-          girlfriend_id: session.girlfriend_id,
-          girlfriend_name: gf.name,
-          girlfriend_slug: gf.slug,
-          girlfriend_avatar: gf.avatar,
-          girlfriend_occupation: gf.occupation || '',
-          last_active_at: session.last_active_at,
-          message_count: count || 0,
-        });
+      // Group by girlfriend_id: count messages and find latest timestamp
+      const grouped = new Map<string, { count: number; lastAt: string }>();
+      for (const msg of messages) {
+        const existing = grouped.get(msg.girlfriend_id);
+        if (existing) {
+          existing.count++;
+        } else {
+          grouped.set(msg.girlfriend_id, {
+            count: 1,
+            lastAt: msg.created_at, // already sorted desc, so first occurrence is latest
+          });
+        }
       }
 
-      setChats(chatEntries);
+      // Fetch girlfriend details for all IDs
+      const gfIds = Array.from(grouped.keys());
+      const { data: girlfriends, error: gfError } = await supabase
+        .from('girlfriends')
+        .select('id, name, slug, avatar, occupation')
+        .in('id', gfIds);
+
+      if (gfError || !girlfriends) {
+        console.error('Error fetching girlfriends:', gfError);
+        setLoading(false);
+        return;
+      }
+
+      // Build the chat entries, sorted by most recent message
+      const entries: ChatEntry[] = girlfriends
+        .map((gf) => {
+          const stats = grouped.get(gf.id);
+          return {
+            girlfriend_id: gf.id,
+            girlfriend_name: gf.name,
+            girlfriend_slug: gf.slug,
+            girlfriend_avatar: gf.avatar,
+            girlfriend_occupation: gf.occupation || '',
+            last_message_at: stats?.lastAt || '',
+            message_count: stats?.count || 0,
+          };
+        })
+        .sort((a, b) => new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime());
+
+      setChats(entries);
       setLoading(false);
     };
 
     fetchChats();
-  }, []);
+  }, [userId]);
 
   const handleClick = (slug: string) => {
     router.push(`/${slug}/chat`);
@@ -115,7 +122,7 @@ export default function MyChatsPage() {
           <div className={styles.list}>
             {chats.map((chat) => (
               <div
-                key={chat.id}
+                key={chat.girlfriend_id}
                 className={styles.row}
                 onClick={() => handleClick(chat.girlfriend_slug)}
               >
@@ -134,7 +141,7 @@ export default function MyChatsPage() {
                   <span className={styles.messageCount}>
                     {chat.message_count} {chat.message_count === 1 ? 'mensaje' : 'mensajes'}
                   </span>
-                  <span className={styles.date}>{formatDate(chat.last_active_at)}</span>
+                  <span className={styles.date}>{formatDate(chat.last_message_at)}</span>
                 </div>
                 <button
                   className={styles.chatButton}
