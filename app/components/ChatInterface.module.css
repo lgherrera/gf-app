@@ -103,7 +103,7 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   padding: 4px 0;
-  min-width: 180px;
+  min-width: 220px;
   z-index: 20;
 }
 
@@ -117,6 +117,11 @@
   text-align: left;
   cursor: pointer;
   transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  text-decoration: none;
 }
 
 .menuItem:hover {
