@@ -1,4 +1,5 @@
 // app/components/GFFooter.tsx
+import Link from 'next/link';
 import styles from './GFFooter.module.css';
 import { currentBrand } from '@/app/src/config/app-config';
 
@@ -15,9 +16,9 @@ export default function GFFooter() {
         </div>
         
         <div className={styles.textSection}>
-          <p className={styles.terms}>
+          <Link href="/terms" className={styles.terms}>
             Términos y condiciones
-          </p>
+          </Link>
           
           {currentBrand.footer.compliance && (
             <p className={styles.compliance}>
