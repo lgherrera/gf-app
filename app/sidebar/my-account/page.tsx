@@ -1,11 +1,36 @@
 // app/sidebar/my-account/page.tsx
 'use client';
 
+import { useEffect, useState } from 'react';
+import { useUser } from '@/lib/hooks/useUser';
 import GFHeader from '../../components/GFHeader';
 import GFFooter from '../../components/GFFooter';
 import styles from './my-account.module.css';
 
 export default function MyAccountPage() {
+  const userId = useUser();
+  const [msisdn, setMsisdn] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
+
+    fetch(`/api/user-profile?userId=${userId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.msisdn) {
+          setMsisdn(data.msisdn);
+        }
+      })
+      .catch((err) => console.error('Failed to fetch profile:', err))
+      .finally(() => setLoading(false));
+  }, [userId]);
+
+  const displayValue = loading ? '...' : msisdn || 'msisdn no identificado';
+
   return (
     <div className={styles.page}>
       <GFHeader />
@@ -18,7 +43,7 @@ export default function MyAccountPage() {
         </div>
 
         <h1 className={styles.title}>Mi Cuenta</h1>
-        <p className={styles.badge}>Próximamente</p>
+        <p className={styles.badge}>{displayValue}</p>
         <p className={styles.description}>
           Estamos trabajando en esta sección. Pronto podrás gestionar tu perfil, suscripción y preferencias desde aquí.
         </p>
