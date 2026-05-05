@@ -185,21 +185,21 @@ function RenderImageContent() {
     setIsTrashed(true);
   };
 
-  const downloadImage = async (format: "jpeg" | "png") => {
+  const downloadImage = async () => {
     if (!result) return;
     try {
-      const res  = await fetch(`/api/generate/download?url=${encodeURIComponent(result.url)}&format=${format}`);
+      const res  = await fetch(`/api/generate/download?url=${encodeURIComponent(result.url)}&format=jpeg`);
       const blob = await res.blob();
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement("a");
       a.href = url;
-      a.download = `${slug || "render"}-${Date.now()}.${format}`;
+      a.download = `${slug || "render"}-${Date.now()}.jpeg`;
       a.click();
       URL.revokeObjectURL(url);
     } catch {
       const a = document.createElement("a");
       a.href = result.url;
-      a.download = `${slug || "render"}-${Date.now()}.${format}`;
+      a.download = `${slug || "render"}-${Date.now()}.jpeg`;
       a.target = "_blank";
       a.click();
     }
@@ -348,11 +348,11 @@ function RenderImageContent() {
               </svg>
             </button>
           </div>
-          <span className={styles.downloadLabel}>Download HD</span>
-          <div className={styles.downloadBtns}>
-            <button className={styles.dlBtn} onClick={() => downloadImage("jpeg")}>JPEG</button>
-            <button className={styles.dlBtn} onClick={() => downloadImage("png")}>PNG</button>
-          </div>
+          <button className={styles.iconButton} onClick={downloadImage}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+          </button>
         </div>
       )}
 
