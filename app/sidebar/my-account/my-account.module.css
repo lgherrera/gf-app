@@ -1,68 +1,80 @@
 /* app/sidebar/my-account/my-account.module.css */
 
 .page {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    min-height: 100dvh;
-    background-color: #050505;
-    color: white;
-    max-width: 500px;
-    margin: 0 auto;
-    border-left: 1px solid #111;
-    border-right: 1px solid #111;
-  }
-  
-  .content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem 2rem 4rem;
-    text-align: center;
-    gap: 1.25rem;
-  }
-  
-  .iconWrap {
-    width: 88px;
-    height: 88px;
-    border-radius: 24px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(255, 255, 255, 0.25);
-    margin-bottom: 0.5rem;
-  }
-  
-  .title {
-    font-size: 1.6rem;
-    font-weight: 600;
-    color: #ffffff;
-    letter-spacing: -0.3px;
-    margin: 0;
-  }
-  
-  .badge {
-    display: inline-block;
-    background: rgba(230, 0, 73, 0.15);
-    border: 1px solid rgba(230, 0, 73, 0.35);
-    color: var(--color-primary, #e60049);
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    padding: 5px 14px;
-    border-radius: 20px;
-    margin: 0;
-  }
-  
-  .description {
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.35);
-    line-height: 1.6;
-    max-width: 280px;
-    margin: 0;
-  }
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: #050505;
+  color: white;
+  max-width: 500px;
+  margin: 0 auto;
+  border-left: 1px solid #111;
+  border-right: 1px solid #111;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 2rem 2rem 4rem;
+  text-align: center;
+  gap: 1.25rem;
+}
+
+.iconWrap {
+  width: 88px;
+  height: 88px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.25);
+  margin-bottom: 0.5rem;
+}
+
+.title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+  margin: 0;
+}
+
+.badge {
+  display: inline-block;
+  background: color-mix(in srgb, var(--color-primary, #348cd4) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-primary, #348cd4) 35%, transparent);
+  color: var(--color-primary, #348cd4);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  border-radius: 20px;
+  margin: 0;
+}
+
+.unsubscribeBox {
+  border: 2px solid var(--color-primary, #348cd4);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  max-width: 320px;
+  width: 100%;
+  margin-top: 2.5rem;
+}
+
+.unsubscribeText {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  text-align: center;
+  text-transform: uppercase;
+  line-height: 1.5;
+  margin: 0;
+}
