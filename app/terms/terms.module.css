@@ -1,0 +1,284 @@
+/* app/terms/terms.module.css */
+
+.container {
+    min-height: 100vh;
+    background-color: #0a0a0a;
+    color: #e0e0e0;
+    padding: 2rem 1rem 4rem;
+  }
+  
+  .content {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  
+  /* Header */
+  .header {
+    margin-bottom: 2.5rem;
+  }
+  
+  .backLink {
+    display: inline-block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    margin-bottom: 1.5rem;
+    transition: opacity 0.2s;
+  }
+  
+  .backLink:hover {
+    opacity: 0.8;
+  }
+  
+  .title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 0.75rem 0;
+    line-height: 1.3;
+  }
+  
+  .accent {
+    width: 60px;
+    height: 3px;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+  
+  .subtitle {
+    font-size: 1.1rem;
+    color: #b0b0b0;
+    margin: 0;
+  }
+  
+  /* Intro */
+  .intro {
+    margin-bottom: 2rem;
+    line-height: 1.7;
+  }
+  
+  .intro p {
+    margin: 0 0 1rem 0;
+    color: #c0c0c0;
+    font-size: 0.95rem;
+  }
+  
+  /* Key Points */
+  .keyPoints {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  
+  .keyPointsTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+  }
+  
+  .keyPointsList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .keyPointsList li {
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: #b8b8b8;
+    padding-left: 1.25rem;
+    position: relative;
+  }
+  
+  .keyPointsList li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #666;
+  }
+  
+  .keyPointsList li strong {
+    color: #e0e0e0;
+  }
+  
+  /* Sections */
+  .section {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  
+  .section:last-of-type {
+    border-bottom: none;
+  }
+  
+  .sectionTitle {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+  
+  .sectionNumber {
+    font-weight: 700;
+    font-size: 1.3rem;
+  }
+  
+  .subsectionTitle {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #d0d0d0;
+    margin: 1.5rem 0 0.75rem 0;
+  }
+  
+  .section p {
+    font-size: 0.93rem;
+    line-height: 1.7;
+    color: #b8b8b8;
+    margin: 0 0 1rem 0;
+  }
+  
+  .section p:last-child {
+    margin-bottom: 0;
+  }
+  
+  /* Plan Cards */
+  .planCard {
+    background: rgba(255, 255, 255, 0.03);
+    border-left: 3px solid;
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    margin: 0.75rem 0;
+    font-size: 0.93rem;
+    line-height: 1.65;
+    color: #b8b8b8;
+  }
+  
+  .planCard strong {
+    color: #e0e0e0;
+  }
+  
+  /* Token Features */
+  .tokenFeatures {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0.75rem 0 1rem 0;
+  }
+  
+  .tokenFeature {
+    font-size: 0.9rem;
+    color: #a8a8a8;
+    padding-left: 1.25rem;
+    position: relative;
+    line-height: 1.5;
+  }
+  
+  .tokenFeature::before {
+    content: "›";
+    position: absolute;
+    left: 0;
+    color: #666;
+    font-weight: 700;
+  }
+  
+  /* Restrictions */
+  .restrictionsList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0.75rem 0 1rem 0;
+  }
+  
+  .restrictionItem {
+    font-size: 0.9rem;
+    color: #a8a8a8;
+    padding-left: 1.25rem;
+    position: relative;
+    line-height: 1.55;
+  }
+  
+  .restrictionItem::before {
+    content: "✕";
+    position: absolute;
+    left: 0;
+    font-size: 0.7rem;
+    color: #666;
+    top: 3px;
+  }
+  
+  /* Zero Tolerance */
+  .zeroTolerance {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid;
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin-top: 1rem;
+  }
+  
+  .zeroTolerance strong {
+    color: #ffffff;
+  }
+  
+  /* Email Link */
+  .emailLink {
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.2s;
+  }
+  
+  .emailLink:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+  }
+  
+  /* Footer */
+  .footer {
+    margin-top: 3rem;
+    text-align: center;
+  }
+  
+  .footerAccent {
+    width: 40px;
+    height: 2px;
+    border-radius: 1px;
+    margin: 0 auto 1rem;
+    opacity: 0.6;
+  }
+  
+  .footer p {
+    font-size: 0.8rem;
+    color: #666;
+    margin: 0;
+  }
+  
+  /* Responsive */
+  @media (max-width: 640px) {
+    .container {
+      padding: 1.5rem 1rem 3rem;
+    }
+  
+    .title {
+      font-size: 1.4rem;
+    }
+  
+    .sectionTitle {
+      font-size: 1.1rem;
+    }
+  
+    .sectionNumber {
+      font-size: 1.15rem;
+    }
+  
+    .keyPoints {
+      padding: 1rem 1.25rem;
+    }
+  }
