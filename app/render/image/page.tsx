@@ -311,8 +311,15 @@ function RenderImageContent() {
             <p className={styles.loadingText}>Creating your image…</p>
           </div>
         )}
-        {result && !loading ? (
+        {result && !loading && !isTrashed ? (
           <img src={result.url} alt={result.prompt} className={styles.resultImg} />
+        ) : isTrashed ? (
+          <div className={styles.emptyState}>
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Z"/>
+            </svg>
+            <p>Imagen Borrada</p>
+          </div>
         ) : !loading ? (
           <div className={styles.emptyState}>
             <div className={styles.emptyIcon}>✦</div>
@@ -321,7 +328,7 @@ function RenderImageContent() {
         ) : null}
       </div>
 
-      {result && !loading && (
+      {result && !loading && !isTrashed && (
         <div className={styles.downloadBar}>
           <div className={styles.actionBtns}>
             <button
