@@ -93,6 +93,12 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   const [playingMessageId, setPlayingMessageId] = useState<string | null>(null);
   const [audioLoadingMessageId, setAudioLoadingMessageId] = useState<string | null>(null);
 
+  // Voice recording state
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const messageAudioRefs = useRef<Map<string, HTMLAudioElement>>(new Map());
@@ -294,6 +300,91 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
       setIsMenuOpen(false);
     }
   };
+
+  // ── Voice recording handlers ──
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+          ? 'audio/webm;codecs=opus'
+          : 'audio/webm',
+      });
+
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        // Stop all audio tracks to release the mic
+        stream.getTracks().forEach(track => track.stop());
+
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+
+        // Skip if too short (less than ~0.5s)
+        if (audioBlob.size < 5000) {
+          setIsRecording(false);
+          return;
+        }
+
+        await transcribeAudio(audioBlob);
+      };
+
+      mediaRecorder.start(250); // collect data every 250ms
+      setIsRecording(true);
+    } catch (err) {
+      console.error('Microphone access denied:', err);
+      setError('No se pudo acceder al micrófono');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+  };
+
+  const transcribeAudio = async (audioBlob: Blob) => {
+    setIsTranscribing(true);
+    try {
+      const buffer = await audioBlob.arrayBuffer();
+      const base64 = btoa(
+        new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+      );
+
+      const response = await fetch('/api/stt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ audio: base64, format: 'webm' }),
+      });
+
+      if (!response.ok) throw new Error('Transcription failed');
+
+      const data = await response.json();
+      if (data.text) {
+        setInputValue(prev => {
+          const separator = prev.trim() ? ' ' : '';
+          return prev + separator + data.text;
+        });
+        inputRef.current?.focus();
+      }
+    } catch (err) {
+      console.error('Transcription error:', err);
+      setError('Error al transcribir el audio');
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
+
+  // ── Audio playback handlers ──
 
   const handlePlayMessageAudio = async (messageId: string, audioUrl?: string, messageContent?: string) => {
     if (playingMessageId === messageId) {
@@ -720,17 +811,18 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
           <input
             ref={inputRef}
             type="text"
-            placeholder="Message"
+            placeholder={isRecording ? 'Escuchando...' : isTranscribing ? 'Transcribiendo...' : 'Message'}
             className={styles.inputField}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
-            disabled={isLoading}
+            disabled={isLoading || isRecording || isTranscribing}
           />
           <div className={styles.imageMenuWrapper}>
             <button
               className={styles.imageMenuButton}
               onClick={() => setIsImageMenuOpen(!isImageMenuOpen)}
+              disabled={isRecording}
             >
               <svg width="30" height="30" viewBox="0 0 24 24" fill={contentRating === 'nsfw' ? '#e60049' : '#348cd4'}>
                 <path fillRule="evenodd" d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6ZM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061Zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Z" clipRule="evenodd" />
@@ -752,15 +844,53 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
             )}
           </div>
         </div>
-        <button 
-          className={styles.sendButton}
-          onClick={handleSendMessage}
-          disabled={isLoading || !inputValue.trim()}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={contentRating === 'nsfw' ? '#e60049' : '#348cd4'} strokeWidth="2">
-            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
-          </svg>
-        </button>
+
+        {/* Conditional button: Mic / Stop / Transcribing / Send */}
+        {isRecording ? (
+          <button
+            className={`${styles.sendButton} ${styles.micRecording}`}
+            onClick={stopRecording}
+            aria-label="Detener grabación"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill={contentRating === 'nsfw' ? '#e60049' : '#348cd4'}>
+              <rect x="6" y="6" width="12" height="12" rx="2" />
+            </svg>
+          </button>
+        ) : isTranscribing ? (
+          <button
+            className={styles.sendButton}
+            disabled
+            aria-label="Transcribiendo"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" className={styles.spinnerIcon}>
+              <circle cx="12" cy="12" r="10" fill="none" stroke={contentRating === 'nsfw' ? '#e60049' : '#348cd4'} strokeWidth="3" opacity="0.3" />
+              <path d="M12 2a10 10 0 0 1 10 10" fill="none" stroke={contentRating === 'nsfw' ? '#e60049' : '#348cd4'} strokeWidth="3" strokeLinecap="round" />
+            </svg>
+          </button>
+        ) : inputValue.trim() ? (
+          <button 
+            className={styles.sendButton}
+            onClick={handleSendMessage}
+            disabled={isLoading}
+            aria-label="Enviar mensaje"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={contentRating === 'nsfw' ? '#e60049' : '#348cd4'} strokeWidth="2">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+            </svg>
+          </button>
+        ) : (
+          <button
+            className={styles.sendButton}
+            onClick={startRecording}
+            disabled={isLoading}
+            aria-label="Grabar mensaje de voz"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill={contentRating === 'nsfw' ? '#e60049' : '#348cd4'}>
+              <path d="M8.25 4.5a3.75 3.75 0 1 1 7.5 0v8.25a3.75 3.75 0 1 1-7.5 0V4.5Z" />
+              <path d="M6 10.5a.75.75 0 0 1 .75.75v1.5a5.25 5.25 0 1 0 10.5 0v-1.5a.75.75 0 0 1 1.5 0v1.5a6.751 6.751 0 0 1-6 6.709v2.291h3a.75.75 0 0 1 0 1.5h-7.5a.75.75 0 0 1 0-1.5h3v-2.291a6.751 6.751 0 0 1-6-6.709v-1.5A.75.75 0 0 1 6 10.5Z" />
+            </svg>
+          </button>
+        )}
       </div>
 
       {/* Delete Confirmation Modal */}
