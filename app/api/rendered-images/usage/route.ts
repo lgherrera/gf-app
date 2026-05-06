@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
-const MONTHLY_LIMIT = 50; // keep in sync with /api/generate/image/route.ts
+const MONTHLY_LIMIT = 20; // keep in sync with /api/generate/image/route.ts
 
 export async function GET(req: NextRequest) {
   const userId = req.nextUrl.searchParams.get("userId");

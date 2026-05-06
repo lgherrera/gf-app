@@ -8,7 +8,7 @@ import sharp from "sharp";
 export const runtime     = "nodejs";
 export const maxDuration = 120;
 
-const MONTHLY_LIMIT = 50;
+const MONTHLY_LIMIT = 20;
 
 const RATIO_TO_SIZE_V4: Record<string, { width: number; height: number } | string> = {
   "16:9": "landscape_16_9",
