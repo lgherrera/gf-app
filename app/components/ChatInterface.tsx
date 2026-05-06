@@ -98,6 +98,8 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   const [isTranscribing, setIsTranscribing] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const autoSendRef = useRef(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -230,6 +232,14 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     inputRef.current?.focus();
   }, []);
 
+  // Auto-send after voice transcription fills the input
+  useEffect(() => {
+    if (autoSendRef.current && inputValue.trim()) {
+      autoSendRef.current = false;
+      handleSendMessage();
+    }
+  }, [inputValue]);
+
   const handleRandomScene = () => {
     if (scenes.length <= 1) return;
     
@@ -339,6 +349,11 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
 
       mediaRecorder.start(250); // collect data every 250ms
       setIsRecording(true);
+
+      // Auto-stop after 30 seconds
+      recordingTimerRef.current = setTimeout(() => {
+        stopRecording();
+      }, 30000);
     } catch (err) {
       console.error('Microphone access denied:', err);
       setError('No se pudo acceder al micrófono');
@@ -346,6 +361,11 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   };
 
   const stopRecording = () => {
+    // Clear the 30s auto-stop timer
+    if (recordingTimerRef.current) {
+      clearTimeout(recordingTimerRef.current);
+      recordingTimerRef.current = null;
+    }
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
@@ -370,11 +390,12 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
 
       const data = await response.json();
       if (data.text) {
-        setInputValue(prev => {
-          const separator = prev.trim() ? ' ' : '';
-          return prev + separator + data.text;
-        });
-        inputRef.current?.focus();
+        const trimmedText = data.text.trim();
+        if (trimmedText) {
+          // Auto-send: set the input and trigger send via ref flag
+          setInputValue(trimmedText);
+          autoSendRef.current = true;
+        }
       }
     } catch (err) {
       console.error('Transcription error:', err);
