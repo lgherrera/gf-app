@@ -102,6 +102,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const autoSendRef = useRef(false);
+  const isVoiceMessageRef = useRef(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -427,6 +428,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
         const trimmedText = data.text.trim();
         if (trimmedText) {
           // Auto-send: set the input and trigger send via ref flag
+          isVoiceMessageRef.current = true;
           setInputValue(trimmedText);
           autoSendRef.current = true;
         }
@@ -512,6 +514,10 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     const trimmedInput = inputValue.trim();
     if (!trimmedInput || isLoading || !userId) return;
 
+    // Capture input type before resetting
+    const inputType = isVoiceMessageRef.current ? 'voice' : 'text';
+    isVoiceMessageRef.current = false;
+
     setError(null);
 
     const userMessage: Message = {
@@ -555,6 +561,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
           messages: conversationHistory,
           scenarioDescription: currentScene?.opening_line ? personalizeLine(currentScene.opening_line) : undefined,
           sessionId: dbSessionId,
+          inputType,
         }),
       });
 

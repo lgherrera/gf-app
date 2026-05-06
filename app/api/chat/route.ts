@@ -45,7 +45,7 @@ function extractUserName(message: string): string | null {
 
 export async function POST(req: Request) {
   try {
-    const { messages, girlfriendId, userId, sessionId } = await req.json();
+    const { messages, girlfriendId, userId, sessionId, inputType } = await req.json();
 
     if (!messages || !girlfriendId || !userId) {
       return NextResponse.json(
@@ -174,6 +174,9 @@ export async function POST(req: Request) {
     const now = new Date();
     const assistantTime = new Date(now.getTime() + 1);
 
+    // input_type: 'voice' for voice messages, 'text' for typed (default)
+    const userInputType = inputType === 'voice' ? 'voice' : 'text';
+
     const { error: msgError } = await supabase
       .from('chat_messages')
       .insert([
@@ -185,6 +188,7 @@ export async function POST(req: Request) {
           source: CONTENT_MODE,
           session_id: sessionId || null,
           created_at: now.toISOString(),
+          input_type: userInputType,
         },
         {
           user_id: userId,
@@ -194,6 +198,7 @@ export async function POST(req: Request) {
           source: CONTENT_MODE,
           session_id: sessionId || null,
           created_at: assistantTime.toISOString(),
+          input_type: 'text',
         }
       ]);
 
