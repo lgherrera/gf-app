@@ -96,9 +96,11 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   // Voice recording state
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const autoSendRef = useRef(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -370,6 +372,12 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
 
       mediaRecorder.start(250); // collect data every 250ms
       setIsRecording(true);
+      setRecordingSeconds(0);
+
+      // Tick the recording timer every second
+      recordingIntervalRef.current = setInterval(() => {
+        setRecordingSeconds(prev => prev + 1);
+      }, 1000);
 
       // Auto-stop after 30 seconds
       recordingTimerRef.current = setTimeout(() => {
@@ -386,6 +394,11 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     if (recordingTimerRef.current) {
       clearTimeout(recordingTimerRef.current);
       recordingTimerRef.current = null;
+    }
+    // Clear the seconds counter interval
+    if (recordingIntervalRef.current) {
+      clearInterval(recordingIntervalRef.current);
+      recordingIntervalRef.current = null;
     }
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
@@ -849,89 +862,110 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
 
       {/* Input Footer */}
       <div className={styles.inputContainer}>
-        <div className={styles.inputWrapper}>
-          <input
-            ref={inputRef}
-            type="text"
-            placeholder={isRecording ? 'Escuchando...' : isTranscribing ? 'Transcribiendo...' : 'Message'}
-            className={styles.inputField}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
-            disabled={isLoading || isRecording || isTranscribing}
-          />
-          <div className={styles.imageMenuWrapper}>
+        {isRecording ? (
+          // ── Recording bar: pulsing mic + timer + stop button ──
+          <>
+            <div className={styles.recordingBar}>
+              <div className={styles.recordingMic}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill={contentRating === 'nsfw' ? '#e60049' : '#348cd4'}>
+                  <path d="M8.25 4.5a3.75 3.75 0 1 1 7.5 0v8.25a3.75 3.75 0 1 1-7.5 0V4.5Z" />
+                  <path d="M6 10.5a.75.75 0 0 1 .75.75v1.5a5.25 5.25 0 1 0 10.5 0v-1.5a.75.75 0 0 1 1.5 0v1.5a6.751 6.751 0 0 1-6 6.709v2.291h3a.75.75 0 0 1 0 1.5h-7.5a.75.75 0 0 1 0-1.5h3v-2.291a6.751 6.751 0 0 1-6-6.709v-1.5A.75.75 0 0 1 6 10.5Z" />
+                </svg>
+              </div>
+              <span className={styles.recordingTimer}>
+                {`0:${recordingSeconds.toString().padStart(2, '0')}`}
+              </span>
+              <div className={styles.recordingWave}>
+                <span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
             <button
-              className={styles.imageMenuButton}
-              onClick={() => setIsImageMenuOpen(!isImageMenuOpen)}
-              disabled={isRecording}
+              className={styles.sendButton}
+              onClick={stopRecording}
+              aria-label="Detener grabación"
             >
-              <svg width="30" height="30" viewBox="0 0 24 24" fill={contentRating === 'nsfw' ? '#e60049' : '#348cd4'}>
-                <path fillRule="evenodd" d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6ZM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061Zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Z" clipRule="evenodd" />
+              <svg width="20" height="20" viewBox="0 0 24 24" fill={contentRating === 'nsfw' ? '#e60049' : '#348cd4'}>
+                <rect x="6" y="6" width="12" height="12" rx="2" />
               </svg>
             </button>
-            {isImageMenuOpen && (
-              <>
-                <div className={styles.imageMenuBackdrop} onClick={() => setIsImageMenuOpen(false)} />
-                <div className={styles.imageDropdownMenu}>
-                  <Link 
-                    href={`/render/image?gf=${girlfriend.slug}`}
-                    className={styles.menuItem}
-                    onClick={() => setIsImageMenuOpen(false)}
-                  >
-                    Generar Imagen
-                  </Link>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Conditional button: Mic / Stop / Transcribing / Send */}
-        {isRecording ? (
-          <button
-            className={`${styles.sendButton} ${styles.micRecording}`}
-            onClick={stopRecording}
-            aria-label="Detener grabación"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill={contentRating === 'nsfw' ? '#e60049' : '#348cd4'}>
-              <rect x="6" y="6" width="12" height="12" rx="2" />
-            </svg>
-          </button>
-        ) : isTranscribing ? (
-          <button
-            className={styles.sendButton}
-            disabled
-            aria-label="Transcribiendo"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" className={styles.spinnerIcon}>
-              <circle cx="12" cy="12" r="10" fill="none" stroke={contentRating === 'nsfw' ? '#e60049' : '#348cd4'} strokeWidth="3" opacity="0.3" />
-              <path d="M12 2a10 10 0 0 1 10 10" fill="none" stroke={contentRating === 'nsfw' ? '#e60049' : '#348cd4'} strokeWidth="3" strokeLinecap="round" />
-            </svg>
-          </button>
-        ) : inputValue.trim() ? (
-          <button 
-            className={styles.sendButton}
-            onClick={handleSendMessage}
-            disabled={isLoading}
-            aria-label="Enviar mensaje"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={contentRating === 'nsfw' ? '#e60049' : '#348cd4'} strokeWidth="2">
-              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
-            </svg>
-          </button>
+          </>
         ) : (
-          <button
-            className={styles.sendButton}
-            onClick={startRecording}
-            disabled={isLoading}
-            aria-label="Grabar mensaje de voz"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill={contentRating === 'nsfw' ? '#e60049' : '#348cd4'}>
-              <path d="M8.25 4.5a3.75 3.75 0 1 1 7.5 0v8.25a3.75 3.75 0 1 1-7.5 0V4.5Z" />
-              <path d="M6 10.5a.75.75 0 0 1 .75.75v1.5a5.25 5.25 0 1 0 10.5 0v-1.5a.75.75 0 0 1 1.5 0v1.5a6.751 6.751 0 0 1-6 6.709v2.291h3a.75.75 0 0 1 0 1.5h-7.5a.75.75 0 0 1 0-1.5h3v-2.291a6.751 6.751 0 0 1-6-6.709v-1.5A.75.75 0 0 1 6 10.5Z" />
-            </svg>
-          </button>
+          // ── Normal input: text field + image menu + send/mic button ──
+          <>
+            <div className={styles.inputWrapper}>
+              <input
+                ref={inputRef}
+                type="text"
+                placeholder={isTranscribing ? 'Transcribiendo...' : 'Message'}
+                className={styles.inputField}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={handleKeyPress}
+                disabled={isLoading || isTranscribing}
+              />
+              <div className={styles.imageMenuWrapper}>
+                <button
+                  className={styles.imageMenuButton}
+                  onClick={() => setIsImageMenuOpen(!isImageMenuOpen)}
+                >
+                  <svg width="30" height="30" viewBox="0 0 24 24" fill={contentRating === 'nsfw' ? '#e60049' : '#348cd4'}>
+                    <path fillRule="evenodd" d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6ZM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061Zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Z" clipRule="evenodd" />
+                  </svg>
+                </button>
+                {isImageMenuOpen && (
+                  <>
+                    <div className={styles.imageMenuBackdrop} onClick={() => setIsImageMenuOpen(false)} />
+                    <div className={styles.imageDropdownMenu}>
+                      <Link 
+                        href={`/render/image?gf=${girlfriend.slug}`}
+                        className={styles.menuItem}
+                        onClick={() => setIsImageMenuOpen(false)}
+                      >
+                        Generar Imagen
+                      </Link>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Conditional button: Transcribing / Send / Mic */}
+            {isTranscribing ? (
+              <button
+                className={styles.sendButton}
+                disabled
+                aria-label="Transcribiendo"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" className={styles.spinnerIcon}>
+                  <circle cx="12" cy="12" r="10" fill="none" stroke={contentRating === 'nsfw' ? '#e60049' : '#348cd4'} strokeWidth="3" opacity="0.3" />
+                  <path d="M12 2a10 10 0 0 1 10 10" fill="none" stroke={contentRating === 'nsfw' ? '#e60049' : '#348cd4'} strokeWidth="3" strokeLinecap="round" />
+                </svg>
+              </button>
+            ) : inputValue.trim() ? (
+              <button 
+                className={styles.sendButton}
+                onClick={handleSendMessage}
+                disabled={isLoading}
+                aria-label="Enviar mensaje"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={contentRating === 'nsfw' ? '#e60049' : '#348cd4'} strokeWidth="2">
+                  <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                </svg>
+              </button>
+            ) : (
+              <button
+                className={styles.sendButton}
+                onClick={startRecording}
+                disabled={isLoading}
+                aria-label="Grabar mensaje de voz"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill={contentRating === 'nsfw' ? '#e60049' : '#348cd4'}>
+                  <path d="M8.25 4.5a3.75 3.75 0 1 1 7.5 0v8.25a3.75 3.75 0 1 1-7.5 0V4.5Z" />
+                  <path d="M6 10.5a.75.75 0 0 1 .75.75v1.5a5.25 5.25 0 1 0 10.5 0v-1.5a.75.75 0 0 1 1.5 0v1.5a6.751 6.751 0 0 1-6 6.709v2.291h3a.75.75 0 0 1 0 1.5h-7.5a.75.75 0 0 1 0-1.5h3v-2.291a6.751 6.751 0 0 1-6-6.709v-1.5A.75.75 0 0 1 6 10.5Z" />
+                </svg>
+              </button>
+            )}
+          </>
         )}
       </div>
 

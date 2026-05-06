@@ -566,19 +566,90 @@
   cursor: not-allowed;
 }
 
-/* Mic recording pulse animation */
-.micRecording {
-  animation: micPulse 1s ease-in-out infinite;
+/* ── Recording bar (replaces input field while recording) ── */
+
+.recordingBar {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 12px 16px;
+  backdrop-filter: blur(10px);
+}
+
+.recordingMic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: micPulse 1.2s ease-in-out infinite;
 }
 
 @keyframes micPulse {
   0%, 100% {
-    background-color: rgba(255, 255, 255, 0.1);
+    opacity: 1;
     transform: scale(1);
   }
   50% {
-    background-color: rgba(255, 0, 0, 0.25);
-    transform: scale(1.08);
+    opacity: 0.4;
+    transform: scale(0.9);
+  }
+}
+
+.recordingTimer {
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  font-variant-numeric: tabular-nums;
+  min-width: 32px;
+}
+
+.recordingWave {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex: 1;
+  justify-content: center;
+}
+
+.recordingWave span {
+  width: 3px;
+  border-radius: 3px;
+  background-color: rgba(255, 255, 255, 0.4);
+  animation: waveBar 1s ease-in-out infinite;
+}
+
+.recordingWave span:nth-child(1) {
+  height: 8px;
+  animation-delay: 0s;
+}
+.recordingWave span:nth-child(2) {
+  height: 16px;
+  animation-delay: 0.15s;
+}
+.recordingWave span:nth-child(3) {
+  height: 22px;
+  animation-delay: 0.3s;
+}
+.recordingWave span:nth-child(4) {
+  height: 16px;
+  animation-delay: 0.45s;
+}
+.recordingWave span:nth-child(5) {
+  height: 8px;
+  animation-delay: 0.6s;
+}
+
+@keyframes waveBar {
+  0%, 100% {
+    transform: scaleY(0.5);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scaleY(1.5);
+    opacity: 1;
   }
 }
 
