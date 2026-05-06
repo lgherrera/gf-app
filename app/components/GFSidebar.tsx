@@ -7,7 +7,7 @@ import { generateDescription } from '@/lib/gf-description';
 import styles from './GFSidebar.module.css';
 
 const STAGE_LABELS: Record<number, string> = {
-  1: 'Primer Encuentro',
+  1: 'Encuentro',
   2: 'Saliendo',
   3: 'Andando',
   4: 'Pololos',
