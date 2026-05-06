@@ -949,7 +949,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
             ) : inputValue.trim() ? (
               <button 
                 className={styles.sendButton}
-                onClick={handleSendMessage}
+                onClick={() => handleSendMessage()}
                 disabled={isLoading}
                 aria-label="Enviar mensaje"
               >
