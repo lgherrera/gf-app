@@ -12,6 +12,9 @@ import { updateProgress } from '@/lib/progress';
 
 const contentRating = process.env.NEXT_PUBLIC_APP_SOURCE || 'sfw';
 
+// Module-level flag — survives React re-renders and stale closures
+let _pendingInputType: 'text' | 'voice' = 'text';
+
 interface Girlfriend {
   id: string;
   slug: string;
@@ -101,8 +104,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const autoSendRef = useRef(false);
-  const pendingInputTypeRef = useRef<'text' | 'voice'>('text');
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -234,14 +235,6 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
-
-  // Auto-send after voice transcription fills the input
-  useEffect(() => {
-    if (autoSendRef.current && inputValue.trim()) {
-      autoSendRef.current = false;
-      handleSendMessage();
-    }
-  }, [inputValue]);
 
   const handleRandomScene = () => {
     if (scenes.length <= 1) return;
@@ -427,10 +420,11 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
       if (data.text) {
         const trimmedText = data.text.trim();
         if (trimmedText) {
-          // Auto-send: set the input and trigger send via ref flag
-          pendingInputTypeRef.current = 'voice';
-          setInputValue(trimmedText);
-          autoSendRef.current = true;
+          // Flag this as a voice message (module-level, closure-safe)
+          _pendingInputType = 'voice';
+          console.log('🎤 Voice transcribed, _pendingInputType set to:', _pendingInputType);
+          // Send the voice message directly
+          handleSendMessage(trimmedText);
         }
       }
     } catch (err) {
@@ -510,13 +504,17 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     }
   };
 
-  const handleSendMessage = async () => {
-    const trimmedInput = inputValue.trim();
-    if (!trimmedInput || isLoading || !userId) return;
+  const handleSendMessage = async (overrideText?: string) => {
+    const trimmedInput = (overrideText ?? inputValue).trim();
+    if (!trimmedInput || isLoading || !userId) {
+      console.log('⛔ handleSendMessage early return — trimmedInput:', !!trimmedInput, '| isLoading:', isLoading, '| userId:', !!userId);
+      return;
+    }
 
-    // Capture input type before resetting
-    const inputType = pendingInputTypeRef.current;
-    pendingInputTypeRef.current = 'text';
+    // Read and reset the module-level input type flag
+    const inputType = _pendingInputType;
+    _pendingInputType = 'text';
+    console.log('📤 handleSendMessage called — inputType:', inputType, '| overrideText:', !!overrideText);
 
     setError(null);
 
