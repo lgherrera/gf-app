@@ -11,15 +11,34 @@ const appSource = process.env.NEXT_PUBLIC_APP_SOURCE || 'sfw';
 export default function FeedbackPage() {
   const [message, setMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async () => {
-    if (!message.trim()) return;
+    if (!message.trim() || sending) return;
 
-    // TODO: Send feedback to your backend/Supabase
-    console.log('Feedback submitted:', message);
+    setSending(true);
+    setError('');
 
-    setSubmitted(true);
-    setMessage('');
+    try {
+      const res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, appSource }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to send feedback');
+      }
+
+      setSubmitted(true);
+      setMessage('');
+    } catch (err) {
+      console.error('Feedback submit error:', err);
+      setError('No se pudo enviar. Intenta de nuevo.');
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -53,13 +72,15 @@ export default function FeedbackPage() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={6}
+              disabled={sending}
             />
+            {error && <p className={styles.error}>{error}</p>}
             <button
               className={styles.submitBtn}
               onClick={handleSubmit}
-              disabled={!message.trim()}
+              disabled={!message.trim() || sending}
             >
-              Enviar
+              {sending ? 'Enviando...' : 'Enviar'}
             </button>
           </div>
         )}
