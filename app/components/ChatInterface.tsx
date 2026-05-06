@@ -313,18 +313,39 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
 
   // ── Voice recording handlers ──
 
+  const getSupportedMimeType = () => {
+    if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) return 'audio/webm;codecs=opus';
+    if (MediaRecorder.isTypeSupported('audio/webm')) return 'audio/webm';
+    if (MediaRecorder.isTypeSupported('audio/mp4')) return 'audio/mp4';
+    if (MediaRecorder.isTypeSupported('audio/aac')) return 'audio/aac';
+    if (MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')) return 'audio/ogg;codecs=opus';
+    return '';
+  };
+
+  const mimeToFormat = (mime: string): string => {
+    if (mime.includes('webm')) return 'webm';
+    if (mime.includes('mp4')) return 'mp4';
+    if (mime.includes('aac')) return 'aac';
+    if (mime.includes('ogg')) return 'ogg';
+    return 'webm';
+  };
+
   const startRecording = async () => {
     try {
+      const mimeType = getSupportedMimeType();
+      if (!mimeType) {
+        setError('Tu navegador no soporta grabación de audio');
+        return;
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-          ? 'audio/webm;codecs=opus'
-          : 'audio/webm',
-      });
+      const mediaRecorder = new MediaRecorder(stream, { mimeType });
 
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
+
+      const audioFormat = mimeToFormat(mimeType);
 
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
@@ -336,7 +357,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
         // Stop all audio tracks to release the mic
         stream.getTracks().forEach(track => track.stop());
 
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
 
         // Skip if too short (less than ~0.5s)
         if (audioBlob.size < 5000) {
@@ -344,7 +365,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
           return;
         }
 
-        await transcribeAudio(audioBlob);
+        await transcribeAudio(audioBlob, audioFormat);
       };
 
       mediaRecorder.start(250); // collect data every 250ms
@@ -372,7 +393,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
     }
   };
 
-  const transcribeAudio = async (audioBlob: Blob) => {
+  const transcribeAudio = async (audioBlob: Blob, audioFormat: string) => {
     setIsTranscribing(true);
     try {
       const buffer = await audioBlob.arrayBuffer();
@@ -383,7 +404,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
       const response = await fetch('/api/stt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ audio: base64, format: 'webm' }),
+        body: JSON.stringify({ audio: base64, format: audioFormat }),
       });
 
       if (!response.ok) throw new Error('Transcription failed');
