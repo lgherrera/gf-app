@@ -176,6 +176,7 @@ export async function POST(req: Request) {
 
     // input_type: 'voice' for voice messages, 'text' for typed (default)
     const userInputType = inputType === 'voice' ? 'voice' : 'text';
+    console.log('📝 Input type received:', inputType, '→ storing as:', userInputType);
 
     const { error: msgError } = await supabase
       .from('chat_messages')
