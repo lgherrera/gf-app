@@ -15,7 +15,6 @@ export async function POST(req: NextRequest) {
     console.log(`STT request: format=${format}, base64 length=${audio.length}`);
 
     // ── Attempt 1: Dedicated STT endpoint with Whisper Large V3 Turbo ──
-    // OpenRouter STT accepts base64-encoded audio in JSON body
     try {
       const sttResponse = await fetch('https://openrouter.ai/api/v1/audio/transcriptions', {
         method: 'POST',
@@ -25,7 +24,10 @@ export async function POST(req: NextRequest) {
         },
         body: JSON.stringify({
           model: 'openai/whisper-large-v3-turbo',
-          file: `data:audio/${format};base64,${audio}`,
+          input_audio: {
+            data: audio,
+            format: format,
+          },
           language: 'es',
         }),
       });
