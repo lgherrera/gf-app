@@ -26,6 +26,7 @@ interface SidebarProps {
     hobbies: string[] | null;
     likes: string[] | null;
     fears: string[] | null;
+    boundaries?: string[] | null;
     image_url?: string;
     avatar?: string;
     gender?: string;

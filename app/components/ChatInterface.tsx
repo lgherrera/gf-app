@@ -35,6 +35,7 @@ interface Girlfriend {
   hobbies?: string[] | null;
   likes?: string[] | null;
   fears?: string[] | null;
+  boundaries?: string[] | null;
 }
 
 interface OpeningScene {
