@@ -19,6 +19,7 @@ interface Girlfriend {
   hobbies: string[] | null;
   likes: string[] | null;
   fears: string[] | null;
+  boundaries: string[] | null;
   image_url: string;
 }
 
@@ -26,7 +27,7 @@ export default async function GirlfriendPage() {
   const { data: girlfriends, error } = await withContentFilter(
     supabase
       .from('girlfriends')
-      .select('id, slug, name, age, occupation, nationality, personality_traits, hobbies, likes, fears, image_url')
+      .select('id, slug, name, age, occupation, nationality, personality_traits, hobbies, likes, fears, boundaries, image_url')
       .in('girlfriend_type', ['standard', 'premium'])
   ).order('created_at', { ascending: false }) as { data: Girlfriend[] | null; error: any };
 
