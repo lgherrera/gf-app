@@ -8,7 +8,7 @@ interface GirlfriendDescriptionData {
   personality_traits: string[] | null;
   hobbies: string[] | null;
   likes: string[] | null;
-  boundaries: string[] | null;
+  boundaries?: string[] | null;
 }
 
 export function generateDescription(girlfriend: GirlfriendDescriptionData): string {
