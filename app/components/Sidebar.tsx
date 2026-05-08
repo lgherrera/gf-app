@@ -54,7 +54,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       dividerAfter: false,
     },
     {
-      name: 'Crea Amiga IA',
+      name: 'Crea Polola IA',
       href: '/create',
       icon: plusIcon,
       dividerAfter: false,
