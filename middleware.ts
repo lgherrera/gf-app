@@ -35,12 +35,7 @@ export async function middleware(request: NextRequest) {
 
       return response;
     } else {
-      // Only log if this isn't our own redirect after processing a JWT callback
-      const referer = request.headers.get('referer') || '';
-      const isSelfRedirect = referer.includes(request.nextUrl.origin) && referer.includes('jwt=');
-      if (!isSelfRedirect) {
-        await logVisit(request);
-      }
+      await logVisit(request);
     }
   }
 
