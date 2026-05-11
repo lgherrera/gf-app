@@ -23,6 +23,13 @@ export async function middleware(request: NextRequest) {
       const cleanUrl = new URL('/', request.url);
       const response = NextResponse.redirect(cleanUrl);
 
+      // Mark this redirect so we don't double-log
+      response.cookies.set('_redirect', '1', {
+        httpOnly: true,
+        path: '/',
+        maxAge: 10,
+      });
+
       if (authUid) {
         response.cookies.set('carrier_auth_uid', authUid, {
           httpOnly: false,
@@ -35,8 +42,16 @@ export async function middleware(request: NextRequest) {
 
       return response;
     } else {
-      // Log non-JWT visit
-      await logVisit(request);
+      // Only log if this isn't our own redirect
+      const isRedirect = request.cookies.get('_redirect')?.value === '1';
+      if (!isRedirect) {
+        await logVisit(request);
+      } else {
+        // Clear the flag and continue
+        const response = NextResponse.next();
+        response.cookies.delete('_redirect');
+        return response;
+      }
     }
   }
 
