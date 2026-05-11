@@ -2,30 +2,79 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+function getSupabaseAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: { autoRefreshToken: false, persistSession: false },
+    }
+  );
+}
+
 export async function middleware(request: NextRequest) {
   const { searchParams, pathname } = request.nextUrl;
   const jwt = searchParams.get('jwt');
 
-  if (pathname === '/' && jwt) {
-    const authUid = await handleGroobyteCallback(request);
+  if (pathname === '/') {
+    if (jwt) {
+      const authUid = await handleGroobyteCallback(request);
 
-    const cleanUrl = new URL('/', request.url);
-    const response = NextResponse.redirect(cleanUrl);
+      const cleanUrl = new URL('/', request.url);
+      const response = NextResponse.redirect(cleanUrl);
 
-    if (authUid) {
-      response.cookies.set('carrier_auth_uid', authUid, {
-        httpOnly: false,
-        secure: true,
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 60 * 60 * 24 * 30,
-      });
+      if (authUid) {
+        response.cookies.set('carrier_auth_uid', authUid, {
+          httpOnly: false,
+          secure: true,
+          sameSite: 'lax',
+          path: '/',
+          maxAge: 60 * 60 * 24 * 30,
+        });
+      }
+
+      return response;
+    } else {
+      // Log non-JWT visit
+      await logVisit(request);
     }
-
-    return response;
   }
 
   return NextResponse.next();
+}
+
+/**
+ * Log a visit without JWT.
+ */
+async function logVisit(request: NextRequest) {
+  const { searchParams } = request.nextUrl;
+  const supabaseAdmin = getSupabaseAdmin();
+
+  const { error } = await supabaseAdmin.from('groobyte_callbacks').insert({
+    raw_url: request.nextUrl.toString(),
+    has_jwt: false,
+    track: searchParams.get('track'),
+    pubid: searchParams.get('pubid'),
+    clickid: searchParams.get('clickid'),
+    utm_source: searchParams.get('utm_source'),
+    utm_medium: searchParams.get('utm_medium'),
+    utm_campaign: searchParams.get('utm_campaign'),
+    utm_content: searchParams.get('utm_content'),
+    tid: searchParams.get('tid'),
+    raw_jwt: null,
+    carrier_user_id: null,
+    product_id: null,
+    plan_type: null,
+    reason: null,
+    jwt_iat: null,
+    jwt_exp: null,
+    jwt_verified: false,
+    notes: 'visit_without_jwt',
+  });
+
+  if (error) {
+    console.error('Failed to log visit:', error);
+  }
 }
 
 /**
@@ -70,18 +119,13 @@ async function handleGroobyteCallback(request: NextRequest): Promise<string | nu
     console.error('Failed to decode JWT payload:', err);
   }
 
-  const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      auth: { autoRefreshToken: false, persistSession: false },
-    }
-  );
+  const supabaseAdmin = getSupabaseAdmin();
 
-  // 1. Log the raw callback
+  // 1. Log the JWT callback
   const { error } = await supabaseAdmin.from('groobyte_callbacks').insert({
     raw_url: request.nextUrl.toString(),
     raw_jwt: rawJwt,
+    has_jwt: true,
     track: searchParams.get('track'),
     pubid: searchParams.get('pubid'),
     clickid: searchParams.get('clickid'),
@@ -118,10 +162,8 @@ async function handleGroobyteCallback(request: NextRequest): Promise<string | nu
     .rpc('get_auth_user_id_by_phone', { phone_input: msisdn });
 
   if (existingId) {
-    // User already exists in auth.users
     supabaseAuthId = existingId;
   } else {
-    // Create new pre-verified auth user
     const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
       phone: msisdn,
       phone_confirm: true,
@@ -134,7 +176,7 @@ async function handleGroobyteCallback(request: NextRequest): Promise<string | nu
     }
   }
 
-  // 4. Upsert user_profiles (only if we have an auth ID)
+  // 4. Upsert user_profiles
   const { error: profileError } = await supabaseAdmin
     .from('user_profiles')
     .upsert(
