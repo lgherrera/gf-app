@@ -27,7 +27,7 @@
   align-items: center;
   gap: 5px;
   background: color-mix(in srgb, var(--color-primary, #348cd4) 15%, transparent);
-  border: 1px solid color-mix(in srgb, var(--color-primary, #348cd4) 35%, transparent);
+  border: 2px solid color-mix(in srgb, var(--color-primary, #348cd4) 50%, transparent);
   color: var(--color-primary, #348cd4);
   font-size: 1rem;
   font-weight: 700;
