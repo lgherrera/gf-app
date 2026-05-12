@@ -6,6 +6,7 @@ import GFHeader from '@/app/components/GFHeader';
 import GFCard from '@/app/components/GFCard';
 import GFFooter from '@/app/components/GFFooter';
 import CustomGirlfriends from '@/app/components/CustomGirlfriends';
+import PageVisitTracker from '@/app/components/PageVisitTracker';
 import styles from './page.module.css';
 
 interface Girlfriend {
@@ -37,8 +38,9 @@ export default async function GirlfriendPage() {
 
   return (
     <div className={styles.page}>
+      <PageVisitTracker page="/" />
       <GFHeader />
-      
+
       <main className={styles.main}>
         <div className={styles.cardsContainer}>
           {girlfriends && girlfriends.map((gf) => (
