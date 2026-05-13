@@ -2,7 +2,7 @@
 import { supabase } from '@/lib/supabase';
 import { withContentFilter } from '@/lib/girlfriends';
 import { notFound } from 'next/navigation';
-import ChatInterface from '@/app/components/ChatInterface';
+import ChatInterface from '@/app/components/chat/ChatInterface';
 
 interface ChatPageProps {
   params: Promise<{
