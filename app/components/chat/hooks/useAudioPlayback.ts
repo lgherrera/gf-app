@@ -10,7 +10,7 @@ interface AudioPlaybackResult {
     messageId: string,
     audioUrl?: string,
     messageContent?: string
-  ) => Promise<void>;
+  ) => Promise<string | undefined>;
   updateMessageAudio: (messageId: string, audioUrl: string) => void;
   cleanupAudio: () => void;
 }
