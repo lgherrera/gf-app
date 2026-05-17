@@ -117,7 +117,7 @@ export async function POST(request: Request) {
       speech_style: '',
       kinks: null,
       model_provider: 'Grok',
-      model_name: 'x-ai/grok-4.1-fast',
+      model_name: 'x-ai/grok-4.3',
       temperature: 0.7,
       max_tokens: 400,
     };

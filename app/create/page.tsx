@@ -92,7 +92,6 @@ const OUTFIT_OPTIONS_ALL = [
   { value: 'sheer, see-through, tight, silk babydoll lingerie',                              label: 'Babydoll',   mode: 'nsfw' },
   { value: 'revealing, glossy black latex catsuit',                       label: 'Latex Catsuit',      mode: 'nsfw' },
   { value: 'micro bikini, tiny strings.',                       label: 'Micro Bikini',     mode: 'nsfw' },
-  { value: 'topless, visible nipples', label: 'Topless', mode: 'nsfw' },
 ];
 
 const contentMode = process.env.NEXT_PUBLIC_APP_SOURCE === 'nsfw' ? 'nsfw' : 'sfw';

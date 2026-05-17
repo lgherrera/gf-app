@@ -41,8 +41,7 @@ export type Outfit =
   | 'sexy and revealing sheer dress'
   | 'sheer silk babydoll'
   | 'black, tight, latex outfit'
-  | 'micro bikini, tiny strings.'
-  | 'topless, visible nipples';
+  | 'micro bikini, tiny strings';
 
 export interface VoiceOption {
   id: number;
