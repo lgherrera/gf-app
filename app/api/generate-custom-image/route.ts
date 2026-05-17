@@ -47,7 +47,7 @@ function buildImagePrompt(config: any): string {
     return `${subject}, ${parts}, anime art style, detailed, vibrant colors, high quality illustration, portrait, looking at viewer`;
   }
 
-  return `Photorealistic portrait of ${subject}, ${parts}, natural lighting, soft focus background, high quality photography, looking at viewer, warm expression`;
+  return `Photorealistic portrait of ${subject}, ${parts}, natural lighting, blurred background, high quality photography, looking at viewer, sluty expression`;
 }
 
 export async function POST(request: Request) {

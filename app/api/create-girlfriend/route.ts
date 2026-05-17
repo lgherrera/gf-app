@@ -139,7 +139,7 @@ export async function POST(request: Request) {
       personality_traits: personalityTraits,
       is_active: true,
       model_provider: 'Grok',
-      model_name: 'x-ai/grok-4.1-fast',
+      model_name: 'x-ai/grok-4.3',
       temperature: 0.7,
       max_tokens: 400,
       description: config.description || 'Una amiga inteligente, cariñosa y caliente, siempre dispuesta a escuchar y a hacer lo que sea necesario para satisfacer sus deseos.',
