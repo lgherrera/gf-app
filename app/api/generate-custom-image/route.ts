@@ -68,7 +68,7 @@ export async function POST(request: Request) {
     const result = await fal.subscribe('fal-ai/bytedance/seedream/v5/lite/text-to-image', {
       input: {
         prompt,
-        image_size: { width: 600, height: 900 },
+        image_size: { width: 1440, height: 2160 },
         enable_safety_checker: false,
       },
     }) as any;
