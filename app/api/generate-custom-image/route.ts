@@ -65,10 +65,10 @@ export async function POST(request: Request) {
     const prompt = buildImagePrompt(config);
     console.log('Generating image with prompt:', prompt);
 
-    const result = await fal.subscribe('fal-ai/bytedance/seedream/v4.5/text-to-image', {
+    const result = await fal.subscribe('fal-ai/bytedance/seedream/v5/lite/text-to-image', {
       input: {
         prompt,
-        image_size: { width: 832, height: 1248 },
+        image_size: { width: 600, height: 900 },
         enable_safety_checker: false,
       },
     }) as any;
