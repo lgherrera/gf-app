@@ -92,7 +92,7 @@ const OUTFIT_OPTIONS_ALL = [
   { value: 'sexy and revealing tight dress on high heels',                     label: 'Modelo',             mode: 'nsfw' },
   { value: 'sexy and revealing casual female teacher outfit',                  label: 'Profesora Sexy',          mode: 'nsfw' },
   { value: 'sexy and revealing casual outfit',                                 label: 'Novia',              mode: 'nsfw' },
-  { value: 'sexy and revealing female police green outfit',                    label: 'Mujer Policía',      mode: 'nsfw' },
+  { value: 'sexy and revealing female police outfit',                    label: 'Mujer Policía',      mode: 'nsfw' },
   { value: 'sexy and revealing sports outfit, revealing top, short pants',     label: 'Entrenadora Personal',   mode: 'nsfw' },
 ];
 

@@ -44,7 +44,7 @@ export type Outfit =
   | 'sexy and revealing tight dress on high heels'
   | 'sexy and revealing casual female teacher outfit'
   | 'sexy and revealing casual outfit'
-  | 'sexy and revealing female police green outfit'
+  | 'sexy and revealing female police outfit'
   | 'sexy and revealing sports outfit, revealing top, short pants';
 
 export interface VoiceOption {
