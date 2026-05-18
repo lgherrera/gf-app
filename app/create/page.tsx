@@ -86,7 +86,7 @@ const OUTFIT_OPTIONS_ALL = [
   { value: 'lingerie',            label: 'Lingerie',          mode: 'sfw' },
   { value: 'trendy',              label: 'Elegante',          mode: 'sfw' },
   { value: 'casual outfit',       label: 'Casual',            mode: 'sfw' },
-  { value: 'revealing, glossy black latex catsuit',                            label: 'Gatuvela',      mode: 'nsfw' },
+  { value: 'revealing, glossy black latex catsuit',                            label: 'Gatúbela',      mode: 'nsfw' },
   { value: 'micro red bikini, tiny strings.',                                      label: 'Baywatch',       mode: 'nsfw' },
   { value: 'sexy and revealing tight dress',                                   label: 'Actriz Porno',             mode: 'nsfw' },
   { value: 'sexy and revealing tight dress on high heels',                     label: 'Modelo',             mode: 'nsfw' },
