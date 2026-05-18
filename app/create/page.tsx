@@ -87,11 +87,11 @@ const OUTFIT_OPTIONS_ALL = [
   { value: 'trendy',              label: 'Elegante',          mode: 'sfw' },
   { value: 'casual outfit',       label: 'Casual',            mode: 'sfw' },
   { value: 'revealing, glossy black latex catsuit',                            label: 'Gatúbela',      mode: 'nsfw' },
-  { value: 'micro red bikini, tiny strings, at the beach,                                      label: 'Baywatch',       mode: 'nsfw' },
+  { value: 'micro red bikini, tiny strings, at the beach',                                      label: 'Baywatch',       mode: 'nsfw' },
   { value: 'sexy and revealing tight dress',                                   label: 'Actriz Porno',             mode: 'nsfw' },
   { value: 'sexy and revealing tight dress on high heels',                     label: 'Top Model',             mode: 'nsfw' },
   { value: 'sexy and revealing casual female teacher outfit, holding a wooden pointer stick',                  label: 'Profesora Ardiente',          mode: 'nsfw' },
-  { value: 'sexy and revealing casual outfit',                                 label: 'Bomba Sexy',              mode: 'nsfw' },
+  { value: 'sexy and revealing casual outfit',                                 label: 'Novia Sexy',              mode: 'nsfw' },
   { value: 'sexy and revealing female police outfit',                    label: 'Mujer Policía',      mode: 'nsfw' },
   { value: 'sexy and revealing sports outfit, revealing top, short pants',     label: 'Entrenadora Personal',   mode: 'nsfw' },
 ];
