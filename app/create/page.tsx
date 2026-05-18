@@ -86,12 +86,14 @@ const OUTFIT_OPTIONS_ALL = [
   { value: 'lingerie',            label: 'Lingerie',          mode: 'sfw' },
   { value: 'trendy',              label: 'Elegante',          mode: 'sfw' },
   { value: 'casual outfit',       label: 'Casual',            mode: 'sfw' },
-  { value: 'sexy and revealing nurse uniform',                label: 'Enfermera',  mode: 'nsfw' },
-  { value: 'sexy and revealing secretary outfit and glasses',  label: 'Secretaria', mode: 'nsfw' },
-  { value: 'sexy and revealing sheer dress',                   label: 'Vestido Atrevido',    mode: 'nsfw' },
-  { value: 'sheer, see-through, tight, silk babydoll lingerie',                              label: 'Babydoll',   mode: 'nsfw' },
-  { value: 'revealing, glossy black latex catsuit',                       label: 'Latex Catsuit',      mode: 'nsfw' },
-  { value: 'micro bikini, tiny strings.',                       label: 'Micro Bikini',     mode: 'nsfw' },
+  { value: 'revealing, glossy black latex catsuit',                            label: 'Gatuvela',      mode: 'nsfw' },
+  { value: 'micro red bikini, tiny strings.',                                      label: 'Baywatch',       mode: 'nsfw' },
+  { value: 'sexy and revealing tight dress',                                   label: 'Actriz Porno',             mode: 'nsfw' },
+  { value: 'sexy and revealing tight dress on high heels',                     label: 'Modelo',             mode: 'nsfw' },
+  { value: 'sexy and revealing casual female teacher outfit',                  label: 'Profesora Sexy',          mode: 'nsfw' },
+  { value: 'sexy and revealing casual outfit',                                 label: 'Novia',              mode: 'nsfw' },
+  { value: 'sexy and revealing female police green outfit',                    label: 'Mujer Policía',      mode: 'nsfw' },
+  { value: 'sexy and revealing sports outfit, revealing top, short pants',     label: 'Entrenadora Personal',   mode: 'nsfw' },
 ];
 
 const contentMode = process.env.NEXT_PUBLIC_APP_SOURCE === 'nsfw' ? 'nsfw' : 'sfw';

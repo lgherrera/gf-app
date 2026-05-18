@@ -38,10 +38,14 @@ export type Outfit =
   | 'casual outfit'
   | 'sexy and revealing nurse uniform'
   | 'sexy and revealing secretary outfit and glasses'
-  | 'sexy and revealing sheer dress'
-  | 'sheer silk babydoll'
-  | 'black, tight, latex outfit'
-  | 'micro bikini, tiny strings';
+  | 'revealing, glossy black latex catsuit'
+  | 'micro red bikini, tiny strings.'
+  | 'sexy and revealing tight dress'
+  | 'sexy and revealing tight dress on high heels'
+  | 'sexy and revealing casual female teacher outfit'
+  | 'sexy and revealing casual outfit'
+  | 'sexy and revealing female police green outfit'
+  | 'sexy and revealing sports outfit, revealing top, short pants';
 
 export interface VoiceOption {
   id: number;
