@@ -36,15 +36,15 @@ export type Outfit =
   | 'lingerie'
   | 'trendy'
   | 'casual outfit'
-  | 'sexy and revealing nurse uniform'
+  | 'sexy and revealing nurse uniform, at a hospital room'
   | 'sexy and revealing secretary outfit and glasses'
-  | 'revealing, glossy black latex catsuit, in a luxurious penthouse with huge windows overlooking the glowing city at night'
+  | 'revealing, glossy black latex catsuit, in the balcony of a luxurious penthouse overlooking the glowing city at night'
   | 'micro red bikini, tiny strings, at the beach'
   | 'sexy and revealing tight dress'
-  | 'sexy and revealing tight dress on high heels'
+  | 'sexy and revealing tight dress on high heels, at a fashion gala'
   | 'sexy and revealing casual female teacher outfit, holding a wooden pointer stick'
   | 'sexy and revealing casual outfit'
-  | 'sexy and revealing female police outfit'
+  | 'sexy and revealing female police outfit, at a police station'
   | 'sexy and revealing sports outfit, revealing top, at the gym';
 
 export interface VoiceOption {
