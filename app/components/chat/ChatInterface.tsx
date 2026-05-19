@@ -305,6 +305,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
         onSend={() => handleSendMessage()}
         isLoading={isLoading}
         girlfriendSlug={girlfriend.slug}
+        onOpenSidebar={() => setIsSidebarOpen(true)}
         isRecording={voiceRecording.isRecording}
         isTranscribing={voiceRecording.isTranscribing}
         recordingSeconds={voiceRecording.recordingSeconds}
