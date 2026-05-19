@@ -144,6 +144,7 @@ export async function POST(request: Request) {
       max_tokens: 400,
       description: config.description || 'Una amiga inteligente, cariñosa y caliente, siempre dispuesta a escuchar y a hacer lo que sea necesario para satisfacer sus deseos.',
       image_url: imageUrl,
+      hello_poster_url: imageUrl,
       avatar: avatarUrl,
       image_prompt: imagePrompt || null,
       system_prompt: systemPrompt,
