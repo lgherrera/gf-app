@@ -4,7 +4,7 @@
 import React, { useRef, useEffect } from 'react';
 import styles from '../ChatInterface.module.css';
 import { Message, OpeningScene } from '../utils/types';
-import IntroVideoMessage from '../../IntroVideoMessage';
+import IntroVideoMessage from '../IntroVideoMessage';
 import MessageBubble from './MessageBubble';
 
 interface ChatMessagesProps {
@@ -56,7 +56,18 @@ export default function ChatMessages({
 
   return (
     <div className={styles.chatArea}>
-      {/* Intro video */}
+      {/* Intro image — always visible */}
+      {(helloPosterUrl || imageUrl) && (
+        <div className={styles.introImage}>
+          <img
+            src={helloPosterUrl || imageUrl}
+            alt="Hello"
+            className={styles.introImageImg}
+          />
+        </div>
+      )}
+
+      {/* Intro video — only if hello_url exists */}
       {helloUrl && (
         <IntroVideoMessage
           videoUrl={helloUrl}

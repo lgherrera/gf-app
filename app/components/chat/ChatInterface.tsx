@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import styles from './ChatInterface.module.css';
 import { useUser } from '@/lib/hooks/useUser';
 import { useSession } from '@/lib/hooks/useSession';
-import GFSidebar from '../GFSidebar';
+import GFSidebar from './GFSidebar';
 
 // Types
 import { Message, ChatInterfaceProps } from './utils/types';
