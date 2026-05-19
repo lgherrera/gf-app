@@ -271,7 +271,7 @@ function RenderImageContent() {
       {/* Reference preview */}
       {girlfriend?.image_url && (
         <div className={styles.refPreview}>
-          <img src={girlfriend.image_url} alt="Reference" className={styles.refImage} />
+          <img src={girlfriend.hello_poster_url || girlfriend.image_url!} alt="Reference" className={styles.refImage} />
           <div className={styles.refBadge}>Reference</div>
         </div>
       )}
