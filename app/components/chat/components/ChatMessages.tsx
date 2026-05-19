@@ -61,22 +61,25 @@ export default function ChatMessages({
       {/* Intro media: image over video, image only, or nothing */}
       {(introImageSrc || helloUrl) && (
         <div className={styles.introMedia}>
+          {/* Video layer (behind) */}
           {helloUrl && (
-            <div className={styles.introVideoLayer}>
-              <IntroVideoMessage
-                videoUrl={helloUrl}
-                posterUrl={introImageSrc}
-                onVideoEnd={() => {}}
-                onVideoError={() => console.error('Video failed to load:', helloUrl)}
+            <IntroVideoMessage
+              videoUrl={helloUrl}
+              posterUrl={introImageSrc}
+              onVideoEnd={() => {}}
+              onVideoError={() => console.error('Video failed to load:', helloUrl)}
+            />
+          )}
+
+          {/* Image layer (on top) — matches video dimensions */}
+          {introImageSrc && (
+            <div className={helloUrl ? styles.introImageOverlay : styles.introImageStandalone}>
+              <img
+                src={introImageSrc}
+                alt="Hello"
+                className={styles.introImageImg}
               />
             </div>
-          )}
-          {introImageSrc && (
-            <img
-              src={introImageSrc}
-              alt="Hello"
-              className={styles.introImageImg}
-            />
           )}
         </div>
       )}

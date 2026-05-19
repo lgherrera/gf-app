@@ -1,4 +1,4 @@
-/* app/components/IntroVideoMessage.module.css */
+/* app/components/chat/IntroVideoMessage.module.css */
 
 .messageContainer {
   display: flex;
@@ -12,7 +12,7 @@
   max-width: 280px;
   position: relative;
   background: transparent;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 2 / 3;
   overflow: visible;
   margin-top: 10px;
 }

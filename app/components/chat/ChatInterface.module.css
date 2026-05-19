@@ -151,31 +151,34 @@
 
 .introMedia {
   position: relative;
-  display: flex;
-  justify-content: center;
-  padding: 12px 16px 4px;
-}
-
-.introVideoLayer {
-  position: absolute;
-  top: 12px;
-  left: 16px;
-  right: 16px;
-  bottom: 4px;
-}
-
-.introVideoLayer > div {
   width: 100%;
-  height: 100%;
+}
+
+/* Image overlay — positioned exactly over the video */
+.introImageOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 68%;
+  max-width: 280px;
+  aspect-ratio: 2 / 3;
+  margin-top: 10px;
+  z-index: 2;
+}
+
+/* Image standalone — same dimensions, normal flow (no video behind) */
+.introImageStandalone {
+  width: 68%;
+  max-width: 280px;
+  aspect-ratio: 2 / 3;
+  margin-top: 10px;
 }
 
 .introImageImg {
-  max-width: 280px;
   width: 100%;
-  border-radius: 12px;
+  height: 100%;
   object-fit: cover;
-  position: relative;
-  z-index: 1;
+  border-radius: 12px;
 }
 
 /* History divider — shown when loaded messages come from DB */
