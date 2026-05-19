@@ -15,6 +15,7 @@ interface GirlfriendData {
   slug: string;
   avatar: string | null;
   image_url: string | null;
+  hello_poster_url: string | null;
 }
 
 interface GeneratedImage {
@@ -114,7 +115,7 @@ function RenderImageContent() {
         body: JSON.stringify({
           prompt,
           aspectRatio: FIXED_RATIO,
-          referenceImageUrls: [girlfriend.image_url],
+          referenceImageUrls: [girlfriend.hello_poster_url || girlfriend.image_url],
           model: "seedream",
           userId,
           girlfriendId: girlfriend.id,

@@ -16,7 +16,7 @@ export async function GET(
   const { data, error } = await withContentFilter(
     supabase
       .from("girlfriends")
-      .select("id, name, slug, avatar, image_url")
+      .select("id, name, slug, avatar, image_url, hello_poster_url")
       .eq("slug", slug)
   ).single();
 
