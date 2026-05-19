@@ -79,6 +79,14 @@ export default function ChatMessages({
                 alt="Hello"
                 className={styles.introImageImg}
               />
+              {/* Play icon — only shown when video exists behind */}
+              {helloUrl && (
+                <div className={styles.introPlayIcon}>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                </div>
+              )}
             </div>
           )}
         </div>
