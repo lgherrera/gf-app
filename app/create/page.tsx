@@ -94,7 +94,7 @@ const OUTFIT_OPTIONS_ALL = [
   { value: 'sexy and revealing tight dress on high heels, at a fashion gala',                     label: 'Top Model',             mode: 'nsfw' },
   { value: 'sexy and revealing casual female teacher outfit, holding a wooden pointer stick',                  label: 'Profesora Ardiente',          mode: 'nsfw' },
   { value: 'sexy and revealing casual outfit',                                 label: 'Novia Sexy',              mode: 'nsfw' },
-  { value: 'sexy and revealing female police outfit, at a police station',                    label: 'Mujer Policía',      mode: 'nsfw' },
+  { value: 'sexy and revealing female police outfit, inside a dimly lit police locker room, open lockers, seductive atmosphere',                    label: 'Mujer Policía',      mode: 'nsfw' },
   { value: 'sexy and revealing sports outfit, revealing top, at the gym',     label: 'Entrenadora Personal',   mode: 'nsfw' },
 ];
 
