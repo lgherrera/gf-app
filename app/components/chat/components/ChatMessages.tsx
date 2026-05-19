@@ -58,39 +58,23 @@ export default function ChatMessages({
 
   return (
     <div className={styles.chatArea}>
-      {/* Intro media: image over video, image only, or nothing */}
-      {(introImageSrc || helloUrl) && (
-        <div className={styles.introMedia}>
-          {/* Video layer (behind) */}
-          {helloUrl && (
-            <IntroVideoMessage
-              videoUrl={helloUrl}
-              posterUrl={introImageSrc}
-              onVideoEnd={() => {}}
-              onVideoError={() => console.error('Video failed to load:', helloUrl)}
-            />
-          )}
-
-          {/* Image layer (on top) — matches video dimensions */}
-          {introImageSrc && (
-            <div className={helloUrl ? styles.introImageOverlay : styles.introImageStandalone}>
-              <img
-                src={introImageSrc}
-                alt="Hello"
-                className={styles.introImageImg}
-              />
-              {/* Play icon — only shown when video exists behind */}
-              {helloUrl && (
-                <div className={styles.introPlayIcon}>
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
-                    <path d="M8 5v14l11-7z"/>
-                  </svg>
-                </div>
-              )}
-            </div>
-          )}
+      {/* Intro: video with poster, or standalone image, or nothing */}
+      {helloUrl ? (
+        <IntroVideoMessage
+          videoUrl={helloUrl}
+          posterUrl={introImageSrc}
+          onVideoEnd={() => {}}
+          onVideoError={() => console.error('Video failed to load:', helloUrl)}
+        />
+      ) : introImageSrc ? (
+        <div className={styles.introImage}>
+          <img
+            src={introImageSrc}
+            alt="Hello"
+            className={styles.introImageImg}
+          />
         </div>
-      )}
+      ) : null}
 
       {/* History divider */}
       {hasHistory && messages.length > 0 && (

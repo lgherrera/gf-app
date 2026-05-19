@@ -147,28 +147,9 @@
   overflow-y: auto;
 }
 
-/* ── Intro media: image layered over video ── */
+/* ── Intro image (standalone, when no video) ── */
 
-.introMedia {
-  position: relative;
-  width: 100%;
-}
-
-/* Image overlay — positioned exactly over the video, clicks pass through */
-.introImageOverlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 68%;
-  max-width: 280px;
-  aspect-ratio: 2 / 3;
-  margin-top: 10px;
-  z-index: 2;
-  pointer-events: none;
-}
-
-/* Image standalone — same dimensions, normal flow (no video behind) */
-.introImageStandalone {
+.introImage {
   width: 68%;
   max-width: 280px;
   aspect-ratio: 2 / 3;
@@ -180,26 +161,6 @@
   height: 100%;
   object-fit: cover;
   border-radius: 12px;
-}
-
-/* Play icon centered on the image overlay */
-.introPlayIcon {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.introPlayIcon svg {
-  margin-left: 4px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 /* History divider — shown when loaded messages come from DB */
