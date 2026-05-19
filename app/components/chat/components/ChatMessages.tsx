@@ -49,6 +49,8 @@ export default function ChatMessages({
 
   const hasUserMessages = messages.some((m) => m.role === 'user');
 
+  const introImageSrc = helloPosterUrl || imageUrl;
+
   // Auto-scroll on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -56,25 +58,27 @@ export default function ChatMessages({
 
   return (
     <div className={styles.chatArea}>
-      {/* Intro image — always visible */}
-      {(helloPosterUrl || imageUrl) && (
-        <div className={styles.introImage}>
-          <img
-            src={helloPosterUrl || imageUrl}
-            alt="Hello"
-            className={styles.introImageImg}
-          />
+      {/* Intro media: image over video, image only, or nothing */}
+      {(introImageSrc || helloUrl) && (
+        <div className={styles.introMedia}>
+          {helloUrl && (
+            <div className={styles.introVideoLayer}>
+              <IntroVideoMessage
+                videoUrl={helloUrl}
+                posterUrl={introImageSrc}
+                onVideoEnd={() => {}}
+                onVideoError={() => console.error('Video failed to load:', helloUrl)}
+              />
+            </div>
+          )}
+          {introImageSrc && (
+            <img
+              src={introImageSrc}
+              alt="Hello"
+              className={styles.introImageImg}
+            />
+          )}
         </div>
-      )}
-
-      {/* Intro video — only if hello_url exists */}
-      {helloUrl && (
-        <IntroVideoMessage
-          videoUrl={helloUrl}
-          posterUrl={helloPosterUrl || imageUrl}
-          onVideoEnd={() => {}}
-          onVideoError={() => console.error('Video failed to load:', helloUrl)}
-        />
       )}
 
       {/* History divider */}

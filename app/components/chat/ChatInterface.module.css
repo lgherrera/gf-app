@@ -147,12 +147,26 @@
   overflow-y: auto;
 }
 
-/* ── Intro image at top of chat ── */
+/* ── Intro media: image layered over video ── */
 
-.introImage {
+.introMedia {
+  position: relative;
   display: flex;
   justify-content: center;
   padding: 12px 16px 4px;
+}
+
+.introVideoLayer {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  right: 16px;
+  bottom: 4px;
+}
+
+.introVideoLayer > div {
+  width: 100%;
+  height: 100%;
 }
 
 .introImageImg {
@@ -160,6 +174,8 @@
   width: 100%;
   border-radius: 12px;
   object-fit: cover;
+  position: relative;
+  z-index: 1;
 }
 
 /* History divider — shown when loaded messages come from DB */
