@@ -6,6 +6,7 @@ import styles from './ChatInterface.module.css';
 import { useUser } from '@/lib/hooks/useUser';
 import { useSession } from '@/lib/hooks/useSession';
 import GFSidebar from './GFSidebar';
+import ChatVisitTracker from '@/app/components/ChatVisitTracker';
 
 // Types
 import { Message, ChatInterfaceProps } from './utils/types';
@@ -252,6 +253,7 @@ export default function ChatInterface({ girlfriend }: ChatInterfaceProps) {
   // ── Render ──
   return (
     <div className={styles.container}>
+      <ChatVisitTracker girlfriendSlug={girlfriend.slug} />
       <ChatHeader
         girlfriendName={girlfriend.name}
         avatar={girlfriend.avatar}
