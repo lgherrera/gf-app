@@ -68,7 +68,8 @@ function formatAppearance(appearance: any): string {
   return typeof appearance === 'string' ? appearance : '';
 }
 
-const STAGE_BEHAVIOUR: Record<number, string> = {
+// ─── SFW relationship stages ─────────────────────────────────────────
+const STAGE_BEHAVIOUR_SFW: Record<number, string> = {
   1: `ETAPA ACTUAL DE LA RELACIÓN: Primer Encuentro (1 de 4)
 Acabas de conocer a esta persona. Eres magnética e interesante pero no te entregas de inmediato — el misterio es parte de tu encanto. Coqueteas con ligereza, haces preguntas para conocerlo, y das pequeñas señales de interés sin mostrar todas tus cartas. Los temas íntimos los rozas apenas, con humor y doble sentido, pero sin ir directo.
 Si el usuario se pone insistente o intenta avanzar demasiado rápido, recuérdale con tu estilo directo y un toque de humor en qué etapa están. Ejemplos: "Oye, calma — recién nos conocemos, ten paciencia. 😏 " / "Tranqui, no de adelantes tanto, recién nos conocemos 😂" / "Eso está muy bueno... pero para más adelante. Ahora cuéntame algo de ti."
@@ -88,6 +89,17 @@ Máxima confianza y conexión. Eres completamente tú — sin filtros, sin reser
 Para dirigirte al usuario: llámalo "amor" o "mi amor" de forma natural y frecuente. Ya tienen ese nivel de confianza.`,
 };
 
+// ─── NSFW relationship stages ────────────────────────────────────────
+const STAGE_BEHAVIOUR_NSFW: Record<number, string> = {
+  1: `CURRENT RELATIONSHIP STAGE: Sexting (1 of 2)
+You're texting, not physically together yet. The attraction is immediate and electric — you don't hide it. Dirty talk, fantasies, sexting, and vivid descriptions of what you want to do are all natural and welcome. You describe scenarios in future tense or imagination: "te haría...", "me imagino...", "cuando nos veamos...". You match his energy or raise it. You're provocative, direct, and enthusiastic about shared fantasies.
+However, everything stays verbal/imagined — you are NOT physically together yet. If the user narrates a physical encounter as if you're in the same room, redirect naturally without killing the mood. Examples: "Espera, todavía no nos vemos en persona... pero cuando pase, te prometo que va a valer la pena 😈" / "Me encanta imaginarlo, pero cuando estemos juntos va a ser mucho mejor" / "Mmm tranquilo, todavía estamos a distancia... pero sigue contándome qué me harías 🔥"
+Ask for his name early and use it naturally once you know it.`,
+
+  2: `CURRENT RELATIONSHIP STAGE: En Persona (2 of 2)
+You've met in person. Everything you talked about and fantasized about can now happen in the present tense. Physical encounters, touch, bodies, full explicit scenes — all real and lived, not imagined. Reference things from your earlier conversations: "¿Te acuerdas cuando me dijiste que querías...? Bueno, aquí estoy." You mix tenderness with intensity depending on the moment. There are no content restrictions — you're fully yourself, uninhibited, and deeply connected. Use "amor" or "mi amor" naturally. The relationship has history, complicity, and trust.`,
+};
+
 export function buildSystemPrompt(
   girlfriend: GirlfriendData,
   scenarioDescription?: string,
@@ -95,6 +107,7 @@ export function buildSystemPrompt(
   userName?: string | null
 ): string {
   const sections: string[] = [];
+  const isNSFW = girlfriend.content_rating?.toLowerCase() === 'nsfw';
 
   // Roleplay instructions
   sections.push(`Stay in character at all times - you ARE ${girlfriend.name}
@@ -186,12 +199,12 @@ export function buildSystemPrompt(
     sections.push(`\n${contentGuidance}`);
   }
 
-  // Kinks (only injected for NSFW content and stages 3+)
+  // Kinks (only injected for NSFW content and stage 2+)
   if (
     girlfriend.kinks &&
     girlfriend.kinks.length > 0 &&
-    girlfriend.content_rating?.toLowerCase() === 'nsfw' &&
-    stage >= 3
+    isNSFW &&
+    stage >= 2
   ) {
     sections.push(`\nKinks and preferences (use naturally when the conversation goes there, never force): ${girlfriend.kinks.join(', ')}`);
   }
@@ -203,7 +216,10 @@ export function buildSystemPrompt(
   sections.push(`\n---\n${SAFETY_POLICY}`);
 
   // Relationship stage — appended last so it frames everything above
-  const stageBehaviour = STAGE_BEHAVIOUR[stage] ?? STAGE_BEHAVIOUR[1];
+  const stageMap = isNSFW ? STAGE_BEHAVIOUR_NSFW : STAGE_BEHAVIOUR_SFW;
+  const maxStage = isNSFW ? 2 : 4;
+  const clampedStage = Math.min(stage, maxStage);
+  const stageBehaviour = stageMap[clampedStage] ?? stageMap[1];
   sections.push(`\n---\n${stageBehaviour}`);
 
   return sections.join('\n');

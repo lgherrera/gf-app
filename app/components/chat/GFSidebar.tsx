@@ -1,4 +1,4 @@
-// app/components/GFSidebar.tsx
+// app/components/chat/GFSidebar.tsx
 'use client';
 
 import React from 'react';
@@ -6,12 +6,23 @@ import Link from 'next/link';
 import { generateDescription } from '@/lib/gf-description';
 import styles from './GFSidebar.module.css';
 
-const STAGE_LABELS: Record<number, string> = {
+const CONTENT_MODE = process.env.NEXT_PUBLIC_CONTENT_MODE || 'sfw';
+const isNSFW = CONTENT_MODE === 'nsfw';
+
+const STAGE_LABELS_SFW: Record<number, string> = {
   1: 'Encuentro',
   2: 'Saliendo',
   3: 'Andando',
   4: 'Pololos',
 };
+
+const STAGE_LABELS_NSFW: Record<number, string> = {
+  1: 'Sexting',
+  2: 'En Persona',
+};
+
+const STAGE_LABELS = isNSFW ? STAGE_LABELS_NSFW : STAGE_LABELS_SFW;
+const TOTAL_STAGES = isNSFW ? 2 : 4;
 
 interface SidebarProps {
   isOpen: boolean;
@@ -112,10 +123,10 @@ export default function GFSidebar({ isOpen, onClose, girlfriend, stage = 1, scor
           <div className={styles.stageSection}>
             <div className={styles.stageHeader}>
               <span className={styles.stageLabel}>Etapa de relación</span>
-              <span className={styles.stageName}>{STAGE_LABELS[stage]}</span>
+              <span className={styles.stageName}>{STAGE_LABELS[stage] ?? STAGE_LABELS[1]}</span>
             </div>
             <div className={styles.stageDots}>
-              {[1, 2, 3, 4].map((step) => (
+              {Array.from({ length: TOTAL_STAGES }, (_, i) => i + 1).map((step) => (
                 <div
                   key={step}
                   className={`${styles.stageDot} ${step <= stage ? styles.stageDotActive : ''}`}
@@ -147,7 +158,7 @@ export default function GFSidebar({ isOpen, onClose, girlfriend, stage = 1, scor
                     <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
                   </svg>
                   <div className={styles.infoText}>
-                    <span className={styles.infoLabel}>Nacionalidad</span>
+                    <span className={styles.infoLabel}>País</span>
                     <span className={styles.infoValue}>{girlfriend.nationality}</span>
                   </div>
                 </div>
@@ -156,7 +167,7 @@ export default function GFSidebar({ isOpen, onClose, girlfriend, stage = 1, scor
                 <div className={styles.infoRow}>
                   <svg className={styles.infoIcon} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                    <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
                   </svg>
                   <div className={styles.infoText}>
                     <span className={styles.infoLabel}>Ocupación</span>
@@ -167,10 +178,7 @@ export default function GFSidebar({ isOpen, onClose, girlfriend, stage = 1, scor
               {girlfriend.gender && (
                 <div className={styles.infoRow}>
                   <svg className={styles.infoIcon} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="11" r="4"/>
-                    <path d="M12 15v7"/>
-                    <path d="M9 19h6"/>
-                    <path d="M17 3l-5 5-5-5"/>
+                    <circle cx="12" cy="12" r="10"/>
                   </svg>
                   <div className={styles.infoText}>
                     <span className={styles.infoLabel}>Género</span>
