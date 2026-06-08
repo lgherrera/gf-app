@@ -142,7 +142,7 @@ export async function POST(request: Request) {
       model_name: 'x-ai/grok-4.3',
       temperature: 0.7,
       max_tokens: 400,
-      description: config.description || 'Una amiga inteligente, cariñosa y caliente, siempre dispuesta a escuchar y a hacer lo que sea necesario para satisfacer sus deseos.',
+      description: config.description || 'Una amiga con beneficios, caliente y siempre dispuesta a hacer todo lo que sea necesario para satisfacer mis deseos.',
       image_url: imageUrl,
       hello_poster_url: imageUrl,
       avatar: avatarUrl,
