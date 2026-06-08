@@ -61,26 +61,26 @@ async function getMonthlyCount(userId: string): Promise<number> {
 }
 
 export async function POST(req: NextRequest) {
+  // Parse body once at the top so it's available in the catch block
+  let prompt = "";
+  let aspectRatio = "";
+  let referenceImages: string[] | undefined;
+  let referenceImageUrls: string[] | undefined;
+  let seed: number | undefined;
+  let model: string | undefined;
+  let userId: string | undefined;
+  let girlfriendId: string | undefined;
+
   try {
-    const {
-      prompt,
-      aspectRatio,
-      referenceImages,
-      referenceImageUrls,
-      seed,
-      model,
-      userId,
-      girlfriendId,
-    } = await req.json() as {
-      prompt: string;
-      aspectRatio: string;
-      referenceImages?: string[];
-      referenceImageUrls?: string[];
-      seed?: number;
-      model?: string;
-      userId?: string;
-      girlfriendId?: string;
-    };
+    const body = await req.json();
+    prompt             = body.prompt;
+    aspectRatio        = body.aspectRatio;
+    referenceImages    = body.referenceImages;
+    referenceImageUrls = body.referenceImageUrls;
+    seed               = body.seed;
+    model              = body.model;
+    userId             = body.userId;
+    girlfriendId       = body.girlfriendId;
 
     if (!prompt) {
       return NextResponse.json({ error: "Prompt requerido" }, { status: 400 });
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
       if (monthlyCount >= MONTHLY_LIMIT) {
         return NextResponse.json(
           { error: `Has alcanzado el límite de ${MONTHLY_LIMIT} imágenes por mes. Vuelve el próximo mes.` },
-          { status: 429 }
+          { status: 429 },
         );
       }
     }
@@ -175,7 +175,7 @@ export async function POST(req: NextRequest) {
     if (!falImageUrl) {
       return NextResponse.json(
         { error: `Respuesta inesperada: ${JSON.stringify(result.data).slice(0, 300)}` },
-        { status: 502 }
+        { status: 502 },
       );
     }
 
@@ -230,6 +230,41 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Error desconocido";
     console.error("Generate image error:", msg);
+
+    // fal.ai content moderation returns 422 Unprocessable Entity
+    const isCensored =
+      msg.includes("Unprocessable") ||
+      msg.includes("422") ||
+      msg.includes("content") ||
+      msg.includes("moderation") ||
+      msg.includes("safety");
+
+    if (isCensored) {
+      // Save censored prompt for analytics
+      if (userId && prompt) {
+        try {
+          await supabase.from("generated_images").insert({
+            user_id: userId,
+            girlfriend_id: girlfriendId || null,
+            prompt,
+            image_url: null,
+            aspect_ratio: aspectRatio || null,
+            model: model || "seedream",
+            seed: null,
+            content_rating: process.env.NEXT_PUBLIC_APP_SOURCE || "sfw",
+            status: "censored",
+          });
+        } catch (dbErr) {
+          console.error("Error saving censored prompt:", dbErr);
+        }
+      }
+
+      return NextResponse.json(
+        { error: "CENSORED" },
+        { status: 422 },
+      );
+    }
+
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
