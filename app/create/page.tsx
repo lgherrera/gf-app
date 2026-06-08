@@ -92,7 +92,7 @@ const OUTFIT_OPTIONS_ALL = [
   { value: 'micro red bikini, tiny strings, at the beach',                                      label: 'Baywatch Girl',       mode: 'nsfw' },
   { value: 'sexy and revealing tight dress, at a film studio',                                   label: 'Actriz Porno',             mode: 'nsfw' },
   { value: 'sexy and revealing tight dress on high heels, at a fashion gala',                     label: 'Top Model',             mode: 'nsfw' },
-  { value: 'sexy and revealing casual female teacher outfit, holding a wooden pointer stick',                  label: 'Profesora Ardiente',          mode: 'nsfw' },
+  { value: 'sexy and revealing casual female neighbour outfit',                  label: 'Vecina Ardiente',          mode: 'nsfw' },
   { value: 'sexy and revealing casual outfit',                                 label: 'Novia Sexy',              mode: 'nsfw' },
   { value: 'sexy and revealing female police outfit, inside a dimly lit police locker room, open lockers, seductive atmosphere',                    label: 'Mujer Policía',      mode: 'nsfw' },
   { value: 'sexy and revealing sports outfit, revealing top, at the gym',     label: 'Entrenadora Personal',   mode: 'nsfw' },

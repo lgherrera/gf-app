@@ -42,7 +42,7 @@ export type Outfit =
   | 'micro red bikini, tiny strings, at the beach'
   | 'sexy and revealing tight dress'
   | 'sexy and revealing tight dress on high heels, at a fashion gala'
-  | 'sexy and revealing casual female teacher outfit, holding a wooden pointer stick'
+  | 'sexy and revealing casual female neighbour outfit' 
   | 'sexy and revealing casual outfit'
   | 'sexy and revealing female police outfit, inside a dimly lit police locker room, open lockers, seductive atmosphere'
   | 'sexy and revealing sports outfit, revealing top, at the gym';
