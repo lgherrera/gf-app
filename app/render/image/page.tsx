@@ -44,6 +44,7 @@ function RenderImageContent() {
   const [error, setError]           = useState<string | null>(null);
   const [result, setResult]         = useState<GeneratedImage | null>(null);
   const [showSavedModal, setShowSavedModal] = useState(false);
+  const [showCensoredModal, setShowCensoredModal] = useState(false);
   const [isSaved, setIsSaved]       = useState(false);
   const [isTrashed, setIsTrashed]   = useState(false);
   const [usage, setUsage]           = useState<UsageData | null>(null);
@@ -130,7 +131,25 @@ function RenderImageContent() {
         throw new Error(`Respuesta inválida: ${text.slice(0, 120)}`);
       }
 
-      if (!res.ok) throw new Error(data.error || "Error al generar");
+      if (!res.ok) {
+        const errorMsg = data.error || "Error al generar";
+
+        // Detect fal.ai content moderation (422 Unprocessable Entity)
+        if (
+          errorMsg.includes("Unprocessable") ||
+          errorMsg.includes("422") ||
+          errorMsg.includes("moderation") ||
+          errorMsg.includes("safety") ||
+          res.status === 422
+        ) {
+          setShowCensoredModal(true);
+          setTimeout(() => setShowCensoredModal(false), 3000);
+          return;
+        }
+
+        throw new Error(errorMsg);
+      }
+
       if (!data.url) throw new Error("No se recibió URL de imagen");
 
       setResult({
@@ -365,6 +384,20 @@ function RenderImageContent() {
               <path d="M20 6L9 17l-5-5"/>
             </svg>
             <p className={styles.modalText}>Imagen guardada en tu galería</p>
+          </div>
+        </div>
+      )}
+
+      {/* Censored content modal */}
+      {showCensoredModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modal}>
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+            </svg>
+            <p className={styles.modalText}>Imagen Censurada</p>
+            <p className={styles.modalSubtext}>Intente nuevamente con otra instrucción</p>
           </div>
         </div>
       )}
