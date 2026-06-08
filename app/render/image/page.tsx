@@ -143,7 +143,7 @@ function RenderImageContent() {
           res.status === 422
         ) {
           setShowCensoredModal(true);
-          setTimeout(() => setShowCensoredModal(false), 3000);
+          setTimeout(() => setShowCensoredModal(false), 5000);
           return;
         }
 
