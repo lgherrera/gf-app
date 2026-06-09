@@ -14,6 +14,7 @@ interface Girlfriend {
   slug: string;
   name: string;
   age: number;
+  description: string | null;
   occupation: string;
   nationality: string | null;
   personality_traits: string[] | null;
@@ -28,7 +29,7 @@ export default async function GirlfriendPage() {
   const { data: girlfriends, error } = await withContentFilter(
     supabase
       .from('girlfriends')
-      .select('id, slug, name, age, occupation, nationality, personality_traits, hobbies, likes, fears, boundaries, image_url')
+      .select('id, slug, name, age, description, occupation, nationality, personality_traits, hobbies, likes, fears, boundaries, image_url')
       .in('girlfriend_type', ['standard', 'premium'])
   ).order('created_at', { ascending: false }) as { data: Girlfriend[] | null; error: any };
 
@@ -50,7 +51,7 @@ export default async function GirlfriendPage() {
               slug={gf.slug}
               name={gf.name}
               age={gf.age}
-              description={generateDescription(gf)}
+              description={gf.description || generateDescription(gf)}
               image_url={gf.image_url}
             />
           ))}
