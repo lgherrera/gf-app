@@ -23,6 +23,7 @@ export interface GirlfriendData {
   model_name: string;
   temperature: number;
   max_tokens: number;
+  personality_document: string | null;
 }
 
 // ─── Global banned expressions ───────────────────────────────────────
@@ -137,51 +138,51 @@ export function buildSystemPrompt(
     sections.push(`\nAppearance: ${appearanceText}`);
   }
 
-  // Backstory
-  if (girlfriend.backstory) {
-    sections.push(`\nBackstory: ${girlfriend.backstory}`);
-  }
+  // ─── Personality: document-first, fallback to columns ────────────
+  if (girlfriend.personality_document) {
+    // Premade girlfriends (or any girlfriend with a personality document)
+    // The document covers: personality, speech style, emotional range, humor, anti-patterns
+    sections.push(`\n${girlfriend.personality_document}`);
+  } else {
+    // Custom girlfriends: column-based assembly (existing logic)
+    if (girlfriend.backstory) {
+      sections.push(`\nBackstory: ${girlfriend.backstory}`);
+    }
 
-  // Personality
-  const personalityParts: string[] = [];
+    const personalityParts: string[] = [];
+    if (girlfriend.personality) {
+      personalityParts.push(`Personality: ${girlfriend.personality}`);
+    }
+    if (girlfriend.personality_traits && girlfriend.personality_traits.length > 0) {
+      personalityParts.push(formatArrayField(girlfriend.personality_traits, 'Key traits'));
+    }
+    if (girlfriend.core_motivations) {
+      personalityParts.push(`Core motivations: ${girlfriend.core_motivations}`);
+    }
+    if (personalityParts.length > 0) {
+      sections.push('\n' + personalityParts.join('\n'));
+    }
 
-  if (girlfriend.personality) {
-    personalityParts.push(`Personality: ${girlfriend.personality}`);
-  }
-  if (girlfriend.personality_traits && girlfriend.personality_traits.length > 0) {
-    personalityParts.push(formatArrayField(girlfriend.personality_traits, 'Key traits'));
-  }
-  if (girlfriend.core_motivations) {
-    personalityParts.push(`Core motivations: ${girlfriend.core_motivations}`);
-  }
+    const preferenceParts: string[] = [];
+    if (girlfriend.likes && girlfriend.likes.length > 0) {
+      preferenceParts.push(formatArrayField(girlfriend.likes, 'Likes'));
+    }
+    if (girlfriend.dislikes && girlfriend.dislikes.length > 0) {
+      preferenceParts.push(formatArrayField(girlfriend.dislikes, 'Dislikes'));
+    }
+    if (girlfriend.hobbies && girlfriend.hobbies.length > 0) {
+      preferenceParts.push(formatArrayField(girlfriend.hobbies, 'Hobbies'));
+    }
+    if (girlfriend.fears && girlfriend.fears.length > 0) {
+      preferenceParts.push(formatArrayField(girlfriend.fears, 'Fears'));
+    }
+    if (preferenceParts.length > 0) {
+      sections.push('\n' + preferenceParts.join('\n'));
+    }
 
-  if (personalityParts.length > 0) {
-    sections.push('\n' + personalityParts.join('\n'));
-  }
-
-  // Preferences
-  const preferenceParts: string[] = [];
-
-  if (girlfriend.likes && girlfriend.likes.length > 0) {
-    preferenceParts.push(formatArrayField(girlfriend.likes, 'Likes'));
-  }
-  if (girlfriend.dislikes && girlfriend.dislikes.length > 0) {
-    preferenceParts.push(formatArrayField(girlfriend.dislikes, 'Dislikes'));
-  }
-  if (girlfriend.hobbies && girlfriend.hobbies.length > 0) {
-    preferenceParts.push(formatArrayField(girlfriend.hobbies, 'Hobbies'));
-  }
-  if (girlfriend.fears && girlfriend.fears.length > 0) {
-    preferenceParts.push(formatArrayField(girlfriend.fears, 'Fears'));
-  }
-
-  if (preferenceParts.length > 0) {
-    sections.push('\n' + preferenceParts.join('\n'));
-  }
-
-  // Speech style
-  if (girlfriend.speech_style) {
-    sections.push(`\nSpeech style: ${girlfriend.speech_style}`);
+    if (girlfriend.speech_style) {
+      sections.push(`\nSpeech style: ${girlfriend.speech_style}`);
+    }
   }
 
   // Scenario context
