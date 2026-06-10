@@ -120,6 +120,7 @@ export async function POST(request: Request) {
       model_name: 'x-ai/grok-4.3',
       temperature: 0.7,
       max_tokens: 400,
+      personality_document: null,
     };
 
     const systemPrompt = buildSystemPrompt(partialGirlfriend);
