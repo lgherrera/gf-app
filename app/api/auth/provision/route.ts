@@ -1,6 +1,9 @@
 // app/api/auth/provision/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+
+const CONTENT_MODE = process.env.NEXT_PUBLIC_CONTENT_MODE || 'nsfw';
 
 function getSupabaseAdmin() {
   return createClient(
@@ -69,7 +72,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 3. Upsert user_profiles
+    // 3. Upsert user_profiles (last-subdomain-wins for content_rating)
     if (supabaseAuthId) {
       const { error: profileError } = await supabaseAdmin
         .from('user_profiles')
@@ -78,6 +81,7 @@ export async function POST(request: NextRequest) {
             msisdn,
             supabase_auth_id: supabaseAuthId,
             updated_at: new Date().toISOString(),
+            content_rating: CONTENT_MODE,
           },
           { onConflict: 'msisdn' }
         );

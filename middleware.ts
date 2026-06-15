@@ -2,6 +2,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+const CONTENT_MODE = process.env.NEXT_PUBLIC_CONTENT_MODE || 'nsfw';
+
 function getSupabaseAdmin() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -93,6 +95,7 @@ async function handleGroobyteCallback(request: NextRequest): Promise<{ carrierUs
     jwt_exp: payload.exp ?? null,
     jwt_verified: false,
     notes: 'learning_phase_no_verification',
+    content_rating: CONTENT_MODE,
   });
 
   if (error) {
@@ -129,6 +132,7 @@ async function logVisit(request: NextRequest) {
     jwt_exp: null,
     jwt_verified: false,
     notes: 'visit_without_jwt',
+    content_rating: CONTENT_MODE,
   });
 
   if (error) {
