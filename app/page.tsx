@@ -53,14 +53,11 @@ export default async function GirlfriendPage() {
       <PageVisitTracker page="/" />
       <GFHeader />
 
-      {slides && slides.length > 0 && (
-        <div className={styles.sliderWrapper}>
-          <BannerSlider slides={slides} />
-        </div>
-      )}
-
       <main className={styles.main}>
         <div className={styles.cardsContainer}>
+          {slides && slides.length > 0 && (
+            <BannerSlider slides={slides} />
+          )}
           {girlfriends && girlfriends.map((gf) => (
             <GFCard
               key={gf.id}
