@@ -41,6 +41,7 @@ export default function BannerSlider({ slides }: BannerSliderProps) {
 
   const resetAutoplay = useCallback(() => {
     if (autoplayRef.current) clearInterval(autoplayRef.current);
+    if (count <= 1) return;
     autoplayRef.current = setInterval(() => {
       setCurrent((prev) => (prev + 1) % count);
     }, 4000);
@@ -96,16 +97,37 @@ export default function BannerSlider({ slides }: BannerSliderProps) {
       </div>
 
       {count > 1 && (
-        <div className={styles.dots}>
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              className={`${styles.dot} ${i === current ? styles.dotActive : ''}`}
-              onClick={() => { goTo(i); resetAutoplay(); }}
-              aria-label={`Slide ${i + 1}`}
-            />
-          ))}
-        </div>
+        <>
+          <button
+            className={`${styles.arrow} ${styles.arrowLeft}`}
+            onClick={() => { goTo(current - 1); resetAutoplay(); }}
+            aria-label="Previous slide"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+          <button
+            className={`${styles.arrow} ${styles.arrowRight}`}
+            onClick={() => { goTo(current + 1); resetAutoplay(); }}
+            aria-label="Next slide"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 6 15 12 9 18" />
+            </svg>
+          </button>
+
+          <div className={styles.dots}>
+            {slides.map((_, i) => (
+              <button
+                key={i}
+                className={`${styles.dot} ${i === current ? styles.dotActive : ''}`}
+                onClick={() => { goTo(i); resetAutoplay(); }}
+                aria-label={`Slide ${i + 1}`}
+              />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
