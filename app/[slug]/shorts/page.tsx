@@ -1,4 +1,4 @@
-// app/[slug]/gallery/page.tsx
+// app/[slug]/shorts/page.tsx
 import { supabase } from '@/lib/supabase';
 import { withContentFilter } from '@/lib/girlfriends';
 import { notFound } from 'next/navigation';
@@ -63,8 +63,8 @@ export async function generateMetadata({ params }: GalleryPageProps) {
   }
 
   return {
-    title: `${girlfriend.name} - Galería`,
-    description: `Galería de ${girlfriend.name}`,
+    title: `${girlfriend.name} - Shorts`,
+    description: `Shorts de ${girlfriend.name}`,
   };
 }
 

@@ -108,7 +108,7 @@ export default function GFSidebar({ isOpen, onClose, girlfriend, stage = 1, scor
           {/* My Private Content Button */}
           <div className={styles.privateContentSection}>
             <Link
-              href={`/${girlfriend.slug}/gallery`}
+              href={`/${girlfriend.slug}/shorts`}
               className={styles.privateContentButton}
               onClick={onClose}
             >

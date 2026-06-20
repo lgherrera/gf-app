@@ -50,7 +50,7 @@ export default function GalleryClient({ girlfriend, items }: GalleryClientProps)
 
       {/* Gallery Grid */}
       <div className={styles.content}>
-        <h2 className={styles.sectionTitle}>Galería</h2>
+        <h2 className={styles.sectionTitle}>Shorts</h2>
 
         {items.length === 0 ? (
           <div className={styles.emptyState}>
