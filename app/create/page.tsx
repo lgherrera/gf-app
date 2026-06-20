@@ -117,6 +117,16 @@ export default function CreatePage() {
   const [imagePrompt, setImagePrompt] = useState<string | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
+  /* track create page visit */
+  useEffect(() => {
+    const msisdn = document.cookie.match(/(^| )carrier_user_id=([^;]+)/)?.[2] || null;
+    fetch('/api/track-page-visit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ msisdn, userId, page: 'create' }),
+    }).catch(() => {});
+  }, [userId]);
+
   /* fetch voices when reaching voice step */
   useEffect(() => {
     if (step === 8 && voices.length === 0) {

@@ -80,6 +80,17 @@ function RenderImageContent() {
       .catch((err) => console.error("Error fetching usage:", err));
   }, [userId]);
 
+  /* track render image visit */
+  useEffect(() => {
+    if (!slug) return;
+    const msisdn = document.cookie.match(/(^| )carrier_user_id=([^;]+)/)?.[2] || null;
+    fetch('/api/track-page-visit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ msisdn, userId, page: 'render_image', girlfriendSlug: slug }),
+    }).catch(() => {});
+  }, [userId, slug]);
+
   // Refresh usage after generation
   const refreshUsage = () => {
     if (!userId) return;

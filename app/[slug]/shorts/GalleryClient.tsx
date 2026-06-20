@@ -1,7 +1,7 @@
-// app/[slug]/gallery/GalleryClient.tsx
+// app/[slug]/shorts/GalleryClient.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './GalleryClient.module.css';
 
@@ -27,6 +27,16 @@ interface GalleryClientProps {
 
 export default function GalleryClient({ girlfriend, items }: GalleryClientProps) {
   const [activeItem, setActiveItem] = useState<GalleryItem | null>(null);
+
+  /* track shorts visit */
+  useEffect(() => {
+    const msisdn = document.cookie.match(/(^| )carrier_user_id=([^;]+)/)?.[2] || null;
+    fetch('/api/track-page-visit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ msisdn, page: 'shorts', girlfriendSlug: girlfriend.slug }),
+    }).catch(() => {});
+  }, [girlfriend.slug]);
 
   return (
     <div className={styles.container}>
