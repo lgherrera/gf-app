@@ -84,7 +84,7 @@ export default function GFCard({
             muted
             playsInline
             preload="none"
-            onCanPlayThrough={() => setVideoReady(true)}
+            onPlaying={() => setVideoReady(true)}
           />
         )}
         
