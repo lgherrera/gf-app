@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
 
   const { data, error } = await supabase
     .from('girlfriends')
-    .select('id, slug, name, age, description, image_url')
+    .select('id, slug, name, age, description, image_url, animation_url')
     .eq('girlfriend_type', 'custom')
     .eq('created_by', userId)
     .eq('content_rating', CONTENT_MODE)

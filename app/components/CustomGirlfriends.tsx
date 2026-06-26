@@ -12,6 +12,7 @@ interface Girlfriend {
   age: number;
   description: string;
   image_url: string;
+  animation_url: string | null;
 }
 
 export default function CustomGirlfriends() {
@@ -40,6 +41,7 @@ export default function CustomGirlfriends() {
           age={gf.age}
           description={gf.description}
           image_url={gf.image_url}
+          animation_url={gf.animation_url}
         />
       ))}
     </>

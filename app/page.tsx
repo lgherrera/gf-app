@@ -7,10 +7,7 @@ import GFCard from '@/app/components/GFCard';
 import GFFooter from '@/app/components/GFFooter';
 import CustomGirlfriends from '@/app/components/CustomGirlfriends';
 import PageVisitTracker from '@/app/components/PageVisitTracker';
-import BannerSlider from '@/app/components/BannerSlider';
 import styles from './page.module.css';
-
-const contentMode = process.env.NEXT_PUBLIC_CONTENT_MODE || 'sfw';
 
 interface Girlfriend {
   id: string;
@@ -25,24 +22,16 @@ interface Girlfriend {
   fears: string[] | null;
   boundaries: string[] | null;
   image_url: string;
+  animation_url: string | null;
 }
 
 export default async function GirlfriendPage() {
-  const [{ data: girlfriends, error }, { data: slides }] = await Promise.all([
-    withContentFilter(
-      supabase
-        .from('girlfriends')
-        .select('id, slug, name, age, occupation, nationality, personality_traits, hobbies, likes, fears, boundaries, image_url')
-        .in('girlfriend_type', ['standard', 'premium'])
-    ).order('created_at', { ascending: false }) as Promise<{ data: Girlfriend[] | null; error: any }>,
-
+  const { data: girlfriends, error } = await withContentFilter(
     supabase
-      .from('slider')
-      .select('id, image_url, alt_text, href')
-      .eq('is_active', true)
-      .eq('content_rating', contentMode)
-      .order('created_at', { ascending: false }),
-  ]);
+      .from('girlfriends')
+      .select('id, slug, name, age, occupation, nationality, personality_traits, hobbies, likes, fears, boundaries, image_url, animation_url')
+      .in('girlfriend_type', ['standard', 'premium'])
+  ).order('created_at', { ascending: false }) as { data: Girlfriend[] | null; error: any };
 
   if (error) {
     console.error('Error fetching girlfriends:', error);
@@ -55,9 +44,6 @@ export default async function GirlfriendPage() {
 
       <main className={styles.main}>
         <div className={styles.cardsContainer}>
-          {slides && slides.length > 0 && (
-            <BannerSlider slides={slides} />
-          )}
           {girlfriends && girlfriends.map((gf) => (
             <GFCard
               key={gf.id}
@@ -67,6 +53,7 @@ export default async function GirlfriendPage() {
               age={gf.age}
               description={generateDescription(gf)}
               image_url={gf.image_url}
+              animation_url={gf.animation_url}
             />
           ))}
           <CustomGirlfriends />
