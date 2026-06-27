@@ -10,6 +10,8 @@ import CustomGirlfriends from '@/app/components/CustomGirlfriends';
 import PageVisitTracker from '@/app/components/PageVisitTracker';
 import styles from './page.module.css';
 
+export const dynamic = 'force-dynamic';
+
 interface Girlfriend {
   id: string;
   slug: string;
@@ -66,6 +68,11 @@ export default async function GirlfriendPage() {
       <GFHeader />
 
       <main className={styles.main}>
+        {/* TEMP DEBUG - remove after fixing */}
+        <p style={{ color: 'red', padding: '20px', fontSize: '18px' }}>
+          Slides: {slides ? slides.length : 'null'} | Error: {slidesError ? JSON.stringify(slidesError) : 'none'}
+        </p>
+
         {slides && slides.length > 0 && (
           <BannerSlider slides={slides} />
         )}
