@@ -44,16 +44,16 @@ export default async function GirlfriendPage() {
         .in('girlfriend_type', ['standard', 'premium'])
     ).order('created_at', { ascending: false }) as Promise<{ data: Girlfriend[] | null; error: any }>,
 
-    supabase
-      .from('slider')
-      .select('id, image_url, alt_text, href')
-      .order('sort_order', { ascending: true }) as unknown as Promise<{ data: Slide[] | null; error: any }>,
+    withContentFilter(
+      supabase
+        .from('slider')
+        .select('id, image_url, alt_text, href')
+        .eq('is_active', true)
+    ).order('sort_order', { ascending: true }) as unknown as Promise<{ data: Slide[] | null; error: any }>,
   ]);
 
   const { data: girlfriends, error } = girlfriendsResult;
   const { data: slides, error: slidesError } = slidesResult;
-
-  console.log('Slides fetched:', slides?.length, slidesError);
 
   if (error) {
     console.error('Error fetching girlfriends:', error);
@@ -68,11 +68,6 @@ export default async function GirlfriendPage() {
       <GFHeader />
 
       <main className={styles.main}>
-        {/* TEMP DEBUG - remove after fixing */}
-        <p style={{ color: 'red', padding: '20px', fontSize: '18px' }}>
-          Slides: {slides ? slides.length : 'null'} | Error: {slidesError ? JSON.stringify(slidesError) : 'none'}
-        </p>
-
         {slides && slides.length > 0 && (
           <BannerSlider slides={slides} />
         )}
