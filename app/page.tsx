@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { withContentFilter } from '@/lib/girlfriends';
 import { generateDescription } from '@/lib/gf-description';
 import GFHeader from '@/app/components/GFHeader';
+import BannerSlider from '@/app/components/BannerSlider';
 import GFCard from '@/app/components/GFCard';
 import GFFooter from '@/app/components/GFFooter';
 import CustomGirlfriends from '@/app/components/CustomGirlfriends';
@@ -25,16 +26,37 @@ interface Girlfriend {
   animation_url: string | null;
 }
 
+interface Slide {
+  id: string;
+  image_url: string;
+  alt_text: string | null;
+  href: string;
+}
+
 export default async function GirlfriendPage() {
-  const { data: girlfriends, error } = await withContentFilter(
-    supabase
-      .from('girlfriends')
-      .select('id, slug, name, age, occupation, nationality, personality_traits, hobbies, likes, fears, boundaries, image_url, animation_url')
-      .in('girlfriend_type', ['standard', 'premium'])
-  ).order('created_at', { ascending: false }) as { data: Girlfriend[] | null; error: any };
+  const [girlfriendsResult, slidesResult] = await Promise.all([
+    withContentFilter(
+      supabase
+        .from('girlfriends')
+        .select('id, slug, name, age, occupation, nationality, personality_traits, hobbies, likes, fears, boundaries, image_url, animation_url')
+        .in('girlfriend_type', ['standard', 'premium'])
+    ).order('created_at', { ascending: false }) as Promise<{ data: Girlfriend[] | null; error: any }>,
+
+    withContentFilter(
+      supabase
+        .from('slider')
+        .select('id, image_url, alt_text, href')
+    ).order('sort_order', { ascending: true }) as Promise<{ data: Slide[] | null; error: any }>,
+  ]);
+
+  const { data: girlfriends, error } = girlfriendsResult;
+  const { data: slides, error: slidesError } = slidesResult;
 
   if (error) {
     console.error('Error fetching girlfriends:', error);
+  }
+  if (slidesError) {
+    console.error('Error fetching slides:', slidesError);
   }
 
   return (
@@ -43,6 +65,10 @@ export default async function GirlfriendPage() {
       <GFHeader />
 
       <main className={styles.main}>
+        {slides && slides.length > 0 && (
+          <BannerSlider slides={slides} />
+        )}
+
         <div className={styles.cardsContainer}>
           {girlfriends && girlfriends.map((gf) => (
             <GFCard
