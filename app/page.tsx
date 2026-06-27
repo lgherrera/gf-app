@@ -45,7 +45,7 @@ export default async function GirlfriendPage() {
     supabase
       .from('slider')
       .select('id, image_url, alt_text, href')
-      .order('sort_order', { ascending: true }) as Promise<{ data: Slide[] | null; error: any }>,
+      .order('sort_order', { ascending: true }) as unknown as Promise<{ data: Slide[] | null; error: any }>,
   ]);
 
   const { data: girlfriends, error } = girlfriendsResult;
