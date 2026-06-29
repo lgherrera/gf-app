@@ -19,7 +19,7 @@ export default function PageVisitTracker({ page }: { page: string }) {
 
     const msisdn = getCookie('carrier_user_id') || 'unknown';
 
-    fetch('/api/track-visit', {
+    fetch('/api/track-page-visit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ msisdn, page, userId }),

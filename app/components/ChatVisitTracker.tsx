@@ -19,10 +19,15 @@ export default function ChatVisitTracker({ girlfriendSlug }: { girlfriendSlug: s
 
     const msisdn = getCookie('carrier_user_id') || 'unknown';
 
-    fetch('/api/track-chat-visit', {
+    fetch('/api/track-page-visit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ msisdn, userId, girlfriendSlug }),
+      body: JSON.stringify({
+        msisdn,
+        userId,
+        page: `/${girlfriendSlug}/chat`,
+        girlfriendSlug,
+      }),
     }).catch(console.error);
   }, [userId]);
 
