@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import styles from './Sidebar.module.css';
 
-const appSource = process.env.NEXT_PUBLIC_APP_SOURCE || 'sfw';
+const appSource = process.env.NEXT_PUBLIC_CONTENT_MODE || 'sfw';
 
 interface SidebarProps {
   isOpen: boolean;

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { OpeningScene, Message } from '../utils/types';
 import { generateMessageId, personalizeLine } from '../utils/messages';
 
-const contentRating = process.env.NEXT_PUBLIC_APP_SOURCE || 'sfw';
+const contentRating = process.env.NEXT_PUBLIC_CONTENT_MODE || 'sfw';
 
 interface OpeningScenesResult {
   scenes: OpeningScene[];

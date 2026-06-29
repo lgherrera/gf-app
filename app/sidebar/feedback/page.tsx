@@ -6,7 +6,7 @@ import GFHeader from '@/app/components/GFHeader';
 import GFFooter from '@/app/components/GFFooter';
 import styles from './page.module.css';
 
-const appSource = process.env.NEXT_PUBLIC_APP_SOURCE || 'sfw';
+const appSource = process.env.NEXT_PUBLIC_CONTENT_MODE || 'sfw';
 
 export default function FeedbackPage() {
   const [message, setMessage] = useState('');

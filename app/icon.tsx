@@ -5,7 +5,7 @@ export const size = { width: 32, height: 32 }
 export const contentType = 'image/png'
 
 export default function Icon() {
-  const isNSFW = process.env.NEXT_PUBLIC_APP_SOURCE === 'nsfw'
+  const isNSFW = process.env.NEXT_PUBLIC_CONTENT_MODE === 'nsfw'
 
   return new ImageResponse(
     (

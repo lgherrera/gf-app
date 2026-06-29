@@ -180,7 +180,7 @@ export async function POST(req: NextRequest) {
     }
 
     const resultSeed    = (result.data as { seed?: number })?.seed ?? resolvedSeed;
-    const contentRating = process.env.NEXT_PUBLIC_APP_SOURCE || "sfw";
+    const contentRating = process.env.NEXT_PUBLIC_CONTENT_MODE || "sfw";
 
     // Upload to S3 and save to DB if userId is provided
     let finalImageUrl = falImageUrl;
@@ -251,7 +251,7 @@ export async function POST(req: NextRequest) {
             aspect_ratio: aspectRatio || null,
             model: model || "seedream",
             seed: null,
-            content_rating: process.env.NEXT_PUBLIC_APP_SOURCE || "sfw",
+            content_rating: process.env.NEXT_PUBLIC_CONTENT_MODE || "sfw",
             status: "censored",
           });
         } catch (dbErr) {

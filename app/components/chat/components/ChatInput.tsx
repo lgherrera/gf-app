@@ -5,7 +5,7 @@ import React, { useRef, useEffect } from 'react';
 import Link from 'next/link';
 import styles from '../ChatInterface.module.css';
 
-const contentRating = process.env.NEXT_PUBLIC_APP_SOURCE || 'sfw';
+const contentRating = process.env.NEXT_PUBLIC_CONTENT_MODE || 'sfw';
 const accentColor = contentRating === 'nsfw' ? '#e60049' : '#348cd4';
 
 interface ChatInputProps {

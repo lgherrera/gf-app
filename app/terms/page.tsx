@@ -3,7 +3,7 @@
 
 import styles from "./terms.module.css";
 
-const isNSFW = process.env.NEXT_PUBLIC_APP_SOURCE === "nsfw";
+const isNSFW = process.env.NEXT_PUBLIC_CONTENT_MODE === "nsfw";
 const BRAND_COLOR = isNSFW ? "#e60049" : "#348cd4";
 
 export default function TermsPage() {

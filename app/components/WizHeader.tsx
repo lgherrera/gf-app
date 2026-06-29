@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import styles from './WizHeader.module.css';
 
-const logoSrc = process.env.NEXT_PUBLIC_APP_SOURCE === 'nsfw'
+const logoSrc = process.env.NEXT_PUBLIC_CONTENT_MODE === 'nsfw'
   ? '/gf_logo.jpg'
   : '/friends_logo.jpg';
 

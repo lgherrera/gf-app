@@ -98,7 +98,7 @@ const OUTFIT_OPTIONS_ALL = [
   { value: 'sexy and revealing sports outfit, revealing top, at the gym',     label: 'Entrenadora Personal',   mode: 'nsfw' },
 ];
 
-const contentMode = process.env.NEXT_PUBLIC_APP_SOURCE === 'nsfw' ? 'nsfw' : 'sfw';
+const contentMode = process.env.NEXT_PUBLIC_CONTENT_MODE === 'nsfw' ? 'nsfw' : 'sfw';
 const OUTFIT_OPTIONS = OUTFIT_OPTIONS_ALL.filter((o) => o.mode === contentMode);
 
 /* ── component ───────────────────────────────────── */
