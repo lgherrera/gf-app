@@ -10,6 +10,9 @@ export const maxDuration = 120;
 
 const MONTHLY_LIMIT = 20;
 
+// Deployment axis (mi/sexy/polola). Currently still holds sfw/nsfw until env flip.
+const APP_SOURCE = process.env.NEXT_PUBLIC_APP_SOURCE || "unknown";
+
 const RATIO_TO_SIZE_V4: Record<string, { width: number; height: number } | string> = {
   "16:9": "landscape_16_9",
   "9:16": "portrait_16_9",
@@ -209,6 +212,7 @@ export async function POST(req: NextRequest) {
           model: model || "seedream",
           seed: resultSeed,
           content_rating: contentRating,
+          source: APP_SOURCE,
           status: "trashed",
         }).select("id").single();
         if (dbError) {
@@ -252,6 +256,7 @@ export async function POST(req: NextRequest) {
             model: model || "seedream",
             seed: null,
             content_rating: process.env.NEXT_PUBLIC_CONTENT_MODE || "sfw",
+            source: APP_SOURCE,
             status: "censored",
           });
         } catch (dbErr) {

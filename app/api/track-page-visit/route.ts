@@ -7,7 +7,10 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+// Content axis (sfw/nsfw)
 const CONTENT_MODE = process.env.NEXT_PUBLIC_CONTENT_MODE || 'nsfw';
+// Deployment axis (mi/sexy/polola)
+const APP_SOURCE = process.env.NEXT_PUBLIC_APP_SOURCE || 'unknown';
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,6 +26,7 @@ export async function POST(req: NextRequest) {
       page,
       girlfriend_slug: girlfriendSlug || null,
       content_rating: CONTENT_MODE,
+      source: APP_SOURCE,
     });
 
     if (error) {
