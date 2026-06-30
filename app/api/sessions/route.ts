@@ -8,9 +8,12 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+// Deployment axis (mi/sexy/polola), stamped server-side — client value is ignored.
+const APP_SOURCE = process.env.NEXT_PUBLIC_APP_SOURCE || 'unknown';
+
 export async function POST(request: NextRequest) {
   try {
-    const { sessionId, source, userId, girlfriendId } = await request.json();
+    const { sessionId, userId, girlfriendId } = await request.json();
 
     if (!sessionId || !userId || !girlfriendId) {
       return NextResponse.json(
@@ -18,6 +21,13 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Look up the girlfriend for the authoritative content_rating.
+    const { data: girlfriend } = await supabase
+      .from('girlfriends')
+      .select('content_rating')
+      .eq('id', girlfriendId)
+      .single();
 
     // Try to insert the session
     const { data, error } = await supabase
@@ -27,7 +37,8 @@ export async function POST(request: NextRequest) {
           session_id: sessionId,
           user_id: userId,
           girlfriend_id: girlfriendId,
-          source: source || 'unknown',
+          source: APP_SOURCE,
+          content_rating: girlfriend?.content_rating ?? null,
         },
         { onConflict: 'session_id,girlfriend_id' }
       )
