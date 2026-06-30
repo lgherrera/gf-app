@@ -54,7 +54,10 @@ export async function POST(req: Request) {
       );
     }
 
+    // Content axis (sfw/nsfw) — used for the content-filter query below.
     const CONTENT_MODE = process.env.NEXT_PUBLIC_CONTENT_MODE as string;
+    // Deployment axis (mi/sexy/polola) — stamped on every stats row as `source`.
+    const APP_SOURCE = process.env.NEXT_PUBLIC_APP_SOURCE as string;
 
     // Fetch girlfriend, user progress, and user profile in parallel
     const [{ data: girlfriend, error: girlfriendError }, { data: progress }, { data: userProfile }] = await Promise.all([
@@ -153,7 +156,9 @@ export async function POST(req: Request) {
       total_cost: usage?.total_cost || null,
       generation_time_ms: generationTime,
       finish_reason: data.choices?.[0]?.finish_reason || null,
-      raw_metadata: data
+      raw_metadata: data,
+      source: APP_SOURCE,
+      content_rating: girlfriend.content_rating,
     };
 
     const { error: metaError } = await supabase
@@ -186,7 +191,9 @@ export async function POST(req: Request) {
           girlfriend_id: girlfriendId,
           role: 'user',
           content: userMessage.content,
-          source: CONTENT_MODE,
+          source: APP_SOURCE,
+          content_rating: girlfriend.content_rating,
+          girlfriend_name: girlfriend.name,
           session_id: sessionId || null,
           created_at: now.toISOString(),
           input_type: userInputType,
@@ -196,7 +203,9 @@ export async function POST(req: Request) {
           girlfriend_id: girlfriendId,
           role: 'assistant',
           content: assistantMessage,
-          source: CONTENT_MODE,
+          source: APP_SOURCE,
+          content_rating: girlfriend.content_rating,
+          girlfriend_name: girlfriend.name,
           session_id: sessionId || null,
           created_at: assistantTime.toISOString(),
           input_type: 'text',
