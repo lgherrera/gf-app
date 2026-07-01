@@ -11,6 +11,9 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+// Deployment axis (mi/sexy/polola). Currently still holds sfw/nsfw until env flip.
+const APP_SOURCE = process.env.NEXT_PUBLIC_APP_SOURCE || 'unknown';
+
 const ageMap: Record<string, number> = {
   '18-19': 18,
   '20s': 25,
@@ -136,6 +139,7 @@ export async function POST(request: Request) {
       girlfriend_type: 'custom',
       created_by: userId,
       content_rating: process.env.NEXT_PUBLIC_CONTENT_MODE || 'sfw',
+      source: APP_SOURCE,
       personality: config.personality,
       personality_traits: personalityTraits,
       is_active: true,
